@@ -21,8 +21,8 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - [x] Tests dafür, auch mit sehr großen Zahlen
 
 ### Etappe 2: Die Bahn
-- [ ] Wurfzone und eine Bahn mit sechs Zonen zu je fünf Wänden aus einfachen Parts
-- [ ] Wände existieren nur auf dem Client und brechen nur für den eigenen Spieler sichtbar
+- [x] Wurfzone und eine Bahn mit sechs Zonen zu je fünf Wänden aus einfachen Parts
+- [x] Wände existieren nur auf dem Client und brechen nur für den eigenen Spieler sichtbar
 
 ### Etappe 3: Der Wurf
 - [ ] Wurf auslösen, Server berechnet das Ergebnis

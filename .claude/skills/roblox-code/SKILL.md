@@ -78,4 +78,12 @@ Reihenfolge in jedem Handler:
 ## Bekannte Fallen
 Jeder Fehler, der uns Zeit gekostet hat, kommt hier hinein: was passiert ist, Ursache, Regel.
 
-(noch keine)
+- **Screenshot im Spielmodus schwarz.** Ursache: Aufnahme direkt nach dem Start, das Spiel
+  lädt noch. Regel: Nach dem Start mindestens 3 Sekunden warten, bevor ein Screenshot gemacht wird.
+- **Spiel lief mit altem Code.** Ursache: Play wurde gestartet, bevor Rojo die Änderungen nach
+  Studio übertragen hatte. Regel: Vor dem Start im Edit-Modus prüfen, ob die geänderte Datei
+  in Studio angekommen ist (z. B. `Source` des Skripts per MCP lesen).
+- **Englische Bezeichnungen in Studio-Anleitungen.** Ursache: Die Studio-Oberfläche des Nutzers
+  ist auf Deutsch, z. B. heißt "Cleanup" dort "Sitzung beenden". Regel: In Schritt-für-Schritt-
+  Anleitungen die deutschen Bezeichnungen nennen. Wenn die deutsche Bezeichnung nicht sicher
+  bekannt ist, die englische in Klammern dazuschreiben und das offen sagen.

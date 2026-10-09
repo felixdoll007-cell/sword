@@ -26,7 +26,7 @@ return {
 	wallHeight = 16,
 	wallThickness = 2,
 
-	-- Invisible barrier on the throw line, so players cannot walk onto the lane.
+	-- Invisible barriers on the throw line and along both sides, so players cannot walk onto the lane.
 	barrierHeight = 20,
 	barrierThickness = 1,
 

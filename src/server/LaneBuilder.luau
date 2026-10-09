@@ -66,6 +66,25 @@ function LaneBuilder.build()
 	barrier.CastShadow = false
 	barrier.Parent = folder
 
+	-- Invisible barriers along both sides, so players cannot walk onto the lane from the side.
+	for _, side in { -1, 1 } do
+		local sideBarrier = Instance.new("Part")
+		setUpPart(
+			sideBarrier,
+			"SideBarrier",
+			Vector3.new(LaneConfig.barrierThickness, LaneConfig.barrierHeight, laneLength),
+			Vector3.new(
+				x + side * (LaneConfig.laneWidth + LaneConfig.barrierThickness) / 2,
+				LaneConfig.floorTopY + LaneConfig.barrierHeight / 2,
+				z - laneLength / 2
+			),
+			LaneConfig.floorColor
+		)
+		sideBarrier.Transparency = 1
+		sideBarrier.CastShadow = false
+		sideBarrier.Parent = folder
+	end
+
 	folder.Parent = Workspace
 end
 
