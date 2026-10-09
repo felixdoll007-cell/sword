@@ -14,11 +14,11 @@ Studio getestet wurde.
 Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Parts.
 
 ### Etappe 1: Regeln und Config
-- [ ] Config mit Materialien, Wänden pro Zone, Härteformel, Belohnung und Startwerten (sechs Zonen mit je fünf Wänden)
-- [ ] Wände als reine Funktion aus der Config berechnet
-- [ ] Wurfberechnung als reine Funktion: Wurfkraft rein, Liste der durchbrochenen Wände und Belohnung raus
-- [ ] Zahlen abkürzen als reine Funktion (1.5K, 3.2M, ...)
-- [ ] Tests dafür, auch mit sehr großen Zahlen
+- [x] Config mit Materialien, Wänden pro Zone, Härteformel, Belohnung und Startwerten (sechs Zonen mit je fünf Wänden)
+- [x] Wände als reine Funktion aus der Config berechnet
+- [x] Wurfberechnung als reine Funktion: Wurfkraft rein, Liste der durchbrochenen Wände und Belohnung raus
+- [x] Zahlen abkürzen als reine Funktion (1.5K, 3.2M, ...)
+- [x] Tests dafür, auch mit sehr großen Zahlen
 
 ### Etappe 2: Die Bahn
 - [ ] Wurfzone und eine Bahn mit sechs Zonen zu je fünf Wänden aus einfachen Parts
