@@ -12,6 +12,7 @@ local Remotes = require(Shared.Remotes)
 local LaneConfig = require(Shared.Config.Lane)
 local TrainingConfig = require(Shared.Config.Training)
 
+local ArmSwing = require(script.Parent.ArmSwing)
 local SwordView = require(script.Parent.SwordView)
 local WallEffects = require(script.Parent.WallEffects)
 
@@ -66,7 +67,7 @@ local function breakWall()
 	end)
 end
 
-local function playThrow()
+local function launchSword()
 	local character = Players.LocalPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if not root or not root:IsA("BasePart") then
@@ -96,7 +97,11 @@ end
 
 function TrainingView.start()
 	buildWall()
-	Remotes.TrainingThrow.OnClientEvent:Connect(playThrow)
+	Remotes.TrainingThrow.OnClientEvent:Connect(function()
+		-- Arm swings first, the sword leaves when the arm moves forward.
+		ArmSwing.play()
+		task.delay(ArmSwing.releaseDelay(), launchSword)
+	end)
 end
 
 return TrainingView

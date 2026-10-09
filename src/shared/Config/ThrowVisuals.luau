@@ -48,6 +48,15 @@ return {
 	stuckTiltDegrees = 60,
 	stuckDepth = 1.5,
 
+	-- Arm swing of the character when throwing, made by turning the right shoulder joint from code.
+	-- Angles in degrees: 0 = arm hanging down, 90 = pointing forward, 180 = straight up, more = behind the head.
+	-- The arm goes up and back (windUp), then whips forward to the release angle, then hangs down again.
+	armWindUpDegrees = 200,
+	armReleaseDegrees = 70,
+	armWindUpSeconds = 0.15,
+	armThrowSeconds = 0.08,
+	armReturnSeconds = 0.2,
+
 	-- Safety: if a throw has not ended this many seconds after its planned end, it is ended anyway.
 	safetyExtraSeconds = 2,
 }
