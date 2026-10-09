@@ -18,6 +18,9 @@ return {
 	-- Without a second press, the meter disappears after this time.
 	timeoutSeconds = 6,
 
+	-- Client: if the server does not answer a press within this time, give up and let the player try again.
+	responseTimeoutSeconds = 2,
+
 	-- How long "x1.4" stays on screen after the press.
 	factorDisplaySeconds = 1.2,
 }

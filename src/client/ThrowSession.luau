@@ -17,11 +17,13 @@ local FlightPlan = require(Shared.Rules.FlightPlan)
 local ThrowCalculation = require(Shared.Rules.ThrowCalculation)
 
 local CameraFollow = require(script.Parent.CameraFollow)
+local CharacterFreeze = require(script.Parent.CharacterFreeze)
 local LaneView = require(script.Parent.LaneView)
 local SwordView = require(script.Parent.SwordView)
 local WallEffects = require(script.Parent.WallEffects)
 
 local RENDER_STEP_NAME = "ThrowSession"
+local FREEZE_REASON = "Throw"
 
 local ThrowSession = {}
 
@@ -92,16 +94,9 @@ function ThrowSession.start(throwPower: number)
 	end
 
 	-- Freeze the character. Speed and jump come back in any case.
-	local oldWalkSpeed = humanoid.WalkSpeed
-	local oldJumpPower = humanoid.JumpPower
-	local oldJumpHeight = humanoid.JumpHeight
-	humanoid.WalkSpeed = 0
-	humanoid.JumpPower = 0
-	humanoid.JumpHeight = 0
+	CharacterFreeze.freeze(FREEZE_REASON)
 	table.insert(cleanupTasks, function()
-		humanoid.WalkSpeed = oldWalkSpeed
-		humanoid.JumpPower = oldJumpPower
-		humanoid.JumpHeight = oldJumpHeight
+		CharacterFreeze.release(FREEZE_REASON)
 	end)
 
 	local sword = SwordView.create()
