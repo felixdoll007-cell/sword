@@ -10,6 +10,13 @@ local function expect(actual)
 				error(`expected {tostring(expected)}, got {tostring(actual)}`, 2)
 			end
 		end,
+		-- For decimal numbers: allows a tiny relative difference from rounding.
+		toBeNear = function(expected)
+			local tolerance = math.abs(expected) * 1e-9
+			if typeof(actual) ~= "number" or math.abs(actual - expected) > tolerance then
+				error(`expected about {tostring(expected)}, got {tostring(actual)}`, 2)
+			end
+		end,
 	}
 end
 
