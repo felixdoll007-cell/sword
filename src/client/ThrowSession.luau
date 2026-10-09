@@ -21,6 +21,7 @@ local CameraFollow = require(script.Parent.CameraFollow)
 local CharacterFreeze = require(script.Parent.CharacterFreeze)
 local LaneView = require(script.Parent.LaneView)
 local SwordView = require(script.Parent.SwordView)
+local StatsView = require(script.Parent.StatsView)
 local WallEffects = require(script.Parent.WallEffects)
 
 local RENDER_STEP_NAME = "ThrowSession"
@@ -110,6 +111,8 @@ function ThrowSession.start(throwPower: number)
 	table.insert(cleanupTasks, CameraFollow.stop)
 	table.insert(cleanupTasks, LaneView.resetWalls)
 	table.insert(cleanupTasks, WallEffects.clearScratch)
+	-- Now the result may be seen: show the new values with "+...".
+	table.insert(cleanupTasks, StatsView.release)
 
 	-- Ways a throw can end early.
 	local connections = {

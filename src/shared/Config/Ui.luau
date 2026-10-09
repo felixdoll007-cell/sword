@@ -61,21 +61,27 @@ return {
 		decimals = 1,
 	},
 
-	-- Current strength, plain text at the top center. Still without design (Version 4).
-	strengthLabel = {
-		prefix = "Strength: ",
+	-- Strength and currency, plain text side by side at the top center. Still without design (Version 4).
+	stats = {
+		strengthPrefix = "Strength: ",
+		-- The currency has no name yet (open point in the design); this is a placeholder.
+		currencyPrefix = "Coins: ",
 		heightScale = 0.06,
 		minHeight = 28,
-		widthScale = 0.5,
+		-- Width of each of the two texts.
+		widthScale = 0.28,
 		positionY = 0.02,
 		textColor = { 255, 255, 255 },
 		strokeColor = { 0, 0, 0 },
+		-- During a throw the new values are held back and shown when the throw has ended.
+		-- Safety: never hold them longer than this.
+		maxHoldSeconds = 12,
 	},
 
-	-- "+1" that rises and fades below the strength text after each training throw.
+	-- "+..." that rises and fades below a value whenever it grows.
 	gainPopup = {
 		color = { 120, 255, 120 },
-		-- Start and end height, as a share of the strength text height below its top edge.
+		-- Start and end height, as a share of the text height below its top edge.
 		startY = 1.6,
 		endY = 0.9,
 		seconds = 0.7,

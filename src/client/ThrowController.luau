@@ -26,6 +26,7 @@ local Meter = require(Shared.Rules.Meter)
 
 local CharacterFreeze = require(script.Parent.CharacterFreeze)
 local MeterView = require(script.Parent.MeterView)
+local StatsView = require(script.Parent.StatsView)
 local ThrowSession = require(script.Parent.ThrowSession)
 
 local FREEZE_REASON = "Meter"
@@ -83,6 +84,8 @@ local function onPress()
 		-- Stop the pointer where the player saw it.
 		MeterView.setPointer(Meter.position(MeterConfig, meterStartTime, meterStartPhase, pressTime))
 		setStep("waitingForThrow")
+		-- The server credits the reward right away; keep the old values on screen until the throw ends.
+		StatsView.hold()
 		Remotes.ThrowRequested:FireServer(pressTime)
 	end
 end
@@ -113,6 +116,10 @@ local function onThrowStarted(throwPower: unknown, factor: unknown)
 	backToIdle()
 	MeterView.showFactor(factor :: number, MeterConfig.factorDisplaySeconds)
 	ThrowSession.start(throwPower :: number)
+	if not ThrowSession.isActive() then
+		-- The throw could not be played (e.g. character just died): show the values now.
+		StatsView.release()
+	end
 end
 
 -- Runs every frame: moves the pointer and ends steps that took too long.
@@ -127,6 +134,9 @@ local function update(button: TextButton)
 		end
 	elseif step == "waitingForMeter" or step == "waitingForThrow" then
 		if time - stepStartedAt > MeterConfig.responseTimeoutSeconds then
+			if step == "waitingForThrow" then
+				StatsView.release()
+			end
 			backToIdle()
 		end
 	end
