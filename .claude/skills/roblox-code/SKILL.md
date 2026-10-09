@@ -89,6 +89,9 @@ Jeder Fehler, der uns Zeit gekostet hat, kommt hier hinein: was passiert ist, Ur
 
 - **Screenshot im Spielmodus schwarz.** Ursache: Aufnahme direkt nach dem Start, das Spiel
   lädt noch. Regel: Nach dem Start mindestens 3 Sekunden warten, bevor ein Screenshot gemacht wird.
+  Kann auch lange nach dem Start auftreten (beobachtet im veröffentlichten Ort). Regel: Sichtbares
+  zusätzlich mit Messwerten prüfen (z. B. `WorldToViewportPoint`) und das Aussehen vom Nutzer
+  bestätigen lassen.
 - **Spiel lief mit altem Code.** Ursache: Play wurde gestartet, bevor Rojo die Änderungen nach
   Studio übertragen hatte. Regel: Vor dem Start im Edit-Modus prüfen, ob die geänderte Datei
   in Studio angekommen ist (z. B. `Source` des Skripts per MCP lesen).

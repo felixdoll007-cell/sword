@@ -52,16 +52,19 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - [x] Aus Etappe 7 vorgezogen: Stärke als schlichter Text, abgekürzt, mit "+1" bei jedem Trainingswurf
 
 ### Etappe 6: Belohnung und Speichern
-- [ ] Währung nach Wurfweite und Stärke aus dem Hauptwurf; der Server schreibt beim Berechnen gut, der Client zeigt die neuen Werte nach dem Flug mit "+..."
-- [ ] Speichern und Laden mit ProfileStore (Session-Locking), Versionsnummer, fehlende Felder auffüllen, Zwischenspeichern aus der Config
-- [ ] Trennung der Testdaten: eigenes privates Test-Spiel, Speichername mit Umgebung, Testwerte werden nie gespeichert (Mock)
-- [ ] Aus Etappe 7 vorgezogen: Währung als schlichter Text neben der Stärke
+- [x] Währung nach Wurfweite und Stärke aus dem Hauptwurf; der Server schreibt beim Berechnen gut, der Client zeigt die Belohnung Wand für Wand während des Flugs ("+..." fliegt über dem Schwert mit, Zonen-Bonus größer, Zahlen oben zählen mit und stimmen am Ende exakt mit dem Server überein)
+- [x] Speichern und Laden mit ProfileStore (Session-Locking), Versionsnummer, fehlende Felder auffüllen, Zwischenspeichern aus der Config
+- [x] Trennung der Testdaten: eigenes privates Test-Spiel, Speichername mit Umgebung, Testwerte werden nie gespeichert (Mock)
+- [x] Aus Etappe 7 vorgezogen: Währung als schlichter Text neben der Stärke
 - Entschieden: ProfileStore 1.0.3, unverändert in `src/server/Packages`, geprüft (siehe Notiz dort).
 
 ### Etappe 7: Einfache Anzeige der Werte
-- Stärke (Etappe 5) und Währung (Etappe 6) sind schon vorgezogen. Hier bleibt nur der Gesamt-Test.
+- [x] Stärke und Währung auf dem Bildschirm, abgekürzt, noch ohne Gestaltung
+- Erledigt durch Vorziehen: Stärke in Etappe 5, Währung in Etappe 6. Keine eigene Arbeit mehr nötig.
 
-**Dann testen:** Macht der Wurf Spaß? Erst danach geht es weiter.
+**Stand 10.10.2026: Version 1 ist gebaut.** Alle Etappen 0 bis 7 sind erledigt und in Studio getestet.
+
+**Als Nächstes: Spieltest.** Macht der Wurf Spaß? Erst danach geht es weiter.
 
 ## Bekannte Einschränkungen (später verbessern)
 - Anzeige bei sehr schlechter Verbindung: Nach dem zweiten Druck kann der Zeiger bis zu 2 Sekunden stehen bleiben, bevor das Schwert fliegt, weil der Client auf die Antwort des Servers wartet. Idee für später: Schwert sofort lokal starten und mit der Antwort abgleichen.
