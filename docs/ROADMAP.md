@@ -6,7 +6,7 @@ Studio getestet wurde.
 ## Etappe 0: Setup prüfen
 - [x] `.\check.ps1` ist grün
 - [x] `rojo serve` läuft, Studio ist verbunden, eine Änderung in `src/` erscheint in Studio
-- [ ] Privates GitHub-Repo angelegt, erster Push
+- [x] Privates GitHub-Repo angelegt, erster Push
 - [x] Code-Skill angelegt
 
 ## Version 1: Fühlt sich der Wurf gut an?
