@@ -1,17 +1,27 @@
 --!strict
--- Builds what every player sees: the throw zone and the lane floor.
--- The walls are NOT built here. Each client builds its own (see client/LaneView).
+-- Builds what every player sees: throw zone, main lane floor, training pad and training lane floor,
+-- plus invisible barriers so nobody walks onto a lane.
+-- The walls are NOT built here. Each client builds its own (see client/LaneView, client/TrainingView).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
-local LaneConfig = require(ReplicatedStorage.Shared.Config.Lane)
-local WallConfig = require(ReplicatedStorage.Shared.Config.Walls)
-local LaneLayout = require(ReplicatedStorage.Shared.Rules.LaneLayout)
+local Shared = ReplicatedStorage.Shared
+local LaneConfig = require(Shared.Config.Lane)
+local TrainingConfig = require(Shared.Config.Training)
+local WallConfig = require(Shared.Config.Walls)
+local LaneLayout = require(Shared.Rules.LaneLayout)
 
 local LaneBuilder = {}
 
-local function setUpPart(part: BasePart, name: string, size: Vector3, position: Vector3, color: { number })
+local function addPart(
+	folder: Folder,
+	part: BasePart,
+	name: string,
+	size: Vector3,
+	position: Vector3,
+	color: { number }
+): BasePart
 	part.Name = name
 	part.Anchored = true
 	part.Size = size
@@ -19,73 +29,111 @@ local function setUpPart(part: BasePart, name: string, size: Vector3, position: 
 	part.Color = Color3.fromRGB(color[1], color[2], color[3])
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Parent = folder
+	return part
 end
 
-function LaneBuilder.build()
+local function floorCenterY(): number
+	return LaneConfig.floorTopY - LaneConfig.floorThickness / 2
+end
+
+local function addInvisibleBarrier(folder: Folder, name: string, size: Vector3, x: number, z: number)
+	local barrier = addPart(
+		folder,
+		Instance.new("Part"),
+		name,
+		size,
+		Vector3.new(x, LaneConfig.floorTopY + LaneConfig.barrierHeight / 2, z),
+		LaneConfig.floorColor
+	)
+	barrier.Transparency = 1
+	barrier.CastShadow = false
+end
+
+-- A lane floor that starts at startZ and runs towards negative Z, fenced on the front and both sides.
+local function addFencedLane(
+	folder: Folder,
+	x: number,
+	startZ: number,
+	width: number,
+	length: number,
+	color: { number }
+)
+	addPart(
+		folder,
+		Instance.new("Part"),
+		"Floor",
+		Vector3.new(width, LaneConfig.floorThickness, length),
+		Vector3.new(x, floorCenterY(), startZ - length / 2),
+		color
+	)
+
+	local thickness = LaneConfig.barrierThickness
+	local height = LaneConfig.barrierHeight
+	addInvisibleBarrier(folder, "FrontBarrier", Vector3.new(width, height, thickness), x, startZ - thickness / 2)
+	for _, side in { -1, 1 } do
+		addInvisibleBarrier(
+			folder,
+			"SideBarrier",
+			Vector3.new(thickness, height, length),
+			x + side * (width + thickness) / 2,
+			startZ - length / 2
+		)
+	end
+end
+
+local function buildMainLane()
 	local folder = Instance.new("Folder")
 	folder.Name = "Lane"
 
 	local x = LaneConfig.throwLine.x
 	local z = LaneConfig.throwLine.z
-	local floorCenterY = LaneConfig.floorTopY - LaneConfig.floorThickness / 2
-
-	-- The lane runs towards negative Z, the throw zone lies behind the throw line.
-	local laneLength = LaneLayout.laneLength(LaneConfig, WallConfig)
-	local floor = Instance.new("Part")
-	setUpPart(
-		floor,
-		"Floor",
-		Vector3.new(LaneConfig.laneWidth, LaneConfig.floorThickness, laneLength),
-		Vector3.new(x, floorCenterY, z - laneLength / 2),
+	addFencedLane(
+		folder,
+		x,
+		z,
+		LaneConfig.laneWidth,
+		LaneLayout.laneLength(LaneConfig, WallConfig),
 		LaneConfig.floorColor
 	)
-	floor.Parent = folder
 
-	-- The throw zone is also where players spawn.
-	local throwZone = Instance.new("SpawnLocation")
-	setUpPart(
-		throwZone,
+	-- The throw zone lies behind the throw line. It is also where players spawn.
+	local throwZone = addPart(
+		folder,
+		Instance.new("SpawnLocation"),
 		"ThrowZone",
 		Vector3.new(LaneConfig.laneWidth, LaneConfig.floorThickness, LaneConfig.throwZoneLength),
-		Vector3.new(x, floorCenterY, z + LaneConfig.throwZoneLength / 2),
+		Vector3.new(x, floorCenterY(), z + LaneConfig.throwZoneLength / 2),
 		LaneConfig.throwZoneColor
-	)
+	) :: SpawnLocation
 	throwZone.Duration = 0 -- no force field after spawning
-	throwZone.Parent = folder
-
-	-- Invisible barrier on the throw line, so players cannot walk onto the lane.
-	local barrier = Instance.new("Part")
-	setUpPart(
-		barrier,
-		"ThrowLineBarrier",
-		Vector3.new(LaneConfig.laneWidth, LaneConfig.barrierHeight, LaneConfig.barrierThickness),
-		Vector3.new(x, LaneConfig.floorTopY + LaneConfig.barrierHeight / 2, z - LaneConfig.barrierThickness / 2),
-		LaneConfig.floorColor
-	)
-	barrier.Transparency = 1
-	barrier.CastShadow = false
-	barrier.Parent = folder
-
-	-- Invisible barriers along both sides, so players cannot walk onto the lane from the side.
-	for _, side in { -1, 1 } do
-		local sideBarrier = Instance.new("Part")
-		setUpPart(
-			sideBarrier,
-			"SideBarrier",
-			Vector3.new(LaneConfig.barrierThickness, LaneConfig.barrierHeight, laneLength),
-			Vector3.new(
-				x + side * (LaneConfig.laneWidth + LaneConfig.barrierThickness) / 2,
-				LaneConfig.floorTopY + LaneConfig.barrierHeight / 2,
-				z - laneLength / 2
-			),
-			LaneConfig.floorColor
-		)
-		sideBarrier.Transparency = 1
-		sideBarrier.CastShadow = false
-		sideBarrier.Parent = folder
-	end
 
 	folder.Parent = Workspace
+end
+
+local function buildTrainingLane()
+	local folder = Instance.new("Folder")
+	folder.Name = "TrainingLane"
+
+	local pad = TrainingConfig.pad
+	local padFrontZ = pad.z - pad.length / 2
+	addFencedLane(folder, pad.x, padFrontZ, pad.width, TrainingConfig.laneLength, TrainingConfig.laneColor)
+
+	addPart(
+		folder,
+		Instance.new("Part"),
+		"TrainingPad",
+		Vector3.new(pad.width, LaneConfig.floorThickness, pad.length),
+		Vector3.new(pad.x, floorCenterY(), pad.z),
+		TrainingConfig.padColor
+	)
+
+	folder.Parent = Workspace
+end
+
+function LaneBuilder.build()
+	buildMainLane()
+	buildTrainingLane()
 end
 
 return LaneBuilder

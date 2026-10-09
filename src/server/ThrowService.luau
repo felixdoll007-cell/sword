@@ -5,7 +5,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -13,15 +12,15 @@ local Remotes = require(Shared.Remotes)
 local LaneConfig = require(Shared.Config.Lane)
 local MeterConfig = require(Shared.Config.Meter)
 local StrengthConfig = require(Shared.Config.Strength)
-local TestSettings = require(Shared.Config.TestSettings)
 local ThrowConfig = require(Shared.Config.Throw)
 local WallConfig = require(Shared.Config.Walls)
 local FlightPlan = require(Shared.Rules.FlightPlan)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Meter = require(Shared.Rules.Meter)
 local RateLimit = require(Shared.Rules.RateLimit)
-local StartValues = require(Shared.Rules.StartValues)
 local ThrowCalculation = require(Shared.Rules.ThrowCalculation)
+
+local PlayerStats = require(script.Parent.PlayerStats)
 
 type RunningMeter = {
 	startTime: number,
@@ -29,8 +28,6 @@ type RunningMeter = {
 }
 
 type PlayerState = {
-	-- Kept in memory only for now. Saving comes in Etappe 6.
-	strength: number,
 	-- No new meter or throw before this time (server clock).
 	lockedUntil: number,
 	meter: RunningMeter?,
@@ -49,7 +46,6 @@ end
 
 local function onPlayerAdded(player: Player)
 	states[player] = {
-		strength = StartValues.startStrength(StrengthConfig, TestSettings, RunService:IsStudio()),
 		lockedUntil = 0,
 		meter = nil,
 		meterRequestTimes = {},
@@ -153,7 +149,11 @@ local function onThrowRequested(player: Player, pressTime: unknown, ...: any)
 	-- 5. The server calculates where the pointer was and what that is worth.
 	local position = Meter.position(MeterConfig, meter.startTime, meter.startPhase, usedTime)
 	local factor = Meter.factor(MeterConfig, position)
-	local throwPower = state.strength * factor
+	local strength = PlayerStats.getStrength(player)
+	if not strength then
+		return
+	end
+	local throwPower = strength * factor
 
 	local result = ThrowCalculation.calculate(WallConfig, StrengthConfig, throwPower)
 	local plan = FlightPlan.create(WallConfig, LaneConfig, ThrowConfig, throwPower, result)

@@ -8,12 +8,16 @@
 -- Server -> Client (only to the player who throws)
 --   MeterStarted(startTime: number, startPhase: number)
 --   ThrowStarted(throwPower: number, factor: number)
+--   TrainingThrow(gained: number)    a training throw happened, strength was added
+--
+-- Values the server shows to the client through attributes on the Player (read-only for the client):
+--   Strength: number
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local FOLDER_NAME = "Remotes"
-local EVENT_NAMES = { "MeterStartRequested", "ThrowRequested", "MeterStarted", "ThrowStarted" }
+local EVENT_NAMES = { "MeterStartRequested", "ThrowRequested", "MeterStarted", "ThrowStarted", "TrainingThrow" }
 
 local folder: Instance
 if RunService:IsServer() then
@@ -34,4 +38,9 @@ return {
 	ThrowRequested = folder:WaitForChild("ThrowRequested") :: RemoteEvent,
 	MeterStarted = folder:WaitForChild("MeterStarted") :: RemoteEvent,
 	ThrowStarted = folder:WaitForChild("ThrowStarted") :: RemoteEvent,
+	TrainingThrow = folder:WaitForChild("TrainingThrow") :: RemoteEvent,
+
+	Attributes = {
+		Strength = "Strength",
+	},
 }
