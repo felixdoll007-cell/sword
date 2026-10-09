@@ -1,5 +1,4 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+--!strict
+local LaneView = require(script.LaneView)
 
-local Hello = require(ReplicatedStorage.Shared.Hello)
-
-print(Hello.greet("client"))
+LaneView.build()
