@@ -18,6 +18,7 @@ local FlightPlan = require(Shared.Rules.FlightPlan)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Meter = require(Shared.Rules.Meter)
 local RateLimit = require(Shared.Rules.RateLimit)
+local Rewards = require(Shared.Rules.Rewards)
 local ThrowCalculation = require(Shared.Rules.ThrowCalculation)
 
 local PlayerStats = require(script.Parent.PlayerStats)
@@ -166,7 +167,8 @@ local function onThrowRequested(player: Player, pressTime: unknown, ...: any)
 		strength = result.strength,
 		wallsBroken = #result.brokenWalls,
 	})
-	Remotes.ThrowStarted:FireClient(player, throwPower, factor)
+	local perWall = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls)
+	Remotes.ThrowStarted:FireClient(player, throwPower, factor, perWall)
 end
 
 function ThrowService.start()

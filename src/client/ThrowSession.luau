@@ -14,6 +14,7 @@ local ThrowConfig = require(Shared.Config.Throw)
 local ThrowVisuals = require(Shared.Config.ThrowVisuals)
 local WallConfig = require(Shared.Config.Walls)
 local FlightPlan = require(Shared.Rules.FlightPlan)
+local Rewards = require(Shared.Rules.Rewards)
 local ThrowCalculation = require(Shared.Rules.ThrowCalculation)
 
 local ArmSwing = require(script.Parent.ArmSwing)
@@ -23,6 +24,7 @@ local LaneView = require(script.Parent.LaneView)
 local SwordView = require(script.Parent.SwordView)
 local StatsView = require(script.Parent.StatsView)
 local WallEffects = require(script.Parent.WallEffects)
+local WallPopups = require(script.Parent.WallPopups)
 
 local RENDER_STEP_NAME = "ThrowSession"
 local FREEZE_REASON = "Throw"
@@ -63,7 +65,9 @@ local function swordPose(plan: FlightPlan.Plan, time: number): CFrame
 	return CFrame.new(x, y, LaneConfig.throwLine.z - stopDistance) * CFrame.Angles(-tilt, 0, 0)
 end
 
-function ThrowSession.start(throwPower: number)
+-- perWall: reward of each broken wall from the server, shown as the sword breaks the walls.
+-- May be nil; then the values at the top only update at the end of the throw.
+function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?)
 	if active then
 		return
 	end
@@ -77,6 +81,8 @@ function ThrowSession.start(throwPower: number)
 
 	local result = ThrowCalculation.calculate(WallConfig, StrengthConfig, throwPower)
 	local plan = FlightPlan.create(WallConfig, LaneConfig, ThrowConfig, throwPower, result)
+	-- Only use the rewards if they belong to exactly these broken walls.
+	local rewards = if perWall and #perWall == #plan.breaks then perWall else nil
 
 	local cleanupTasks: { () -> () } = {}
 	local finished = false
@@ -111,7 +117,7 @@ function ThrowSession.start(throwPower: number)
 	table.insert(cleanupTasks, CameraFollow.stop)
 	table.insert(cleanupTasks, LaneView.resetWalls)
 	table.insert(cleanupTasks, WallEffects.clearScratch)
-	-- Now the result may be seen: show the new values with "+...".
+	-- End of the throw: the values at the top match the server exactly again.
 	table.insert(cleanupTasks, StatsView.release)
 
 	-- Ways a throw can end early.
@@ -137,6 +143,13 @@ function ThrowSession.start(throwPower: number)
 			local wallIndex = plan.breaks[nextBreak].wallIndex
 			LaneView.breakWall(wallIndex)
 			WallEffects.spawnPieces(wallIndex)
+			local reward = rewards and rewards[nextBreak]
+			if reward then
+				local tip = sword:GetPivot().Position
+				WallPopups.show(tip, reward.currency, false)
+				WallPopups.show(tip, reward.zoneBonus, true)
+				StatsView.addDuringThrow(reward.currency + reward.zoneBonus, reward.strength)
+			end
 			nextBreak += 1
 		end
 
@@ -147,6 +160,7 @@ function ThrowSession.start(throwPower: number)
 
 		local pose = swordPose(plan, time)
 		sword:PivotTo(pose)
+		WallPopups.follow(pose.Position)
 		if plan.ending == "bounce" and time > plan.flightSeconds then
 			-- Pull the camera back and keep it on the point of impact, so sword, wall and scratch are in view.
 			local progress = math.clamp((time - plan.flightSeconds) / plan.endingSeconds, 0, 1)

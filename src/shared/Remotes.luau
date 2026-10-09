@@ -8,7 +8,8 @@
 --   TrainingLeft()                   the player let go of the training pad; can only stop training
 -- Server -> Client (only to the player who throws)
 --   MeterStarted(startTime: number, startPhase: number)
---   ThrowStarted(throwPower: number, factor: number)
+--   ThrowStarted(throwPower: number, factor: number, perWall: { { currency, strength, zoneBonus } })
+--                                    reward of each broken wall, so the client can show it during the flight
 --   TrainingThrow(gained: number)    a training throw happened, strength was added
 --
 -- Values the server shows to the client through attributes on the Player (read-only for the client):

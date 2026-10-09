@@ -73,9 +73,28 @@ return {
 		positionY = 0.02,
 		textColor = { 255, 255, 255 },
 		strokeColor = { 0, 0, 0 },
-		-- During a throw the new values are held back and shown when the throw has ended.
-		-- Safety: never hold them longer than this.
+		-- During a throw the values count up wall by wall instead of following the server
+		-- (which has already credited everything). Safety: never hold them longer than this.
 		maxHoldSeconds = 12,
+	},
+
+	-- "+..." when the sword breaks a wall (currency of that wall). It appears at the wall and then
+	-- travels along above the sword. Sizes in studs, so it scales with the 3D view.
+	-- It is drawn behind all screen elements, so it never covers the button or the values at the top.
+	wallPopup = {
+		color = { 255, 220, 80 },
+		widthStuds = 8,
+		heightStuds = 2.5,
+		-- How far above the sword.
+		heightAboveSword = 2.5,
+		riseStuds = 4,
+		seconds = 0.9,
+		-- Zone bonus: own color, bigger, a bit higher.
+		zoneColor = { 120, 255, 120 },
+		zoneSizeFactor = 1.6,
+		zoneExtraHeight = 3,
+		-- At most this many labels at the same time. More are added into the newest label.
+		maxActive = 6,
 	},
 
 	-- "+..." that rises and fades below a value whenever it grows.

@@ -16,6 +16,9 @@ local NumberFormatConfig = require(Shared.Config.NumberFormat)
 local Ui = require(Shared.Config.Ui)
 local NumberFormat = require(Shared.Rules.NumberFormat)
 
+-- Differences smaller than this share of the value are rounding leftovers, not a real gain.
+local ROUNDING_TOLERANCE = 1e-9
+
 local StatsView = {}
 
 type Shown = {
@@ -100,11 +103,38 @@ function StatsView.hold()
 	end)
 end
 
+-- During a held throw: count the shown values up by one wall's reward, without a "+..." at the top
+-- (that one appears at the wall).
+function StatsView.addDuringThrow(currency: number, strength: number)
+	if not held then
+		return
+	end
+	for _, item in shown do
+		local add = if item.attribute == Remotes.Attributes.Currency then currency else strength
+		if item.value then
+			item.value += add
+			item.label.Text = item.prefix .. NumberFormat.abbreviate(NumberFormatConfig, item.value :: number)
+		end
+	end
+end
+
+-- End of the throw: from now on the values follow the server again, and they are set to exactly
+-- the server's values. If they were counted up wall by wall, the difference is only a rounding
+-- leftover and no "+..." is shown; if not (e.g. data was missing), the gain pops up as before.
 function StatsView.release()
 	if not held then
 		return
 	end
 	held = false
+	for _, item in shown do
+		local value = Players.LocalPlayer:GetAttribute(item.attribute)
+		if typeof(value) == "number" and item.value then
+			local leftover = math.abs(value - item.value)
+			if leftover <= math.max(math.abs(value), 1) * ROUNDING_TOLERANCE then
+				item.value = value
+			end
+		end
+	end
 	refreshAll()
 end
 

@@ -23,6 +23,7 @@ local MeterConfig = require(Shared.Config.Meter)
 local Ui = require(Shared.Config.Ui)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Meter = require(Shared.Rules.Meter)
+local Rewards = require(Shared.Rules.Rewards)
 
 local CharacterFreeze = require(script.Parent.CharacterFreeze)
 local MeterView = require(script.Parent.MeterView)
@@ -107,15 +108,37 @@ local function onMeterStarted(startTime: unknown, startPhase: unknown)
 	MeterView.show()
 end
 
-local function onThrowStarted(throwPower: unknown, factor: unknown)
+-- The reward of each broken wall, as sent by the server. nil if anything is off;
+-- then the values simply update at the end of the throw.
+local function readPerWall(value: unknown): { Rewards.WallReward }?
+	if typeof(value) ~= "table" then
+		return nil
+	end
+	local list = {}
+	for index, entry in value :: { any } do
+		if
+			typeof(entry) ~= "table"
+			or not isRealNumber(entry.currency)
+			or not isRealNumber(entry.strength)
+			or not isRealNumber(entry.zoneBonus)
+		then
+			return nil
+		end
+		list[index] = { currency = entry.currency, strength = entry.strength, zoneBonus = entry.zoneBonus }
+	end
+	return list
+end
+
+local function onThrowStarted(throwPower: unknown, factor: unknown, perWall: unknown)
 	if not isRealNumber(throwPower) or not isRealNumber(factor) or (throwPower :: number) < 0 then
 		warn("[ThrowController] ignored throw with invalid values")
 		backToIdle()
+		StatsView.release()
 		return
 	end
 	backToIdle()
 	MeterView.showFactor(factor :: number, MeterConfig.factorDisplaySeconds)
-	ThrowSession.start(throwPower :: number)
+	ThrowSession.start(throwPower :: number, readPerWall(perWall))
 	if not ThrowSession.isActive() then
 		-- The throw could not be played (e.g. character just died): show the values now.
 		StatsView.release()
