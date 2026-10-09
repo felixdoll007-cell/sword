@@ -20,8 +20,8 @@ return {
 	cameraBehind = 16,
 	cameraAbove = 7,
 	cameraLookAhead = 12,
-	-- Higher = camera follows more tightly.
-	cameraFollowSpeed = 8,
+	-- Time for the camera to glide from the player to behind the sword.
+	cameraBlendInSeconds = 0.4,
 
 	-- Pieces of a broken wall. Kept low so weak phones run smoothly.
 	piecesPerWall = 4,

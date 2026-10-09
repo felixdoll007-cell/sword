@@ -19,6 +19,7 @@ local ThrowCalculation = require(Shared.Rules.ThrowCalculation)
 local CameraFollow = require(script.Parent.CameraFollow)
 local LaneView = require(script.Parent.LaneView)
 local SwordView = require(script.Parent.SwordView)
+local WallEffects = require(script.Parent.WallEffects)
 
 local RENDER_STEP_NAME = "ThrowSession"
 
@@ -111,6 +112,7 @@ function ThrowSession.start(throwPower: number)
 	CameraFollow.start()
 	table.insert(cleanupTasks, CameraFollow.stop)
 	table.insert(cleanupTasks, LaneView.resetWalls)
+	table.insert(cleanupTasks, WallEffects.clearScratch)
 
 	-- Ways a throw can end early.
 	local connections = {
@@ -126,13 +128,21 @@ function ThrowSession.start(throwPower: number)
 
 	local startTime = os.clock()
 	local nextBreak = 1
+	local scratched = false
 
 	local function step(deltaTime: number)
 		local time = os.clock() - startTime
 
 		while nextBreak <= #plan.breaks and time >= plan.breaks[nextBreak].time do
-			LaneView.breakWall(plan.breaks[nextBreak].wallIndex)
+			local wallIndex = plan.breaks[nextBreak].wallIndex
+			LaneView.breakWall(wallIndex)
+			WallEffects.spawnPieces(wallIndex)
 			nextBreak += 1
+		end
+
+		if not scratched and plan.bounceWallIndex and time >= plan.flightSeconds then
+			WallEffects.addScratch(plan.bounceWallIndex)
+			scratched = true
 		end
 
 		local pose = swordPose(plan, time)

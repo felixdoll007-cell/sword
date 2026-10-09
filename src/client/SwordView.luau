@@ -23,6 +23,8 @@ local function addPart(model: Model, name: string, size: Vector3, offsetBehindTi
 	part.CastShadow = true
 	part.Size = size
 	part.Color = color(rgb)
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.CFrame = CFrame.new(0, 0, offsetBehindTip)
 	part.Parent = model
 end
