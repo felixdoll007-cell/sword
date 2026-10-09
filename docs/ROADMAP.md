@@ -52,12 +52,14 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - [x] Aus Etappe 7 vorgezogen: Stärke als schlichter Text, abgekürzt, mit "+1" bei jedem Trainingswurf
 
 ### Etappe 6: Belohnung und Speichern
-- [ ] Währung nach Wurfweite
-- [ ] Speichern und Laden aller Werte, mit Fehlerbehandlung
-- Vorher prüfen: bewährte Bibliothek mit Session-Locking statt eigener Lösung? Vor- und Nachteile nennen, dann entscheiden.
+- [ ] Währung nach Wurfweite und Stärke aus dem Hauptwurf; der Server schreibt beim Berechnen gut, der Client zeigt die neuen Werte nach dem Flug mit "+..."
+- [ ] Speichern und Laden mit ProfileStore (Session-Locking), Versionsnummer, fehlende Felder auffüllen, Zwischenspeichern aus der Config
+- [ ] Trennung der Testdaten: eigenes privates Test-Spiel, Speichername mit Umgebung, Testwerte werden nie gespeichert (Mock)
+- [ ] Aus Etappe 7 vorgezogen: Währung als schlichter Text neben der Stärke
+- Entschieden: ProfileStore 1.0.3, unverändert in `src/server/Packages`, geprüft (siehe Notiz dort).
 
 ### Etappe 7: Einfache Anzeige der Werte
-- [ ] Währung auf dem Bildschirm, abgekürzt, noch ohne Gestaltung (Stärke schon in Etappe 5)
+- Stärke (Etappe 5) und Währung (Etappe 6) sind schon vorgezogen. Hier bleibt nur der Gesamt-Test.
 
 **Dann testen:** Macht der Wurf Spaß? Erst danach geht es weiter.
 
