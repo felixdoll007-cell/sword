@@ -25,11 +25,13 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - [x] Wände existieren nur auf dem Client und brechen nur für den eigenen Spieler sichtbar
 
 ### Etappe 3: Der Wurf
-- [ ] Wurf auslösen, Server berechnet das Ergebnis
+- [ ] Wurf auslösen per Button und Taste E, Server berechnet das Ergebnis
 - [ ] Schwert fliegt, Kamera folgt (Schwerter anderer Spieler sind nicht sichtbar)
-- [ ] Wände werden nur in der Nähe des Schwerts aufgebaut
-- [ ] Wände brechen, Tempo hängt von der Kraft ab
-- [ ] Abprallen an der zu harten Wand
+- [ ] Figur kann sich während des Flugs nicht bewegen
+- [ ] Kamera kommt in jedem Fall zurück: nach dem Wurf, beim Sterben, beim Neu-Spawnen, bei einem Abbruch
+- [ ] Wände brechen, Tempo hängt von der Kraft ab, Flug hat Mindest- und Höchstdauer
+- [ ] Bruchstücke pro Wand begrenzt (Wert in der Config)
+- [ ] Abprallen an der zu harten Wand; brechen alle Wände, steckt das Schwert am Bahnende im Boden
 - [ ] Server sperrt den nächsten Wurf, bis der vorige vorbei ist
 - [ ] Prüfung und Begrenzung der Nachrichten auf dem Server
 
@@ -55,3 +57,4 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
+- Mit weiteren Welten: Wände nur in der Nähe des Schwerts aufbauen. In Version 1 stehen alle 30 Wände immer.

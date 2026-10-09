@@ -63,7 +63,7 @@ nächstes Ziel ist.
 - Reihenfolge der Materialien, vorläufig: Papier, Holz, Stein, Eisen, Obsidian, Bedrock.
 - Die Wände werden aus der Config berechnet: Materialien, Wände pro Zone und eine Formel für die Härte. Sie werden nicht einzeln von Hand eingetragen.
 - Version 1 hat sechs Zonen mit je fünf Wänden.
-- Gebaut werden nur die Wände in der Nähe des Schwerts.
+- In Version 1 stehen alle Wände immer. Erst mit weiteren Welten werden nur die Wände in der Nähe des Schwerts gebaut.
 - Die Struktur erlaubt später weitere Welten hinter der letzten Zone.
 - Jeder Spieler hat seine eigenen Wände. Sie existieren nur auf seinem Client und brechen nur für ihn sichtbar. Der Server baut keine Wände, er rechnet nur.
 - In Version 1 sieht man die Schwerter anderer Spieler nicht.

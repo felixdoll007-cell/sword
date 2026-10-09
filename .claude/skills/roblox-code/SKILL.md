@@ -66,6 +66,15 @@ Reihenfolge in jedem Handler:
 - API-Keys im Code oder Repo. Nur Umgebungsvariablen.
 - Toolbox-Assets mit Skripten: erst alle Skripte entfernen und dem Nutzer auflisten, was entfernt wurde.
 
+## Handy und Tablet
+- Jede Aktion per Touch erreichbar (Button). Tasten nur als zusätzliche Abkürzung.
+- Buttons mit Scale-Größen statt fester Pixel, mit `UISizeConstraint`-Mindestgröße für den Daumen
+  und `UIAspectRatioConstraint`. Nicht unter den Thumbstick (unten links) oder den
+  Sprung-Button (unten rechts) legen.
+- Effekte sparsam: feste Obergrenzen für Bruchstücke und Partikel aus der Config, Teile nach
+  kurzer Zeit wieder entfernen.
+- Jede Test-Anleitung enthält den Test im Device Simulator mit einem Handy-Format.
+
 ## Performance
 - Wände und Effekte nur auf dem Client. Logik auf dem Server.
 - Bei Meshes vor dem Import die Anzahl der Dreiecke nennen.

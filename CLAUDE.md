@@ -33,6 +33,13 @@ Beginn jeder Sitzung.
 - Fremde Assets aus der Toolbox: vor der Verwendung alle enthaltenen Skripte entfernen und mir sagen, was du entfernt hast. Kein `require` auf fremde Asset-IDs, kein `loadstring`.
 - Wenn dir eine Sicherheitslücke auffällt, sag es sofort, auch wenn ich nicht danach gefragt habe.
 
+## Handy und Tablet
+Das Spiel muss auf Handy und Tablet voll spielbar sein.
+- Jede Aktion ist per Touch erreichbar. Tasten sind nur zusätzliche Abkürzungen.
+- Buttons sind groß genug für den Daumen und passen sich der Bildschirmgröße an.
+- Effekte und Bruchstücke sind so sparsam, dass es auf schwachen Handys flüssig läuft.
+- Bei jedem Test, den du mir gibst, steht dabei, wie ich ihn auch im Device Simulator mit einem Handy-Format prüfe.
+
 ## Performance
 - Wände brechen nur für den Spieler sichtbar, der wirft. Effekte laufen auf dem Client, die Logik auf dem Server.
 - Meshes sparsam halten. Vor dem Import die Anzahl der Dreiecke nennen.
