@@ -17,14 +17,18 @@ return {
 	-- Distance from the throw line to wall 1.
 	firstWallDistance = 30,
 	-- Distance between two walls of the same zone.
-	wallSpacing = 16,
+	wallSpacing = 20,
 	-- Extra distance before the first wall of a new zone, so zones are easy to tell apart.
-	zoneGap = 24,
+	zoneGap = 40,
 	-- Floor behind the last wall.
 	endPadding = 30,
 
 	wallHeight = 16,
 	wallThickness = 2,
+
+	-- Invisible barrier on the throw line, so players cannot walk onto the lane.
+	barrierHeight = 20,
+	barrierThickness = 1,
 
 	floorColor = { 120, 120, 120 },
 	throwZoneColor = { 90, 90, 90 },

@@ -53,6 +53,19 @@ function LaneBuilder.build()
 	throwZone.Duration = 0 -- no force field after spawning
 	throwZone.Parent = folder
 
+	-- Invisible barrier on the throw line, so players cannot walk onto the lane.
+	local barrier = Instance.new("Part")
+	setUpPart(
+		barrier,
+		"ThrowLineBarrier",
+		Vector3.new(LaneConfig.laneWidth, LaneConfig.barrierHeight, LaneConfig.barrierThickness),
+		Vector3.new(x, LaneConfig.floorTopY + LaneConfig.barrierHeight / 2, z - LaneConfig.barrierThickness / 2),
+		LaneConfig.floorColor
+	)
+	barrier.Transparency = 1
+	barrier.CastShadow = false
+	barrier.Parent = folder
+
 	folder.Parent = Workspace
 end
 

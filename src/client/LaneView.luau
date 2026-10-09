@@ -65,7 +65,20 @@ function LaneView.breakWall(index: number)
 	if part then
 		part.Transparency = 1
 		part.CanCollide = false
+		part:SetAttribute("Broken", true)
 	end
+end
+
+-- Breaks the first wall that is still standing. Returns its number, or nil if all are broken.
+function LaneView.breakNextWall(): number?
+	for index = 1, Walls.count(WallConfig) do
+		local part = getWallPart(index)
+		if part and not part:GetAttribute("Broken") then
+			LaneView.breakWall(index)
+			return index
+		end
+	end
+	return nil
 end
 
 -- After a throw all walls stand again.
@@ -75,6 +88,7 @@ function LaneView.resetWalls()
 		if part then
 			part.Transparency = 0
 			part.CanCollide = true
+			part:SetAttribute("Broken", nil)
 		end
 	end
 end
