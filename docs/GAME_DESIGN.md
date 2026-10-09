@@ -31,7 +31,8 @@ Klein und sauber gemacht. Drei Bereiche:
 ## Der Hauptwurf
 - Der Spieler steht in der Wurfzone und löst den Wurf aus.
 - Eine Anzeige mit einem Zeiger, der sich auf und ab bewegt: außen rot, Mitte grün. Je näher an der Mitte, desto höher der Faktor für den Wurf.
-- **Glückswurf:** Mit kleiner Chance wird der Wurf deutlich stärker. Die Chance hängt vom Glückswert ab.
+- Der Faktor der Anzeige liegt zwischen 0,5 und 1,5. Der Server taktet die Anzeige selbst und lehnt unmögliche Werte ab. Ganz verhindern lässt sich perfektes Timing durch Cheats nicht, deshalb ist der Bereich bewusst klein.
+- **Glückswurf:** Mit kleiner Chance wird der Wurf deutlich stärker. Die Chance hängt vom Glückswert ab. Ausgewürfelt wird nur auf dem Server.
 - Die Kamera folgt dem Schwert von hinten.
 
 ### Berechnung
@@ -40,6 +41,12 @@ Klein und sauber gemacht. Drei Bereiche:
 - Reicht die verbleibende Kraft nicht für die nächste Wand, endet der Wurf dort.
 - Die Härte steigt von Wand zu Wand stark an, sodass jede neue Wand ein spürbares Ziel ist.
 - Die Berechnung läuft vollständig auf dem Server.
+- Der Server sperrt den nächsten Wurf, bis der vorige vorbei ist. Die Dauer berechnet er selbst.
+
+### Große Zahlen
+Stärke und Härte werden sehr groß (weit über eine Billion). Das ist von Anfang an
+eingeplant: Die Berechnung muss damit umgehen, und angezeigt werden Zahlen abgekürzt
+(1.5K, 3.2M, ...).
 
 ### Tempo
 Je größer die Wurfkraft im Verhältnis zur Härte einer Wand, desto schneller fliegt das
@@ -54,7 +61,12 @@ nächstes Ziel ist.
 ## Wände und Zonen
 - Die Bahn besteht aus Zonen mit je mehreren Wänden aus einem Material.
 - Reihenfolge der Materialien, vorläufig: Papier, Holz, Stein, Eisen, Obsidian, Bedrock.
-- Jeder Spieler hat seine eigenen Wände. Sie brechen nur für ihn sichtbar.
+- Die Wände werden aus der Config berechnet: Materialien, Wände pro Zone und eine Formel für die Härte. Sie werden nicht einzeln von Hand eingetragen.
+- Version 1 hat sechs Zonen mit je fünf Wänden.
+- Gebaut werden nur die Wände in der Nähe des Schwerts.
+- Die Struktur erlaubt später weitere Welten hinter der letzten Zone.
+- Jeder Spieler hat seine eigenen Wände. Sie existieren nur auf seinem Client und brechen nur für ihn sichtbar. Der Server baut keine Wände, er rechnet nur.
+- In Version 1 sieht man die Schwerter anderer Spieler nicht.
 - Nach dem Wurf stehen alle Wände wieder.
 
 ## Belohnung
@@ -66,7 +78,7 @@ nächstes Ziel ist.
 - Verfügbar ab einer bestimmten Stärke. Die Schwelle steigt mit jedem Rebirth.
 - Setzt Stärke auf null. Währung und Pets bleiben.
 - Gibt einen dauerhaften Multiplikator auf Stärke.
-- Schaltet Trainingsbahnen frei.
+- Schaltet Trainingsbahnen frei. Welche Bahnen frei sind, wird aus der Zahl der Rebirths berechnet und nicht gespeichert.
 
 ## Pets
 - Kosten Währung.
@@ -82,7 +94,8 @@ nächstes Ziel ist.
 
 ## Speichern
 Gespeichert werden pro Spieler: Stärke, Währung, Rebirths, weiteste Wand, Pets,
-freigeschaltete Bahnen, Zeitpunkt des letzten Verlassens.
+Zeitpunkt des letzten Verlassens. Freigeschaltete Bahnen werden nicht gespeichert, sondern
+aus den Rebirths berechnet.
 
 ## Aussehen
 Details sind wichtiger als Umfang. Wenige kräftige Farben, einheitliche Klötzchen-Optik,
