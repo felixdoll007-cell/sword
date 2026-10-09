@@ -5,6 +5,7 @@
 -- Client -> Server
 --   MeterStartRequested()            first press: "I want to start the meter", no values
 --   ThrowRequested(pressTime: number) second press: only WHEN it was pressed, never a factor
+--   TrainingLeft()                   the player let go of the training pad; can only stop training
 -- Server -> Client (only to the player who throws)
 --   MeterStarted(startTime: number, startPhase: number)
 --   ThrowStarted(throwPower: number, factor: number)
@@ -17,7 +18,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local FOLDER_NAME = "Remotes"
-local EVENT_NAMES = { "MeterStartRequested", "ThrowRequested", "MeterStarted", "ThrowStarted", "TrainingThrow" }
+local EVENT_NAMES =
+	{ "MeterStartRequested", "ThrowRequested", "MeterStarted", "ThrowStarted", "TrainingThrow", "TrainingLeft" }
 
 local folder: Instance
 if RunService:IsServer() then
@@ -39,6 +41,7 @@ return {
 	MeterStarted = folder:WaitForChild("MeterStarted") :: RemoteEvent,
 	ThrowStarted = folder:WaitForChild("ThrowStarted") :: RemoteEvent,
 	TrainingThrow = folder:WaitForChild("TrainingThrow") :: RemoteEvent,
+	TrainingLeft = folder:WaitForChild("TrainingLeft") :: RemoteEvent,
 
 	Attributes = {
 		Strength = "Strength",

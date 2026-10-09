@@ -4,13 +4,15 @@
 -- the character only snaps again once it has fully left the pad.
 --
 -- This is only comfort on this client. Whether training happens is still decided by the server
--- from the character's position; snapping gives no strength by itself.
+-- from the character's position; snapping gives no strength by itself. Letting go sends
+-- "training left", which makes the server stop training until the pad has been fully left.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
+local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local TrainingConfig = require(ReplicatedStorage.Shared.Config.Training)
 local Training = require(ReplicatedStorage.Shared.Rules.Training)
 
@@ -68,6 +70,8 @@ local function letGo(): boolean
 	armed = false
 	heldSeconds = 0
 	CharacterFreeze.release(FREEZE_REASON)
+	-- Tell the server: no more training until the pad has been fully left.
+	Remotes.TrainingLeft:FireServer()
 	return true
 end
 

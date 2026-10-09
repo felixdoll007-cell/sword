@@ -55,6 +55,23 @@ return {
 		expect(nextAt).toBe(nil)
 	end,
 
+	["a blocked player does not train while on the pad"] = function(expect)
+		expect(Training.isTraining(true, true)).toBe(false)
+		expect(Training.isTraining(true, false)).toBe(true)
+		expect(Training.isTraining(false, false)).toBe(false)
+	end,
+
+	["the block stays while on the pad and clears only after leaving it"] = function(expect)
+		local blocked = true
+		blocked = Training.updateBlock(blocked, true)
+		expect(blocked).toBe(true)
+		blocked = Training.updateBlock(blocked, false)
+		expect(blocked).toBe(false)
+		-- Stepping back on after leaving: not blocked, training can start again.
+		blocked = Training.updateBlock(blocked, true)
+		expect(blocked).toBe(false)
+	end,
+
 	["after a long lag there is one throw, not a burst"] = function(expect)
 		local throws, nextAt = Training.tick(11, true, 20, 1)
 		expect(throws).toBe(true)

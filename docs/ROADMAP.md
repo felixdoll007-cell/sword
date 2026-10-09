@@ -43,11 +43,13 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - [x] Per Touch bedienbar, im Hoch- und Querformat gut erreichbar
 
 ### Etappe 5: Training
-- [ ] Trainingsfeld neben der Wurfzone mit kurzer Bahn und einer Wand
-- [ ] Auf dem Feld wirft die Figur automatisch im Takt aus der Config; der Server prüft die Position und schreibt die Stärke im eigenen Takt gut
-- [ ] Verlässt der Spieler das Feld, hört das Training auf
-- [ ] Trainingswand bricht und steht gleich wieder, sparsam für schwache Handys
-- [ ] Aus Etappe 7 vorgezogen: Stärke als schlichter Text, abgekürzt, mit "+1" bei jedem Trainingswurf
+- [x] Trainingsfeld neben der Wurfzone mit kurzer Bahn und einer Wand
+- [x] Auf dem Feld wirft die Figur automatisch im Takt aus der Config; der Server prüft die Position und schreibt die Stärke im eigenen Takt gut
+- [x] Verlässt der Spieler das Feld, hört das Training auf
+- [x] Einrasten auf dem Feld; Loslassen durch gehaltene Richtung oder Sprung meldet "Training verlassen", der Server stoppt das Training bis zum vollständigen Verlassen
+- [x] Einfache Armbewegung per Code (ohne hochgeladene Animation)
+- [x] Trainingswand bricht und steht gleich wieder, sparsam für schwache Handys
+- [x] Aus Etappe 7 vorgezogen: Stärke als schlichter Text, abgekürzt, mit "+1" bei jedem Trainingswurf
 
 ### Etappe 6: Belohnung und Speichern
 - [ ] Währung nach Wurfweite

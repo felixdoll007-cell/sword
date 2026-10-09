@@ -28,6 +28,9 @@ return {
 	leaveHoldSeconds = 0.3,
 	-- How far the stick or keys must be pushed (0 to 1) to count as "holding a direction".
 	leaveInputThreshold = 0.3,
+	-- Server: at most this many "training left" messages per player within the time window.
+	maxLeaveMessages = 3,
+	leaveMessageWindowSeconds = 2,
 
 	-- Client animation of a training throw. Must be shorter than the time between two throws.
 	swordScale = 0.6,

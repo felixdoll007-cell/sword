@@ -96,3 +96,8 @@ Jeder Fehler, der uns Zeit gekostet hat, kommt hier hinein: was passiert ist, Ur
   ist auf Deutsch, z. B. heißt "Cleanup" dort "Sitzung beenden". Regel: In Schritt-für-Schritt-
   Anleitungen die deutschen Bezeichnungen nennen. Wenn die deutsche Bezeichnung nicht sicher
   bekannt ist, die englische in Klammern dazuschreiben und das offen sagen.
+- **Schultergelenk ließ sich nicht bewegen.** Ursache: Roblox baut Figuren inzwischen mit
+  `AnimationConstraint` statt `Motor6D` (Avatar Joint Upgrade); der Code suchte nur `Motor6D`,
+  und `C0` ist dort schreibgeschützt. Regel: Gelenke von Figuren über `Transform` in
+  `PreSimulation` bewegen und beide Typen unterstützen; vorher per MCP prüfen, welcher Typ
+  wirklich vorhanden ist.

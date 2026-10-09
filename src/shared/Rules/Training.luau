@@ -37,4 +37,15 @@ function Training.tick(nextThrowAt: number?, onPad: boolean, now: number, interv
 	return true, following
 end
 
+-- A player who let go of the pad ("training left") stays blocked until fully off the pad.
+-- Returns the new blocked state. Leaving the pad is the only way to clear it.
+function Training.updateBlock(blocked: boolean, onPad: boolean): boolean
+	return blocked and onPad
+end
+
+-- Training only counts on the pad and when not blocked.
+function Training.isTraining(onPad: boolean, blocked: boolean): boolean
+	return onPad and not blocked
+end
+
 return Training
