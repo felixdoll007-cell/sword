@@ -56,5 +56,6 @@ return {
 		positionY = 0.8,
 		textColor = { 255, 255, 255 },
 		strokeColor = { 0, 0, 0 },
+		decimals = 1,
 	},
 }

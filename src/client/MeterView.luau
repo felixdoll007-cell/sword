@@ -5,10 +5,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Shared = ReplicatedStorage.Shared
-local NumberFormatConfig = require(Shared.Config.NumberFormat)
-local Ui = require(Shared.Config.Ui)
-local NumberFormat = require(Shared.Rules.NumberFormat)
+local Ui = require(ReplicatedStorage.Shared.Config.Ui)
 
 local MeterView = {}
 
@@ -114,7 +111,8 @@ end
 
 -- Shows "x1.4" for a few seconds.
 function MeterView.showFactor(factor: number, seconds: number)
-	factorLabel.Text = "x" .. NumberFormat.abbreviate(NumberFormatConfig, factor)
+	-- Rounded normally (not down like other numbers), so a perfect 1.497 shows as "x1.5".
+	factorLabel.Text = string.format(`x%.{Ui.factorLabel.decimals}f`, factor)
 	factorLabel.Visible = true
 	hideLabelToken += 1
 	local token = hideLabelToken
