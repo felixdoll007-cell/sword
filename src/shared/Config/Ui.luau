@@ -5,6 +5,8 @@
 return {
 	throwButton = {
 		text = "THROW",
+		-- Text while the meter runs: the next press stops the pointer.
+		stopText = "STOP",
 		-- Extra shortcut on keyboards. Touch always works through the button.
 		key = "E",
 		heightScale = 0.14,

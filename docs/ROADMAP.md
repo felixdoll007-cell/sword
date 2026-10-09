@@ -36,14 +36,18 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - [x] Prüfung und Begrenzung der Nachrichten auf dem Server
 
 ### Etappe 4: Die Anzeige
-- [ ] Zeiger mit rotem und grünem Bereich, erster Druck startet, zweiter Druck stoppt
-- [ ] Figur steht still, solange die Anzeige läuft; Anzeige läuft ab, wenn nicht gedrückt wird
-- [ ] Faktor zwischen 0,5 und 1,5 fließt in die Wurfkraft ein, kurz als "x1.4" sichtbar
-- [ ] Server taktet die Anzeige selbst; zu alte Zeitpunkte werden auf die erlaubte Verzögerung begrenzt, Unmögliches abgelehnt
-- [ ] Per Touch bedienbar, im Hoch- und Querformat gut erreichbar
+- [x] Zeiger mit rotem und grünem Bereich, erster Druck startet, zweiter Druck stoppt
+- [x] Figur steht still, solange die Anzeige läuft; Anzeige läuft ab, wenn nicht gedrückt wird
+- [x] Faktor zwischen 0,5 und 1,5 fließt in die Wurfkraft ein, kurz als "x1.4" sichtbar
+- [x] Server taktet die Anzeige selbst; zu alte Zeitpunkte werden auf die erlaubte Verzögerung begrenzt, Unmögliches abgelehnt
+- [x] Per Touch bedienbar, im Hoch- und Querformat gut erreichbar
 
 ### Etappe 5: Training
-- [ ] Eine Trainingsbahn mit automatischem Wurf, gibt Stärke
+- [ ] Trainingsfeld neben der Wurfzone mit kurzer Bahn und einer Wand
+- [ ] Auf dem Feld wirft die Figur automatisch im Takt aus der Config; der Server prüft die Position und schreibt die Stärke im eigenen Takt gut
+- [ ] Verlässt der Spieler das Feld, hört das Training auf
+- [ ] Trainingswand bricht und steht gleich wieder, sparsam für schwache Handys
+- [ ] Aus Etappe 7 vorgezogen: Stärke als schlichter Text, abgekürzt, mit "+1" bei jedem Trainingswurf
 
 ### Etappe 6: Belohnung und Speichern
 - [ ] Währung nach Wurfweite
@@ -51,9 +55,12 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - Vorher prüfen: bewährte Bibliothek mit Session-Locking statt eigener Lösung? Vor- und Nachteile nennen, dann entscheiden.
 
 ### Etappe 7: Einfache Anzeige der Werte
-- [ ] Stärke und Währung auf dem Bildschirm, abgekürzt, noch ohne Gestaltung
+- [ ] Währung auf dem Bildschirm, abgekürzt, noch ohne Gestaltung (Stärke schon in Etappe 5)
 
 **Dann testen:** Macht der Wurf Spaß? Erst danach geht es weiter.
+
+## Bekannte Einschränkungen (später verbessern)
+- Anzeige bei sehr schlechter Verbindung: Nach dem zweiten Druck kann der Zeiger bis zu 2 Sekunden stehen bleiben, bevor das Schwert fliegt, weil der Client auf die Antwort des Servers wartet. Idee für später: Schwert sofort lokal starten und mit der Antwort abgleichen.
 
 ## Version 2: Rebirth und weitere Trainingsbahnen
 ## Version 3: Pets, Glück und Glückswurf

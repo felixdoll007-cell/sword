@@ -133,6 +133,7 @@ local function update(button: TextButton)
 
 	-- The button is there when it can do something: start the meter or stop it.
 	button.Visible = not ThrowSession.isActive() and ((step == "idle" and isInThrowZone()) or step == "meterRunning")
+	button.Text = if step == "meterRunning" then Ui.throwButton.stopText else Ui.throwButton.text
 end
 
 local function createButton(): TextButton
