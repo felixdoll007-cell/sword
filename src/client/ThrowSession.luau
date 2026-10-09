@@ -147,7 +147,20 @@ function ThrowSession.start(throwPower: number)
 
 		local pose = swordPose(plan, time)
 		sword:PivotTo(pose)
-		CameraFollow.update(pose.Position, deltaTime)
+		if plan.ending == "bounce" and time > plan.flightSeconds then
+			-- Pull the camera back and keep it on the point of impact, so sword, wall and scratch are in view.
+			local progress = math.clamp((time - plan.flightSeconds) / plan.endingSeconds, 0, 1)
+			local eased = 1 - (1 - progress) ^ 2
+			local impact = swordPose(plan, plan.flightSeconds).Position
+			CameraFollow.update(
+				impact,
+				deltaTime,
+				ThrowVisuals.bounceCameraExtraBehind * eased,
+				ThrowVisuals.bounceCameraExtraAbove * eased
+			)
+		else
+			CameraFollow.update(pose.Position, deltaTime, 0, 0)
+		end
 
 		if time >= plan.totalSeconds then
 			finish()

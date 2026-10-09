@@ -21,11 +21,13 @@ function CameraFollow.start()
 	elapsed = 0
 end
 
--- target: tip of the sword. The lane runs towards negative Z, so "behind" is positive Z.
-function CameraFollow.update(target: Vector3, deltaTime: number)
+-- target: what the camera looks at, usually the tip of the sword.
+-- extraBehind / extraAbove move the camera further away (used when the sword bounces).
+-- The lane runs towards negative Z, so "behind" is positive Z.
+function CameraFollow.update(target: Vector3, deltaTime: number, extraBehind: number, extraAbove: number)
 	local v = ThrowVisuals
 	local desired = CFrame.lookAt(
-		target + Vector3.new(0, v.cameraAbove, v.cameraBehind),
+		target + Vector3.new(0, v.cameraAbove + extraAbove, v.cameraBehind + extraBehind),
 		target + Vector3.new(0, 0, -v.cameraLookAhead)
 	)
 

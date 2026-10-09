@@ -15,7 +15,7 @@ return {
 	fastestSpeed = 450,
 
 	-- The flight is stretched or squeezed to fit between these two durations.
-	minFlightSeconds = 2,
+	minFlightSeconds = 1.2,
 	maxFlightSeconds = 4,
 
 	-- After the flight: bouncing off the wall that is too hard ...

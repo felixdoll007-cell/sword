@@ -35,6 +35,9 @@ return {
 	-- Bounce off the wall that is too hard.
 	bounceBackDistance = 6,
 	bounceSpinDegrees = 270,
+	-- While bouncing, the camera pulls back by this much so sword, wall and scratch are in view.
+	bounceCameraExtraBehind = 14,
+	bounceCameraExtraAbove = 4,
 	-- Scratch left on the wall the sword bounced off.
 	scratchLength = 3,
 	scratchWidth = 0.4,

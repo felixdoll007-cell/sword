@@ -25,15 +25,15 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - [x] Wände existieren nur auf dem Client und brechen nur für den eigenen Spieler sichtbar
 
 ### Etappe 3: Der Wurf
-- [ ] Wurf auslösen per Button und Taste E, Server berechnet das Ergebnis
-- [ ] Schwert fliegt, Kamera folgt (Schwerter anderer Spieler sind nicht sichtbar)
-- [ ] Figur kann sich während des Flugs nicht bewegen
-- [ ] Kamera kommt in jedem Fall zurück: nach dem Wurf, beim Sterben, beim Neu-Spawnen, bei einem Abbruch
-- [ ] Wände brechen, Tempo hängt von der Kraft ab, Flug hat Mindest- und Höchstdauer
-- [ ] Bruchstücke pro Wand begrenzt (Wert in der Config)
-- [ ] Abprallen an der zu harten Wand; brechen alle Wände, steckt das Schwert am Bahnende im Boden
-- [ ] Server sperrt den nächsten Wurf, bis der vorige vorbei ist
-- [ ] Prüfung und Begrenzung der Nachrichten auf dem Server
+- [x] Wurf auslösen per Button und Taste E, Server berechnet das Ergebnis
+- [x] Schwert fliegt, Kamera folgt (Schwerter anderer Spieler sind nicht sichtbar)
+- [x] Figur kann sich während des Flugs nicht bewegen
+- [x] Kamera kommt in jedem Fall zurück: nach dem Wurf, beim Sterben, beim Neu-Spawnen, bei einem Abbruch
+- [x] Wände brechen, Tempo hängt von der Kraft ab, Flug hat Mindest- und Höchstdauer
+- [x] Bruchstücke pro Wand begrenzt (Wert in der Config)
+- [x] Abprallen an der zu harten Wand; brechen alle Wände, steckt das Schwert am Bahnende im Boden
+- [x] Server sperrt den nächsten Wurf, bis der vorige vorbei ist
+- [x] Prüfung und Begrenzung der Nachrichten auf dem Server
 
 ### Etappe 4: Die Anzeige
 - [ ] Zeiger mit rotem und grünem Bereich
