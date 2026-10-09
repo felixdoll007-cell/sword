@@ -32,6 +32,8 @@ Klein und sauber gemacht. Drei Bereiche:
 - Der Spieler steht in der Wurfzone und löst den Wurf aus.
 - Eine Anzeige mit einem Zeiger, der sich auf und ab bewegt: außen rot, Mitte grün. Je näher an der Mitte, desto höher der Faktor für den Wurf.
 - Der Faktor der Anzeige liegt zwischen 0,5 und 1,5. Der Server taktet die Anzeige selbst und lehnt unmögliche Werte ab. Ganz verhindern lässt sich perfektes Timing durch Cheats nicht, deshalb ist der Bereich bewusst klein.
+- Ablauf: Erster Druck auf THROW startet die Anzeige, die Figur steht still. Zweiter Druck stoppt den Zeiger, kurz erscheint der Faktor (z. B. "x1.4"), dann fliegt das Schwert. Wird nicht gedrückt, verschwindet die Anzeige nach einer festen Zeit und die Figur kann sich wieder bewegen.
+- Taktung: Server und Client rechnen die Zeigerposition mit derselben Formel aus der gemeinsamen Server-Zeit. Der Client schickt nur den Zeitpunkt des Drucks, der Server berechnet daraus den Faktor. Ist der Zeitpunkt älter als die erlaubte Verzögerung, wertet der Server den frühesten noch erlaubten Zeitpunkt. Abgelehnt wird nur Unmögliches: keine Zahl, vor dem Start der Anzeige, in der Zukunft, Anzeige abgelaufen.
 - **Glückswurf:** Mit kleiner Chance wird der Wurf deutlich stärker. Die Chance hängt vom Glückswert ab. Ausgewürfelt wird nur auf dem Server.
 - Die Kamera folgt dem Schwert von hinten.
 
