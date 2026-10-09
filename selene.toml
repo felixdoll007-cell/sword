@@ -1,1 +1,3 @@
 std = "roblox+lune"
+# Third-party code is kept byte-identical and not linted (see src/server/Packages/ProfileStore.NOTES.md).
+exclude = ["src/server/Packages/**"]

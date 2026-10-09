@@ -3,3 +3,6 @@
 *.blend binary
 *.fbx binary
 *.rbxm binary
+
+# Third-party code: never convert, keep byte-identical to the checked source.
+src/server/Packages/** -text
