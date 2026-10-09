@@ -60,4 +60,24 @@ return {
 		strokeColor = { 0, 0, 0 },
 		decimals = 1,
 	},
+
+	-- Current strength, plain text at the top center. Still without design (Version 4).
+	strengthLabel = {
+		prefix = "Strength: ",
+		heightScale = 0.06,
+		minHeight = 28,
+		widthScale = 0.5,
+		positionY = 0.02,
+		textColor = { 255, 255, 255 },
+		strokeColor = { 0, 0, 0 },
+	},
+
+	-- "+1" that rises and fades below the strength text after each training throw.
+	gainPopup = {
+		color = { 120, 255, 120 },
+		-- Start and end height, as a share of the strength text height below its top edge.
+		startY = 1.6,
+		endY = 0.9,
+		seconds = 0.7,
+	},
 }

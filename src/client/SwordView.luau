@@ -29,10 +29,11 @@ local function addPart(model: Model, name: string, size: Vector3, offsetBehindTi
 	part.Parent = model
 end
 
-function SwordView.create(): Model
+-- scale 1 = the normal throw sword; training uses a smaller one.
+function SwordView.create(name: string, scale: number): Model
 	local v = ThrowVisuals
 	local model = Instance.new("Model")
-	model.Name = "MySword"
+	model.Name = name
 
 	addPart(model, "Blade", Vector3.new(v.bladeWidth, v.bladeThickness, v.bladeLength), v.bladeLength / 2, v.bladeColor)
 	addPart(
@@ -51,6 +52,7 @@ function SwordView.create(): Model
 	)
 
 	model.WorldPivot = CFrame.new()
+	model:ScaleTo(scale)
 	model.Parent = Workspace
 	return model
 end

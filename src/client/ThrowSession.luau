@@ -99,7 +99,7 @@ function ThrowSession.start(throwPower: number)
 		CharacterFreeze.release(FREEZE_REASON)
 	end)
 
-	local sword = SwordView.create()
+	local sword = SwordView.create("MySword", 1)
 	table.insert(cleanupTasks, function()
 		sword:Destroy()
 	end)

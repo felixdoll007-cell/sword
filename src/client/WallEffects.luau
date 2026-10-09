@@ -35,34 +35,35 @@ local function wallZ(index: number): number
 	return LaneConfig.throwLine.z - LaneLayout.wallDistance(LaneConfig, WallConfig, index)
 end
 
-function WallEffects.spawnPieces(index: number)
-	local wall = Walls.get(WallConfig, index)
-	if not wall then
-		return
-	end
+-- Pieces flying off a wall. center/width/height describe the wall. All walls share one cap
+-- on how many pieces exist at the same time.
+function WallEffects.spawnPiecesAt(
+	center: Vector3,
+	width: number,
+	height: number,
+	rgb: { number },
+	wantedCount: number,
+	pieceSize: number
+)
 	local v = ThrowVisuals
-	local count = math.min(v.piecesPerWall, v.maxActivePieces - activePieces)
+	local count = math.min(wantedCount, v.maxActivePieces - activePieces)
 	if count <= 0 then
 		return
 	end
 
-	local rgb = LaneConfig.materialColors[wall.material]
 	local folder = getFolder()
 	for _ = 1, count do
 		local piece = Instance.new("Part")
 		piece.Name = "Piece"
-		piece.Size = Vector3.one * v.pieceSize
+		piece.Size = Vector3.one * pieceSize
 		piece.Color = Color3.fromRGB(rgb[1], rgb[2], rgb[3])
 		piece.TopSurface = Enum.SurfaceType.Smooth
 		piece.BottomSurface = Enum.SurfaceType.Smooth
 		piece.CanTouch = false
 		piece.CanQuery = false
 		piece.CastShadow = false
-		piece.Position = Vector3.new(
-			LaneConfig.throwLine.x + random:NextNumber(-0.5, 0.5) * LaneConfig.laneWidth,
-			LaneConfig.floorTopY + random:NextNumber(0.2, 0.8) * LaneConfig.wallHeight,
-			wallZ(index)
-		)
+		piece.Position = center
+			+ Vector3.new(random:NextNumber(-0.5, 0.5) * width, random:NextNumber(-0.3, 0.3) * height, 0)
 		piece.AssemblyLinearVelocity = Vector3.new(
 			random:NextNumber(-1, 1) * v.pieceSideSpeed,
 			random:NextNumber(0.3, 1) * v.pieceUpSpeed,
@@ -76,6 +77,23 @@ function WallEffects.spawnPieces(index: number)
 			activePieces -= 1
 		end)
 	end
+end
+
+-- Pieces of a wall on the main lane.
+function WallEffects.spawnPieces(index: number)
+	local wall = Walls.get(WallConfig, index)
+	if not wall then
+		return
+	end
+	local center = Vector3.new(LaneConfig.throwLine.x, LaneConfig.floorTopY + LaneConfig.wallHeight / 2, wallZ(index))
+	WallEffects.spawnPiecesAt(
+		center,
+		LaneConfig.laneWidth,
+		LaneConfig.wallHeight,
+		LaneConfig.materialColors[wall.material],
+		ThrowVisuals.piecesPerWall,
+		ThrowVisuals.pieceSize
+	)
 end
 
 -- Dark scratch on the front of the wall, at the height where the sword hit it.
