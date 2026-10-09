@@ -1,16 +1,19 @@
 --!strict
 -- The ONLY place where messages between client and server are defined.
+-- All times are on the shared server clock (workspace:GetServerTimeNow()).
 --
 -- Client -> Server
---   ThrowRequested()               only the intent, no values
--- Server -> Client (only to the player who threw)
---   ThrowStarted(throwPower: number)
+--   MeterStartRequested()            first press: "I want to start the meter", no values
+--   ThrowRequested(pressTime: number) second press: only WHEN it was pressed, never a factor
+-- Server -> Client (only to the player who throws)
+--   MeterStarted(startTime: number, startPhase: number)
+--   ThrowStarted(throwPower: number, factor: number)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local FOLDER_NAME = "Remotes"
-local EVENT_NAMES = { "ThrowRequested", "ThrowStarted" }
+local EVENT_NAMES = { "MeterStartRequested", "ThrowRequested", "MeterStarted", "ThrowStarted" }
 
 local folder: Instance
 if RunService:IsServer() then
@@ -27,6 +30,8 @@ else
 end
 
 return {
+	MeterStartRequested = folder:WaitForChild("MeterStartRequested") :: RemoteEvent,
 	ThrowRequested = folder:WaitForChild("ThrowRequested") :: RemoteEvent,
+	MeterStarted = folder:WaitForChild("MeterStarted") :: RemoteEvent,
 	ThrowStarted = folder:WaitForChild("ThrowStarted") :: RemoteEvent,
 }
