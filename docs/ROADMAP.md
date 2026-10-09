@@ -4,10 +4,10 @@ Immer nur an der aktuellen Etappe arbeiten. Eine Etappe ist erst erledigt, wenn 
 Studio getestet wurde.
 
 ## Etappe 0: Setup prüfen
-- [ ] `.\check.ps1` ist grün
-- [ ] `rojo serve` läuft, Studio ist verbunden, eine Änderung in `src/` erscheint in Studio
+- [x] `.\check.ps1` ist grün
+- [x] `rojo serve` läuft, Studio ist verbunden, eine Änderung in `src/` erscheint in Studio
 - [ ] Privates GitHub-Repo angelegt, erster Push
-- [ ] Code-Skill angelegt
+- [x] Code-Skill angelegt
 
 ## Version 1: Fühlt sich der Wurf gut an?
 
@@ -44,6 +44,7 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 ### Etappe 6: Belohnung und Speichern
 - [ ] Währung nach Wurfweite
 - [ ] Speichern und Laden aller Werte, mit Fehlerbehandlung
+- Vorher prüfen: bewährte Bibliothek mit Session-Locking statt eigener Lösung? Vor- und Nachteile nennen, dann entscheiden.
 
 ### Etappe 7: Einfache Anzeige der Werte
 - [ ] Stärke und Währung auf dem Bildschirm, abgekürzt, noch ohne Gestaltung
