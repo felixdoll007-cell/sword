@@ -159,7 +159,13 @@ local function onThrowRequested(player: Player, pressTime: unknown, ...: any)
 	local plan = FlightPlan.create(WallConfig, LaneConfig, ThrowConfig, throwPower, result)
 	state.lockedUntil = time + plan.totalSeconds
 
-	-- Currency and strength from the throw are awarded in Etappe 6.
+	-- Credit the rewards now, while calculating. Even if the player leaves during the flight,
+	-- the throw counts. The client only shows the new values once the throw has ended.
+	PlayerStats.applyThrow(player, {
+		currency = result.currency,
+		strength = result.strength,
+		wallsBroken = #result.brokenWalls,
+	})
 	Remotes.ThrowStarted:FireClient(player, throwPower, factor)
 end
 

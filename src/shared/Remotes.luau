@@ -13,6 +13,7 @@
 --
 -- Values the server shows to the client through attributes on the Player (read-only for the client):
 --   Strength: number
+--   Currency: number
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -45,5 +46,6 @@ return {
 
 	Attributes = {
 		Strength = "Strength",
+		Currency = "Currency",
 	},
 }

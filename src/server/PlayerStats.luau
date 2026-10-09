@@ -1,8 +1,13 @@
 --!strict
--- The one place on the server that holds each player's strength.
--- Kept in memory only for now; saving comes in Etappe 6.
--- The value is copied into an attribute on the Player so the client can show it.
--- The client can read it, but changes it makes stay on its own screen; the server never reads it back.
+-- The one place on the server that holds each player's values. Loaded and saved with
+-- ProfileStore (session locking, autosave, saving on leave and on server shutdown).
+--
+-- The values are copied into attributes on the Player so the client can show them.
+-- The client can read them, but changes it makes stay on its own screen; the server never reads them back.
+--
+-- Test data stays separate (see docs/ROADMAP.md, Etappe 6):
+--   * In Studio the store name gets a suffix, so Studio never touches real players' data.
+--   * With raised test values on, nothing is saved at all (ProfileStore.Mock).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -10,41 +15,125 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
+local SaveConfig = require(Shared.Config.Save)
 local StrengthConfig = require(Shared.Config.Strength)
 local TestSettings = require(Shared.Config.TestSettings)
+local Rewards = require(Shared.Rules.Rewards)
+local SaveData = require(Shared.Rules.SaveData)
 local StartValues = require(Shared.Rules.StartValues)
+
+local ProfileStore = require(script.Parent.Packages.ProfileStore) :: any
 
 local PlayerStats = {}
 
-local strengths: { [Player]: number } = {}
+local isStudio = RunService:IsStudio()
+local template = SaveData.template(SaveConfig, StartValues.startStrength(StrengthConfig, TestSettings, isStudio))
 
-local function setStrength(player: Player, value: number)
-	strengths[player] = value
-	player:SetAttribute(Remotes.Attributes.Strength, value)
+local store: any = nil
+-- Loaded profile per player. Missing = not loaded (yet), the player cannot train or throw.
+local profiles: { [Player]: any } = {}
+
+local function data(player: Player): SaveData.Data?
+	local profile = profiles[player]
+	return if profile then profile.Data else nil
+end
+
+local function publish(player: Player)
+	local values = data(player)
+	if values then
+		player:SetAttribute(Remotes.Attributes.Strength, values.strength)
+		player:SetAttribute(Remotes.Attributes.Currency, values.currency)
+	end
 end
 
 function PlayerStats.getStrength(player: Player): number?
-	return strengths[player]
+	local values = data(player)
+	return if values then values.strength else nil
 end
 
 function PlayerStats.addStrength(player: Player, amount: number)
-	local current = strengths[player]
-	if current then
-		setStrength(player, current + amount)
+	local values = data(player)
+	if values then
+		values.strength += amount
+		publish(player)
 	end
 end
 
-function PlayerStats.start()
-	local function onPlayerAdded(player: Player)
-		setStrength(player, StartValues.startStrength(StrengthConfig, TestSettings, RunService:IsStudio()))
+-- Credits a main throw: currency, strength and the best wall.
+function PlayerStats.applyThrow(player: Player, outcome: Rewards.ThrowOutcome)
+	local values = data(player)
+	if not values then
+		return
 	end
-	Players.PlayerAdded:Connect(onPlayerAdded)
-	for _, player in Players:GetPlayers() do
-		onPlayerAdded(player)
+	local after = Rewards.applyThrow(values, outcome)
+	values.strength = after.strength
+	values.currency = after.currency
+	values.bestWall = after.bestWall
+	publish(player)
+end
+
+local function onPlayerAdded(player: Player)
+	local profile = store:StartSessionAsync(SaveData.key(SaveConfig, player.UserId), {
+		-- Stop trying if the player left while loading.
+		Cancel = function()
+			return player.Parent ~= Players
+		end,
+	})
+
+	if profile == nil then
+		-- Never let the player play with empty data: that would overwrite the real data later.
+		if player.Parent == Players then
+			player:Kick(SaveConfig.loadFailedMessage)
+		end
+		return
 	end
-	Players.PlayerRemoving:Connect(function(player: Player)
-		strengths[player] = nil
+
+	profile:AddUserId(player.UserId) -- lets Roblox find the data if the player asks for deletion
+	profile:Reconcile()
+	-- Repair broken or missing values and convert old versions. Copy into the same table,
+	-- because ProfileStore saves exactly this table.
+	local repaired = SaveData.repair(SaveConfig, profile.Data, template)
+	for field, value in repaired :: any do
+		profile.Data[field] = value
+	end
+
+	profile.OnSessionEnd:Connect(function()
+		profiles[player] = nil
+		-- Also fires when another server took over this player's data.
+		player:Kick(SaveConfig.sessionEndedMessage)
 	end)
+
+	if player.Parent ~= Players then
+		-- Left while loading.
+		profile:EndSession()
+		return
+	end
+
+	profiles[player] = profile
+	publish(player)
+end
+
+local function onPlayerRemoving(player: Player)
+	local profile = profiles[player]
+	if profile then
+		profile.Data.lastLeftAt = os.time()
+		-- Saves one last time and releases the session lock.
+		profile:EndSession()
+	end
+	profiles[player] = nil
+end
+
+function PlayerStats.start()
+	ProfileStore.SetConstant("AUTO_SAVE_PERIOD", SaveConfig.autoSaveSeconds)
+	local realStore = ProfileStore.New(SaveData.storeName(SaveConfig, isStudio), template)
+	store = if SaveData.useMock(TestSettings.enabled, isStudio) then realStore.Mock else realStore
+
+	Players.PlayerAdded:Connect(onPlayerAdded)
+	Players.PlayerRemoving:Connect(onPlayerRemoving)
+	-- Players who joined before this script ran (happens in Studio).
+	for _, player in Players:GetPlayers() do
+		task.spawn(onPlayerAdded, player)
+	end
 end
 
 return PlayerStats
