@@ -24,6 +24,9 @@ description: Code- und Sicherheitsregeln für dieses Roblox-Projekt. Vor jedem S
 - Alle einstellbaren Zahlen in `src/shared/Config/`. Keine Zahlen fest im restlichen Code
   (Ausnahme: 0, 1 und offensichtliche Dinge wie Schleifenzähler).
 - Config enthält nichts Geheimes, der Client kann sie lesen.
+- Erhöhte Testwerte (z. B. hohe Start-Stärke) nur in `Config/TestSettings`, nie die echten
+  Werte ändern. Testwerte gelten nur, wenn `enabled = true` UND das Spiel in Studio läuft
+  (`RunService:IsStudio()`). Ein Test schlägt fehl, solange `enabled = true` ist.
 
 ## Netzwerk
 - Alle RemoteEvents und RemoteFunctions werden in genau einer Datei definiert:
