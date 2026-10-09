@@ -35,6 +35,37 @@ return {
 		expect(after.bestWall).toBe(start.bestWall)
 	end,
 
+	["per wall: one entry per broken wall, adding up to the totals"] = function(expect)
+		for _, power in { 0, 10, 100, 1000, 1e6, math.huge } do
+			local result = ThrowCalculation.calculate(WallConfig, StrengthConfig, power)
+			local list = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls)
+			expect(#list).toBe(#result.brokenWalls)
+			local currency, strength = 0, 0
+			for _, entry in list do
+				currency += entry.currency + entry.zoneBonus
+				strength += entry.strength
+			end
+			if #list > 0 then
+				expect(currency).toBeNear(result.currency)
+				expect(strength).toBeNear(result.strength)
+			else
+				expect(currency).toBe(0)
+			end
+		end
+	end,
+
+	["per wall: only the last wall of a zone carries the zone bonus"] = function(expect)
+		local result = ThrowCalculation.calculate(WallConfig, StrengthConfig, 1e6)
+		local list = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls)
+		for index, entry in list do
+			if index % WallConfig.wallsPerZone == 0 then
+				expect(entry.zoneBonus).toBeNear(entry.currency * WallConfig.zoneBonusFactor)
+			else
+				expect(entry.zoneBonus).toBe(0)
+			end
+		end
+	end,
+
 	["the input values are not changed"] = function(expect)
 		local values = { strength = 1, currency = 2, bestWall = 0 }
 		Rewards.applyThrow(values, outcomeFor(100))
