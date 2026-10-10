@@ -99,7 +99,9 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Nur innerhalb einer Entfernung aus der Config, mit Obergrenze für gleichzeitig dargestellte fremde Würfe
 - [x] Vorbereitung: Jede Bahn hat in der Config eine Art der Freischaltung (jetzt nur "Rebirths", später "Kauf" ohne Umbau)
 - [x] Vorbereitung: Weitere Bahnen nur durch Einträge in der Config, inklusive Platz auf der Map; der Balance-Test deckt das ab
-- [ ] Von mir getestet (zwei Spieler: einer trainiert und wirft, der andere schaut zu)
+- [x] Von mir getestet (zwei Spieler: einer trainiert und wirft, der andere schaut zu)
+
+**Stand 11.10.2026: Version 2 ist gebaut.** Block A (Rebirth), Block B (Trainingsbahnen) und Block C (andere Spieler sichtbar) sind erledigt und getestet.
 
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
