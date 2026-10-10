@@ -131,6 +131,12 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Animationen von mir angesehen und hochgeladen, Nummern in der Config
 - [ ] Von mir getestet
 
+### Zwischenblock: Menü-Symbole freistellen (Vorgriff auf Version 4)
+- [x] Skript `tools/icons/cut_out_icons.py`: macht den Magenta-Hintergrund der Rohbilder in `assets/icons/roh` durchsichtig (auch in den Lücken innen), entfernt den rosa Saum an der Kontur, schneidet quadratisch zu und speichert 512x512 als PNG in `assets/icons`
+- [x] Sechs Symbole (shop, rebirth, pets, trails, inventory, gifts) und `assets/icons/vorschau.png` erzeugt
+- [ ] Von mir angesehen
+- Nur lokal: nichts ist nach Roblox hochgeladen oder in die Oberfläche eingebaut.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
