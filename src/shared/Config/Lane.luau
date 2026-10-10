@@ -7,6 +7,10 @@ return {
 	-- Middle of the throw line, on the ground.
 	throwLine = { x = 0, z = 0 },
 
+	-- The ground reaches this far from the middle of the map in every direction.
+	-- Must match the Baseplate in default.project.json (its size is twice this).
+	groundHalfSize = 256,
+
 	floorTopY = 0.1,
 	floorThickness = 1,
 	laneWidth = 30,

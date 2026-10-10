@@ -104,7 +104,7 @@ local function update(deltaTime: number)
 	local value = Players.LocalPlayer:GetAttribute(Remotes.Attributes.Rebirths)
 	local rebirths = if typeof(value) == "number" then value else 0
 	local pad = Training.lanePad(TrainingConfig, padLane)
-	if armed and pad and Training.isUnlocked(TrainingConfig, padLane, rebirths) then
+	if armed and pad and Training.isUnlocked(TrainingConfig, padLane, { rebirths = rebirths }) then
 		snap(character, root, pad)
 	end
 end

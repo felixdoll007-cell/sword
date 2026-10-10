@@ -4,16 +4,21 @@
 -- Lengths in studs, colors as { red, green, blue } from 0 to 255.
 
 return {
-	-- The lanes from right (next to the throw zone) to left.
-	-- requiredRebirths: rebirths needed to train here. Whether a lane is unlocked is always
-	--   calculated from the player's rebirths, never saved.
+	-- The lanes from right (next to the throw zone) to left. A new lane is added by adding an
+	-- entry here; floor, pad, walls, sign and its place on the map follow from it by themselves.
+	--
+	-- unlock: how the lane is unlocked.
+	--   { kind = "Rebirths", rebirths = N }: free with N rebirths. Always calculated from the
+	--     player's rebirths, never saved.
+	--   (A second kind "Purchase" is planned for later. Lanes with a kind the game does not
+	--     know stay locked for everyone.)
 	-- multiplier: strength per training throw is multiplied by this (on top of the rebirth multiplier).
 	-- walls: how many walls a training throw breaks. Only looks, more walls for better lanes.
 	lanes = {
-		{ requiredRebirths = 0, multiplier = 1, walls = 1 },
-		{ requiredRebirths = 2, multiplier = 4, walls = 2 },
-		{ requiredRebirths = 4, multiplier = 10, walls = 3 },
-		{ requiredRebirths = 6, multiplier = 20, walls = 4 },
+		{ unlock = { kind = "Rebirths", rebirths = 0 }, multiplier = 1, walls = 1 },
+		{ unlock = { kind = "Rebirths", rebirths = 2 }, multiplier = 4, walls = 2 },
+		{ unlock = { kind = "Rebirths", rebirths = 4 }, multiplier = 10, walls = 3 },
+		{ unlock = { kind = "Rebirths", rebirths = 6 }, multiplier = 20, walls = 4 },
 	},
 
 	-- The pad of lane 1: center and size on the ground, left of the throw zone.
@@ -47,8 +52,9 @@ return {
 		lockedTextColor = { 230, 90, 90 },
 		-- %s is replaced by the lane's multiplier.
 		multiplierText = "x%s",
-		-- %s is replaced by the rebirths needed. For a lane that needs none: freeText.
-		requirementText = "%s Rebirths",
+		-- For lanes unlocked by rebirths: %s is replaced by the rebirths needed.
+		-- For a lane that needs none: freeText.
+		rebirthsRequirementText = "%s Rebirths",
 		freeText = "FREE",
 		lockedText = "LOCKED",
 		-- Three lines from top to bottom: multiplier, requirement, LOCKED (empty when unlocked).

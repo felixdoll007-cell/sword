@@ -130,11 +130,16 @@ local function refreshSigns()
 
 	for laneIndex, sign in signs do
 		local lane = TrainingConfig.lanes[laneIndex]
-		local unlocked = Training.isUnlocked(TrainingConfig, laneIndex, rebirths)
+		local unlocked = Training.isUnlocked(TrainingConfig, laneIndex, { rebirths = rebirths })
 		local multiplier = NumberFormat.abbreviate(NumberFormatConfig, lane.multiplier)
-		local requirement = if lane.requiredRebirths > 0
-			then string.format(settings.requirementText, tostring(lane.requiredRebirths))
-			else settings.freeText
+		-- Each unlock kind has its own text. Unknown kinds show no requirement.
+		local requirement = ""
+		local unlock = lane.unlock
+		if unlock.kind == "Rebirths" and unlock.rebirths then
+			requirement = if unlock.rebirths > 0
+				then string.format(settings.rebirthsRequirementText, tostring(unlock.rebirths))
+				else settings.freeText
+		end
 
 		sign.multiplierLine.Text = string.format(settings.multiplierText, multiplier)
 		sign.requirementLine.Text = requirement

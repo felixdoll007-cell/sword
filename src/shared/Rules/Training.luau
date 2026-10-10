@@ -3,10 +3,21 @@
 -- unlocked, and whether it is time for the next training throw.
 -- Lanes are numbered from 1 (next to the throw zone) to the left.
 
+-- How a lane is unlocked. Only "Rebirths" exists so far; "Purchase" is planned.
+export type Unlock = {
+	kind: string,
+	rebirths: number?,
+}
+
 export type Lane = {
-	requiredRebirths: number,
+	unlock: Unlock,
 	multiplier: number,
 	walls: number,
+}
+
+-- What the game knows about a player that can unlock lanes. More fields come with new unlock kinds.
+export type Progress = {
+	rebirths: number,
 }
 
 export type Pad = { x: number, z: number, width: number, length: number }
@@ -16,9 +27,13 @@ export type TrainingConfig = {
 	pad: Pad,
 	laneSpacing: number,
 	padTolerance: number,
+	laneLength: number,
 	wallDistance: number,
 	wallSpacing: number,
 }
+
+-- The rectangle on the ground a lane takes up: its pad plus the lane floor in front of it.
+export type Area = { minX: number, maxX: number, minZ: number, maxZ: number }
 
 local Training = {}
 
@@ -40,6 +55,21 @@ function Training.lanePad(config: TrainingConfig, laneIndex: number): Pad?
 	}
 end
 
+-- The ground a lane takes up (pad and lane floor). nil if the lane does not exist.
+function Training.laneArea(config: TrainingConfig, laneIndex: number): Area?
+	local pad = Training.lanePad(config, laneIndex)
+	if not pad then
+		return nil
+	end
+	return {
+		minX = pad.x - pad.width / 2,
+		maxX = pad.x + pad.width / 2,
+		-- The lane runs towards negative Z from the front edge of the pad.
+		minZ = pad.z - pad.length / 2 - config.laneLength,
+		maxZ = pad.z + pad.length / 2,
+	}
+end
+
 -- Which lane's pad is this position on? nil if on none.
 function Training.laneAt(config: TrainingConfig, x: number, z: number): number?
 	for laneIndex = 1, #config.lanes do
@@ -53,16 +83,25 @@ function Training.laneAt(config: TrainingConfig, x: number, z: number): number?
 	return nil
 end
 
--- Unlocking is always calculated from the rebirths, never saved.
-function Training.isUnlocked(config: TrainingConfig, laneIndex: number, rebirths: number): boolean
+-- Is this lane unlocked for a player with this progress?
+-- Each unlock kind has its own rule. A kind the game does not know keeps the lane locked.
+function Training.isUnlocked(config: TrainingConfig, laneIndex: number, progress: Progress): boolean
 	local lane = config.lanes[laneIndex]
-	return lane ~= nil and rebirths >= lane.requiredRebirths
+	if not lane then
+		return false
+	end
+	local unlock = lane.unlock
+	if unlock.kind == "Rebirths" then
+		-- Always calculated from the rebirths, never saved.
+		return unlock.rebirths ~= nil and progress.rebirths >= unlock.rebirths
+	end
+	return false
 end
 
 -- The lane a player trains on right now: standing on its pad AND unlocked. nil otherwise.
-function Training.trainingLane(config: TrainingConfig, x: number, z: number, rebirths: number): number?
+function Training.trainingLane(config: TrainingConfig, x: number, z: number, progress: Progress): number?
 	local laneIndex = Training.laneAt(config, x, z)
-	if laneIndex and Training.isUnlocked(config, laneIndex, rebirths) then
+	if laneIndex and Training.isUnlocked(config, laneIndex, progress) then
 		return laneIndex
 	end
 	return nil

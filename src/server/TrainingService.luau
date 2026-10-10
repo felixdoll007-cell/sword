@@ -67,7 +67,7 @@ local function checkPlayers()
 		-- Only an unlocked lane counts. Unlocking comes from the rebirths the server has stored.
 		local rebirths = PlayerStats.getRebirths(player)
 		local lane: number? = nil
-		if padLane and rebirths and Training.isUnlocked(TrainingConfig, padLane, rebirths) then
+		if padLane and rebirths and Training.isUnlocked(TrainingConfig, padLane, { rebirths = rebirths }) then
 			lane = padLane
 		end
 		if lane ~= state.lane then

@@ -9,7 +9,8 @@ return {
 		local required = { 0, 2, 4, 6 }
 		local multipliers = { 1, 4, 10, 20 }
 		for index, lane in TrainingConfig.lanes do
-			expect(lane.requiredRebirths).toBe(required[index])
+			expect(lane.unlock.kind).toBe("Rebirths")
+			expect(lane.unlock.rebirths).toBe(required[index])
 			expect(lane.multiplier).toBe(multipliers[index])
 		end
 	end,
@@ -56,24 +57,48 @@ return {
 	end,
 
 	["lanes unlock exactly at their required rebirths"] = function(expect)
-		expect(Training.isUnlocked(TrainingConfig, 1, 0)).toBe(true)
-		expect(Training.isUnlocked(TrainingConfig, 2, 1)).toBe(false)
-		expect(Training.isUnlocked(TrainingConfig, 2, 2)).toBe(true)
-		expect(Training.isUnlocked(TrainingConfig, 3, 3)).toBe(false)
-		expect(Training.isUnlocked(TrainingConfig, 3, 4)).toBe(true)
-		expect(Training.isUnlocked(TrainingConfig, 4, 5)).toBe(false)
-		expect(Training.isUnlocked(TrainingConfig, 4, 6)).toBe(true)
-		expect(Training.isUnlocked(TrainingConfig, 4, 100)).toBe(true)
-		expect(Training.isUnlocked(TrainingConfig, 5, 100)).toBe(false)
-		expect(Training.isUnlocked(TrainingConfig, 2, 0 / 0)).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 1, { rebirths = 0 })).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 2, { rebirths = 1 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 2, { rebirths = 2 })).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 3, { rebirths = 3 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 3, { rebirths = 4 })).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 4, { rebirths = 5 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 4, { rebirths = 6 })).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 4, { rebirths = 100 })).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 5, { rebirths = 100 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 2, { rebirths = 0 / 0 })).toBe(false)
+	end,
+
+	["a lane with an unlock kind the game does not know stays locked for everyone"] = function(expect)
+		local config = table.clone(TrainingConfig)
+		config.lanes = table.clone(TrainingConfig.lanes)
+		table.insert(config.lanes, { unlock = { kind = "Purchase" }, multiplier = 50, walls = 5 })
+		local newLane = #config.lanes
+		expect(Training.isUnlocked(config, newLane, { rebirths = 0 })).toBe(false)
+		expect(Training.isUnlocked(config, newLane, { rebirths = 1000 })).toBe(false)
+		-- The lanes before it are not affected.
+		expect(Training.isUnlocked(config, 1, { rebirths = 0 })).toBe(true)
+	end,
+
+	["a lane added in the config gets its own place to the left of the others"] = function(expect)
+		local config = table.clone(TrainingConfig)
+		config.lanes = table.clone(TrainingConfig.lanes)
+		table.insert(config.lanes, { unlock = { kind = "Rebirths", rebirths = 8 }, multiplier = 40, walls = 5 })
+		local newLane = #config.lanes
+		local newPad = Training.lanePad(config, newLane) :: Training.Pad
+		local previousPad = Training.lanePad(config, newLane - 1) :: Training.Pad
+		expect(previousPad.x - newPad.x).toBe(config.laneSpacing)
+		expect(Training.laneAt(config, newPad.x, newPad.z)).toBe(newLane)
+		expect(Training.isUnlocked(config, newLane, { rebirths = 8 })).toBe(true)
+		expect(Training.isUnlocked(config, newLane, { rebirths = 7 })).toBe(false)
 	end,
 
 	["standing on a locked pad is not training"] = function(expect)
 		local second = Training.lanePad(TrainingConfig, 2) :: Training.Pad
-		expect(Training.trainingLane(TrainingConfig, second.x, second.z, 1)).toBe(nil)
-		expect(Training.trainingLane(TrainingConfig, second.x, second.z, 2)).toBe(2)
-		expect(Training.trainingLane(TrainingConfig, pad.x, pad.z, 0)).toBe(1)
-		expect(Training.trainingLane(TrainingConfig, 0, 10, 50)).toBe(nil)
+		expect(Training.trainingLane(TrainingConfig, second.x, second.z, { rebirths = 1 })).toBe(nil)
+		expect(Training.trainingLane(TrainingConfig, second.x, second.z, { rebirths = 2 })).toBe(2)
+		expect(Training.trainingLane(TrainingConfig, pad.x, pad.z, { rebirths = 0 })).toBe(1)
+		expect(Training.trainingLane(TrainingConfig, 0, 10, { rebirths = 50 })).toBe(nil)
 	end,
 
 	["walls of a lane stand one spacing apart and fit on the lane floor"] = function(expect)
