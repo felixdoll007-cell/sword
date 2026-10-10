@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
@@ -61,10 +62,15 @@ local function build(player: Player, character: Model)
 end
 
 local function onCharacterAdded(player: Player, character: Model)
+	-- Roblox announces a new character before it is placed in the world. Wait until it is there;
+	-- otherwise a respawned character would get no weapon.
+	while not character:IsDescendantOf(Workspace) do
+		character.AncestryChanged:Wait()
+	end
 	-- The body parts arrive one after the other.
 	character:WaitForChild("Humanoid")
 	character:WaitForChild(HAND_NAME, 5)
-	if character.Parent then
+	if player.Character == character and character:IsDescendantOf(Workspace) then
 		build(player, character)
 	end
 end
