@@ -75,7 +75,9 @@ return {
 	leaveMessageWindowSeconds = 2,
 
 	-- Client animation of a training throw. Must be shorter than the time between two throws.
-	swordScale = 0.6,
+	-- Size of the flying weapon. 1 = the same size as in the hand, so it really is the weapon
+	-- that leaves the hand.
+	swordScale = 1,
 	swordHeight = 3,
 	-- Time for the sword to reach the last wall of the lane.
 	flightSeconds = 0.35,

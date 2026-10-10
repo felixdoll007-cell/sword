@@ -5,6 +5,7 @@ local Walls = require("../src/shared/Rules/Walls")
 local WallConfig = require("../src/shared/Config/Walls")
 local LaneConfig = require("../src/shared/Config/Lane")
 local ThrowConfig = require("../src/shared/Config/Throw")
+local AnimationConfig = require("../src/shared/Config/Animations")
 local StrengthConfig = require("../src/shared/Config/Strength")
 
 local function plan(power: number)
@@ -83,11 +84,25 @@ return {
 		expect(speedAtWall1 > speedAtWall10).toBe(true)
 	end,
 
-	["total time adds the ending"] = function(expect)
+	["total time is wind-up plus flight plus ending"] = function(expect)
 		local bounce = plan(10)
-		expect(bounce.totalSeconds).toBeNear(bounce.flightSeconds + ThrowConfig.bounceSeconds)
+		expect(bounce.windUpSeconds).toBe(ThrowConfig.windUpSeconds)
+		expect(bounce.totalSeconds).toBeNear(
+			ThrowConfig.windUpSeconds + bounce.flightSeconds + ThrowConfig.bounceSeconds
+		)
 		local stuck = plan(math.huge)
-		expect(stuck.totalSeconds).toBeNear(stuck.flightSeconds + ThrowConfig.stuckSeconds)
+		expect(stuck.totalSeconds).toBeNear(ThrowConfig.windUpSeconds + stuck.flightSeconds + ThrowConfig.stuckSeconds)
+	end,
+
+	["the wind-up is the release moment of the throw animation"] = function(expect)
+		expect(ThrowConfig.windUpSeconds).toBe(AnimationConfig.mainThrow.releaseSeconds)
+		expect(ThrowConfig.windUpSeconds > 0).toBe(true)
+	end,
+
+	["wall breaks count from the start of the flight, not of the throw"] = function(expect)
+		local p = plan(500)
+		expect(p.points[1].time).toBe(0)
+		expect(p.breaks[#p.breaks].time <= p.flightSeconds + 1e-9).toBe(true)
 	end,
 
 	["distance before the start and after the stop"] = function(expect)

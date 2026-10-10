@@ -12,6 +12,7 @@ export type LaneConfig = LaneLayout.LaneConfig & {
 }
 
 export type ThrowConfig = {
+	windUpSeconds: number,
 	slowestSpeed: number,
 	fastestSpeed: number,
 	minFlightSeconds: number,
@@ -38,8 +39,12 @@ export type Plan = {
 	-- "bounce": stopped by a wall that is too hard. "stuck": every wall broke, sword sticks in the ground.
 	ending: "bounce" | "stuck",
 	bounceWallIndex: number?,
+	-- The throw has three parts in a row: wind-up (weapon still in the hand), flight, ending.
+	-- The times in points and breaks count from the start of the flight, not of the throw.
+	windUpSeconds: number,
 	flightSeconds: number,
 	endingSeconds: number,
+	-- All three parts together: how long the throw takes and how long the next one is locked.
 	totalSeconds: number,
 }
 
@@ -107,9 +112,10 @@ function FlightPlan.create(
 		breaks = breaks,
 		ending = if bounceWall then "bounce" else "stuck",
 		bounceWallIndex = if bounceWall then bounceWall.index else nil,
+		windUpSeconds = throwConfig.windUpSeconds,
 		flightSeconds = flightSeconds,
 		endingSeconds = endingSeconds,
-		totalSeconds = flightSeconds + endingSeconds,
+		totalSeconds = throwConfig.windUpSeconds + flightSeconds + endingSeconds,
 	}
 end
 

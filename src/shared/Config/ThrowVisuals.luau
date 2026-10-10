@@ -24,6 +24,13 @@ return {
 	-- x = 90 turns the tip forward, z = 90 stands the blade on its edge.
 	handRotationDegrees = { x = 90, y = 0, z = 90 },
 
+	-- After the release the flying weapon glides from the hand onto its path along the lane
+	-- within this time.
+	launchBlendSeconds = 0.2,
+	-- The flying weapon starts with the direction the weapon had in the hand, unless that points
+	-- more than this many degrees away from the lane. Then it starts pointing along the lane.
+	launchMaxAngleDegrees = 35,
+
 	-- Height of the flying sword above the floor.
 	swordHeight = 5,
 

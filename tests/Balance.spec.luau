@@ -3,6 +3,7 @@
 -- lane), the message says which value needs to follow.
 local Rebirth = require("../src/shared/Rules/Rebirth")
 local Training = require("../src/shared/Rules/Training")
+local AnimationConfig = require("../src/shared/Config/Animations")
 local LaneConfig = require("../src/shared/Config/Lane")
 local OtherPlayersConfig = require("../src/shared/Config/OtherPlayers")
 local RebirthConfig = require("../src/shared/Config/Rebirth")
@@ -145,6 +146,11 @@ return {
 		-- A hundred lanes do not, and the check says so instead of building lanes in the void.
 		local ok = pcall(checkLanesFitOnMap, withLanes(100))
 		expect(ok).toBe(false)
+	end,
+
+	["a training throw (release plus flight) fits between two training throws"] = function(expect)
+		local needed = AnimationConfig.trainingThrow.releaseSeconds + TrainingConfig.flightSeconds
+		expect(needed < StrengthConfig.trainingSecondsPerThrow).toBe(true)
 	end,
 
 	["a sword thrown by another player fades before it reaches the first wall"] = function(expect)

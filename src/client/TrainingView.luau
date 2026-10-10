@@ -10,14 +10,16 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
+local AnimationConfig = require(Shared.Config.Animations)
 local LaneConfig = require(Shared.Config.Lane)
 local NumberFormatConfig = require(Shared.Config.NumberFormat)
 local TrainingConfig = require(Shared.Config.Training)
 local NumberFormat = require(Shared.Rules.NumberFormat)
 local Training = require(Shared.Rules.Training)
 
-local ArmSwing = require(script.Parent.ArmSwing)
+local HandWeaponView = require(script.Parent.HandWeaponView)
 local SwordView = require(script.Parent.SwordView)
+local ThrowAnimation = require(script.Parent.ThrowAnimation)
 local WallEffects = require(script.Parent.WallEffects)
 
 local FOLDER_NAME = "MyTrainingLanes"
@@ -179,15 +181,18 @@ local function launchSword(laneIndex: number)
 		return
 	end
 
+	-- The weapon leaves the hand: it starts where the tip of the weapon in the hand is, and the
+	-- one in the hand is hidden while it flies.
 	local y = LaneConfig.floorTopY + TrainingConfig.swordHeight
-	local from = Vector3.new(root.Position.X, y, root.Position.Z)
-	local to = Vector3.new(root.Position.X, y, wallZ(pad, #laneWalls))
+	local from = HandWeaponView.launchPose(character :: Model) or CFrame.new(root.Position.X, y, root.Position.Z)
+	local to = CFrame.new(root.Position.X, y, wallZ(pad, #laneWalls))
+	HandWeaponView.hideFor(character :: Model, TrainingConfig.flightSeconds)
 	local sword = SwordView.create(
 		"MyTrainingSword",
 		TrainingConfig.swordScale,
 		player:GetAttribute(Remotes.Attributes.EquippedWeapon)
 	)
-	SwordView.moveTo(sword, CFrame.new(from))
+	SwordView.moveTo(sword, from)
 
 	local elapsed = 0
 	local nextWall = 1
@@ -195,8 +200,10 @@ local function launchSword(laneIndex: number)
 	connection = RunService.Heartbeat:Connect(function(deltaTime: number)
 		elapsed += deltaTime
 		local progress = math.clamp(elapsed / TrainingConfig.flightSeconds, 0, 1)
-		local position = from:Lerp(to, progress)
-		SwordView.moveTo(sword, CFrame.new(position))
+		-- From the hand (place and direction) straight to the last wall, turning to point along the lane.
+		local pose = from:Lerp(to, progress)
+		local position = pose.Position
+		SwordView.moveTo(sword, pose)
 
 		-- Break every wall the tip has reached.
 		while nextWall <= #laneWalls and position.Z <= wallZ(pad, nextWall) do
@@ -229,9 +236,9 @@ function TrainingView.start()
 			return
 		end
 		local laneIndex: number = lane
-		-- Arm swings first, the sword leaves when the arm moves forward.
-		ArmSwing.play()
-		task.delay(ArmSwing.releaseDelay(), launchSword, laneIndex)
+		-- The throw animation first; the weapon leaves the hand at its release moment.
+		ThrowAnimation.playOwn(AnimationConfig.trainingThrow)
+		task.delay(AnimationConfig.trainingThrow.releaseSeconds, launchSword, laneIndex)
 	end)
 end
 

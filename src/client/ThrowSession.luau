@@ -1,5 +1,6 @@
 --!strict
--- Plays one throw on this client: sword flight, breaking walls, camera, frozen character.
+-- Plays one throw on this client: the throw animation, then the weapon leaves the hand and flies,
+-- walls break, the camera follows the weapon, the character stands still.
 -- Whatever happens (throw ends, character dies or respawns, an error), finish() runs once
 -- and puts everything back: camera, movement, walls.
 
@@ -9,6 +10,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
+local AnimationConfig = require(Shared.Config.Animations)
 local LaneConfig = require(Shared.Config.Lane)
 local StrengthConfig = require(Shared.Config.Strength)
 local ThrowConfig = require(Shared.Config.Throw)
@@ -18,11 +20,12 @@ local FlightPlan = require(Shared.Rules.FlightPlan)
 local Rewards = require(Shared.Rules.Rewards)
 local ThrowCalculation = require(Shared.Rules.ThrowCalculation)
 
-local ArmSwing = require(script.Parent.ArmSwing)
 local CameraFollow = require(script.Parent.CameraFollow)
 local CharacterFreeze = require(script.Parent.CharacterFreeze)
+local HandWeaponView = require(script.Parent.HandWeaponView)
 local LaneView = require(script.Parent.LaneView)
 local SwordView = require(script.Parent.SwordView)
+local ThrowAnimation = require(script.Parent.ThrowAnimation)
 local StatsView = require(script.Parent.StatsView)
 local WallEffects = require(script.Parent.WallEffects)
 local WallPopups = require(script.Parent.WallPopups)
@@ -108,13 +111,25 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 		CharacterFreeze.release(FREEZE_REASON)
 	end)
 
-	ArmSwing.play()
-	local sword = SwordView.create("MySword", 1, player:GetAttribute(Remotes.Attributes.EquippedWeapon))
-	table.insert(cleanupTasks, function()
-		sword:Destroy()
-	end)
+	-- Face the lane and start the throw animation. The weapon is still in the hand and the
+	-- camera stays with the character until the release moment.
+	local body = character :: Model
+	local root = body:FindFirstChild("HumanoidRootPart")
+	if root and root:IsA("BasePart") then
+		local position = root.Position
+		root.AssemblyLinearVelocity = Vector3.zero
+		body:PivotTo(CFrame.lookAt(position, position + Vector3.new(0, 0, -1)))
+	end
+	ThrowAnimation.playOwn(AnimationConfig.mainThrow)
 
-	CameraFollow.start()
+	-- Created at the release moment: the flying weapon, starting where the hand is.
+	local sword: Model? = nil
+	local launchFrom: CFrame? = nil
+	table.insert(cleanupTasks, function()
+		if sword then
+			sword:Destroy()
+		end
+	end)
 	table.insert(cleanupTasks, CameraFollow.stop)
 	table.insert(cleanupTasks, LaneView.resetWalls)
 	table.insert(cleanupTasks, WallEffects.clearScratch)
@@ -137,8 +152,25 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 	local nextBreak = 1
 	local scratched = false
 
+	local function release(): Model
+		-- The weapon leaves the hand: hide the one in the hand until the throw is over,
+		-- and let the same weapon fly from where its tip is right now.
+		local handTip = HandWeaponView.launchPose(body)
+		HandWeaponView.hideFor(body, plan.flightSeconds + plan.endingSeconds)
+		launchFrom = handTip
+		local flying = SwordView.create("MySword", 1, player:GetAttribute(Remotes.Attributes.EquippedWeapon))
+		sword = flying
+		CameraFollow.start()
+		return flying
+	end
+
 	local function step(deltaTime: number)
-		local time = os.clock() - startTime
+		-- Until the release moment only the animation plays.
+		local time = os.clock() - startTime - plan.windUpSeconds
+		if time < 0 then
+			return
+		end
+		local flying = sword or release()
 
 		while nextBreak <= #plan.breaks and time >= plan.breaks[nextBreak].time do
 			local wallIndex = plan.breaks[nextBreak].wallIndex
@@ -146,7 +178,7 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 			WallEffects.spawnPieces(wallIndex)
 			local reward = rewards and rewards[nextBreak]
 			if reward then
-				local tip = sword:GetPivot().Position
+				local tip = flying:GetPivot().Position
 				WallPopups.show(tip, reward.currency, false)
 				WallPopups.show(tip, reward.zoneBonus, true)
 				StatsView.addDuringThrow(reward.currency + reward.zoneBonus, reward.strength)
@@ -160,7 +192,14 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 		end
 
 		local pose = swordPose(plan, time)
-		SwordView.moveTo(sword, pose)
+		-- Right after the release the weapon glides from where it was in the hand (place and
+		-- direction) onto its path along the lane.
+		if launchFrom and time < ThrowVisuals.launchBlendSeconds then
+			local blend = time / ThrowVisuals.launchBlendSeconds
+			local eased = 1 - (1 - blend) ^ 2
+			pose = launchFrom:Lerp(pose, eased)
+		end
+		SwordView.moveTo(flying, pose)
 		WallPopups.follow(pose.Position)
 		if plan.ending == "bounce" and time > plan.flightSeconds then
 			-- Pull the camera back and keep it on the point of impact, so sword, wall and scratch are in view.
@@ -177,7 +216,7 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 			CameraFollow.update(pose.Position, deltaTime, 0, 0)
 		end
 
-		if time >= plan.totalSeconds then
+		if time >= plan.flightSeconds + plan.endingSeconds then
 			finish()
 		end
 	end

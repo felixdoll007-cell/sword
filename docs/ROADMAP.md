@@ -121,10 +121,10 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 
 ### Block: Wurf fertig machen
-- [ ] Waffe in der rechten Hand, für alle sichtbar; beim Wurf verlässt sie die Hand und erscheint danach wieder
-- [ ] Wurfanimation für den ganzen Körper: eine für den Hauptwurf, eine kürzere für das Training; als echte Roblox-Animationen, im Editor nachbesserbar; Ersatz per Code, solange nichts hochgeladen ist
-- [ ] Kamera bleibt bei der Figur, bis die Waffe die Hand verlässt; Flugplan und Wurfsperre des Servers rechnen diese Zeit ein
-- [ ] Alle Zeiten in der Config
+- [x] Waffe in der rechten Hand, für alle sichtbar; beim Wurf verlässt sie die Hand und erscheint danach wieder
+- [x] Wurfanimation für den ganzen Körper: eine für den Hauptwurf, eine kürzere für das Training; als echte Roblox-Animationen, im Editor nachbesserbar; Ersatz per Code, solange nichts hochgeladen ist (erste Fassung gebaut, Anleitung in `docs/ANIMATIONS.md`)
+- [x] Kamera bleibt bei der Figur, bis die Waffe die Hand verlässt; Flugplan und Wurfsperre des Servers rechnen diese Zeit ein
+- [x] Alle Zeiten in der Config
 - [ ] Animationen von mir angesehen und hochgeladen, Nummern in der Config
 - [ ] Von mir getestet
 
