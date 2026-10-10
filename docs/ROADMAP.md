@@ -111,6 +111,15 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 - Wichtig: Die Vorlage liegt nur im Ort, nicht im Repo. Der Ort muss in Studio auf Roblox gespeichert sein. Details in `assets/ember-greatsword-roblox.NOTES.md`.
 
+### Block: Waffen-Shop
+- [ ] Fünf Waffen in der Config mit Preis und Trainingsbonus; Regeln als reine Funktionen mit Tests
+- [ ] Shop in der Welt: fünf Sockel mit Waffe und Schild (Name, Bonus, Preis, OWNED / EQUIPPED / LOCKED)
+- [ ] Am Sockel kaufen und ausrüsten, per Touch bedienbar; der Server prüft Preis, Besitz, Coins und Nähe
+- [ ] Die ausgerüstete Waffe fliegt bei Hauptwurf, Training und für Zuschauer; Waffen ohne Modell als grauer Platzhalter
+- [ ] Besitz und Ausrüstung werden gespeichert; alte Spielstände laden weiter
+- [ ] Balance-Test: kein Durchlauf unter 3 Minuten, jede Waffe in ihrem Fenster leistbar; Zieldauern weiter ohne Waffen
+- [ ] Von mir getestet
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

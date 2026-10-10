@@ -95,6 +95,18 @@ nächstes Ziel ist.
 - Bekannt und hingenommen: Bei Rebirth 6, 10 und 12 erreicht man beim sofortigen Rebirth dieselbe Wand wie im Durchlauf davor, weil der Härtesprung zum nächsten Material größer ist als der Anstieg der Schwelle. Wer weitertrainiert, kommt weiter.
 - Schaltet Trainingsbahnen frei. Welche Bahnen frei sind, wird aus der Zahl der Rebirths berechnet und nicht gespeichert.
 
+## Waffen
+- Fünf Waffen, in der Config: Wooden Sword (kostenlos, Start), Iron Dagger, Battle Axe, Ember Greatsword, Void Blade (Platzhalter).
+- Jede Waffe kostet Coins und gibt einen Bonus auf die Stärke pro Trainingswurf (zusätzlich zu Bahn und Rebirth). Der Hauptwurf wird nicht verstärkt.
+- Zahlen: Preise 0 / 500 / 8.000 / 120.000 / 800.000 Coins, Bonus +0 % / +25 % / +50 % / +100 % / +200 %.
+- Waffen sind eine echte Beschleunigung: Nach einem Waffenkauf darf der nächste Durchlauf kürzer sein als der davor. Die Rebirth-Schwellen bleiben unverändert und rechnen ohne Waffen.
+- Der Shop steht in der Welt, rechts neben der Wurfzone: fünf Sockel nebeneinander, auf jedem die Waffe, darüber ein Schild mit Name, Bonus ("+25% Strength"), Preis und OWNED, EQUIPPED oder LOCKED.
+- Am Sockel kauft man und rüstet aus, per Touch bedienbar. Ein Kauf rüstet die Waffe sofort aus. Zwischen gekauften Waffen wechselt man frei.
+- Die ausgerüstete Waffe fliegt bei Hauptwurf, Training und für Zuschauer.
+- Waffen und Coins bleiben beim Rebirth erhalten. Besitz und Ausrüstung werden gespeichert.
+- Der Server prüft Preis, Besitz, Coins und die Nähe zum Sockel. Der Client meldet nur den Wunsch.
+- Waffen ohne Modell fliegen als grauer Platzhalter. Ein neues Modell braucht nur einen Config-Eintrag und die Vorlage in `ReplicatedStorage.Assets`.
+
 ## Pets
 - Kosten Währung.
 - Geben Stärke-Multiplikator und Glück.
