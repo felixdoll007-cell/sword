@@ -37,7 +37,8 @@ local PARENT_OF = {
 	RightUpperLeg = "LowerTorso",
 	LeftUpperLeg = "LowerTorso",
 }
-local PARTS = {
+-- Order matters: a part must come after the part it hangs on.
+local ORDER = {
 	"LowerTorso",
 	"UpperTorso",
 	"Head",
@@ -49,6 +50,15 @@ local PARTS = {
 	"RightUpperLeg",
 	"LeftUpperLeg",
 }
+
+-- The parts each animation moves. Every other part is left to Roblox's own animations (standing,
+-- walking). A part that is in an animation without being turned is still held in its plain rest
+-- pose by it: that is how the training throw used to pull the legs back a little on every throw.
+-- The main throw moves the whole body.
+local MAIN_PARTS = ORDER
+-- The training throw only moves the upper body and the right arm. Hips, legs and the left arm
+-- are not in it.
+local TRAINING_PARTS = { "UpperTorso", "Head", "RightUpperArm", "RightLowerArm", "RightHand" }
 
 -- Angles in degrees { x, y, z } per part. Parts not listed in a keyframe stay in their rest pose.
 type Angles = { number }
@@ -133,7 +143,6 @@ local TRAINING_THROW: { KeyframeSpec } = {
 			Head = { 0, 20, 0 },
 			RightUpperArm = { 185, 0, 15 },
 			RightLowerArm = { 60, 0, 0 },
-			LeftUpperArm = { 45, 0, 0 },
 		},
 	},
 	{
@@ -145,7 +154,6 @@ local TRAINING_THROW: { KeyframeSpec } = {
 			RightUpperArm = { 95, 0, 0 },
 			RightLowerArm = { 8, 0, 0 },
 			RightHand = { -93, 0, 0 },
-			LeftUpperArm = { -20, 0, 0 },
 		},
 	},
 	{
@@ -156,13 +164,12 @@ local TRAINING_THROW: { KeyframeSpec } = {
 			RightUpperArm = { 35, 0, -15 },
 			RightLowerArm = { 20, 0, 0 },
 			RightHand = { -55, 0, 0 },
-			LeftUpperArm = { -25, 0, 0 },
 		},
 	},
 	{ time = 0.5, poses = {} },
 }
 
-local function buildSequence(name: string, keyframes: { KeyframeSpec }): KeyframeSequence
+local function buildSequence(name: string, keyframes: { KeyframeSpec }, moved: { string }): KeyframeSequence
 	local sequence = Instance.new("KeyframeSequence")
 	sequence.Name = name
 	sequence.Loop = false
@@ -172,7 +179,9 @@ local function buildSequence(name: string, keyframes: { KeyframeSpec }): Keyfram
 		local keyframe = Instance.new("Keyframe")
 		keyframe.Time = spec.time
 
-		-- Every keyframe carries the whole chain of parts, so the editor shows all of them.
+		-- Poses are nested the way the parts hang on each other. A part that is only needed to reach
+		-- a moved part (like the hips for the upper body) gets weight 0: it is in the chain, but the
+		-- animation does not touch it.
 		local poses: { [string]: Pose } = {}
 		local rootPose = Instance.new("Pose")
 		rootPose.Name = "HumanoidRootPart"
@@ -180,15 +189,28 @@ local function buildSequence(name: string, keyframes: { KeyframeSpec }): Keyfram
 		rootPose.Parent = keyframe
 		poses.HumanoidRootPart = rootPose
 
-		for _, partName in PARTS do
-			local angles = spec.poses[partName] or { 0, 0, 0 }
+		local function poseFor(partName: string): Pose
+			local existing = poses[partName]
+			if existing then
+				return existing
+			end
 			local pose = Instance.new("Pose")
 			pose.Name = partName
-			pose.CFrame = CFrame.Angles(math.rad(angles[1]), math.rad(angles[2]), math.rad(angles[3]))
-			pose.EasingStyle = Enum.PoseEasingStyle.Cubic
-			pose.EasingDirection = Enum.PoseEasingDirection.InOut
-			pose.Parent = poses[PARENT_OF[partName]]
+			pose.Weight = 0
+			pose.Parent = poseFor(PARENT_OF[partName])
 			poses[partName] = pose
+			return pose
+		end
+
+		for _, partName in ORDER do
+			if table.find(moved, partName) then
+				local angles = spec.poses[partName] or { 0, 0, 0 }
+				local pose = poseFor(partName)
+				pose.Weight = 1
+				pose.CFrame = CFrame.Angles(math.rad(angles[1]), math.rad(angles[2]), math.rad(angles[3]))
+				pose.EasingStyle = Enum.PoseEasingStyle.Cubic
+				pose.EasingDirection = Enum.PoseEasingDirection.InOut
+			end
 		end
 
 		if spec.marker then
@@ -218,8 +240,8 @@ end
 -- The animation editor keeps saved animations in an ObjectValue called AnimSaves inside the rig.
 local saves = Instance.new("ObjectValue")
 saves.Name = SAVES_NAME
-buildSequence("ThrowMain", MAIN_THROW).Parent = saves
-buildSequence("ThrowTraining", TRAINING_THROW).Parent = saves
+buildSequence("ThrowMain", MAIN_THROW, MAIN_PARTS).Parent = saves
+buildSequence("ThrowTraining", TRAINING_THROW, TRAINING_PARTS).Parent = saves
 saves.Parent = rig
 
 return `built {RIG_NAME} with ThrowMain ({#MAIN_THROW} keyframes) and ThrowTraining ({#TRAINING_THROW} keyframes)`

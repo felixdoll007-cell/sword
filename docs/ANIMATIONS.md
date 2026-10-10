@@ -20,6 +20,15 @@ Es gibt zwei Animationen: `ThrowMain` für den Wurf in der Wurfzone und die kür
    `AnimSaves` als Vorschau benutzt, nur für die eigene Figur.
 3. Sonst läuft der einfache Armschwung per Code (`src/client/ArmSwing.luau`).
 
+## Was die Animationen bewegen
+- `ThrowMain` bewegt den ganzen Körper.
+- `ThrowTraining` bewegt nur Oberkörper, Kopf und rechten Arm. Hüfte, Beine und linker Arm sind
+  nicht enthalten. Ein Körperteil, das in einer Animation enthalten ist, wird von ihr festgehalten,
+  auch wenn es sich nicht dreht. So zog die erste Fassung bei jedem Trainingswurf die Beine zurück.
+  Im Editor deshalb für Hüfte und Beine keine Schlüsselbilder in `ThrowTraining` anlegen.
+- Die Priorität beider Animationen ist "Action". Daran erkennt das Spiel, dass ein Wurf läuft, und
+  die Haltung der Waffe (`Config/HoldPose`) gibt den Arm frei. Die Priorität nicht ändern.
+
 ## Der Moment "Release"
 In jeder Animation gibt es eine Markierung `Release`: der Moment, in dem die Waffe die Hand
 verlässt. Dieselbe Zeit steht in der Config als `releaseSeconds`.
