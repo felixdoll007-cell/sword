@@ -2,6 +2,7 @@
 *.ps1 text eol=crlf
 *.blend binary
 *.fbx binary
+*.glb binary
 *.rbxm binary
 
 # Third-party code: never convert, keep byte-identical to the checked source.
