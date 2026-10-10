@@ -3,6 +3,7 @@
 -- saves are repaired, and which store is used where.
 
 local TestMode = require("./TestMode")
+local Weapons = require("./Weapons")
 
 export type SaveConfig = {
 	storeName: string,
@@ -24,11 +25,15 @@ export type Data = {
 	lastLeftAt: number,
 	-- Number of rebirths done. Added in Version 2; older saves load with 0.
 	rebirths: number,
+	-- Ids of the weapons the player owns, and the one in use. Added with the weapon shop;
+	-- older saves load with only the start weapon.
+	ownedWeapons: { string },
+	equippedWeapon: string,
 }
 
 local SaveData = {}
 
-function SaveData.template(config: SaveConfig, startStrength: number): Data
+function SaveData.template(config: SaveConfig, startStrength: number, weaponConfig: Weapons.WeaponConfig): Data
 	return {
 		version = config.dataVersion,
 		strength = startStrength,
@@ -36,6 +41,8 @@ function SaveData.template(config: SaveConfig, startStrength: number): Data
 		bestWall = 0,
 		lastLeftAt = 0,
 		rebirths = 0,
+		ownedWeapons = { weaponConfig.startWeapon },
+		equippedWeapon = weaponConfig.startWeapon,
 	}
 end
 
@@ -61,7 +68,12 @@ end
 
 -- Repairs loaded data: fills missing fields, replaces broken values with the template value,
 -- converts older versions. Returns a clean copy; the input is not changed.
-function SaveData.repair(config: SaveConfig, loaded: { [string]: unknown }, template: Data): Data
+function SaveData.repair(
+	config: SaveConfig,
+	loaded: { [string]: unknown },
+	template: Data,
+	weaponConfig: Weapons.WeaponConfig
+): Data
 	local function number(field: string): number
 		local value = loaded[field]
 		if isUsableNumber(value) then
@@ -73,6 +85,9 @@ function SaveData.repair(config: SaveConfig, loaded: { [string]: unknown }, temp
 	-- Version 1 is the first version, so there is nothing to convert yet. Conversions for
 	-- later versions go here, oldest first.
 
+	-- Only known weapons, the start weapon always owned, the equipped one must be owned.
+	local weapons = Weapons.sanitize(weaponConfig, loaded.ownedWeapons, loaded.equippedWeapon)
+
 	return {
 		version = config.dataVersion,
 		strength = number("strength"),
@@ -81,6 +96,8 @@ function SaveData.repair(config: SaveConfig, loaded: { [string]: unknown }, temp
 		lastLeftAt = number("lastLeftAt"),
 		-- Always a whole number.
 		rebirths = math.floor(number("rebirths")),
+		ownedWeapons = weapons.owned,
+		equippedWeapon = weapons.equipped,
 	}
 end
 

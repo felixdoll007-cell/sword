@@ -18,10 +18,19 @@
 --                                    rhythm and its own throw check. There is no message a client
 --                                    could send to make others see a throw.
 --
--- Values the server shows to the client through attributes on the Player (read-only for the client):
+-- Other ways a client asks the server for something (no RemoteEvent, but the same rules apply:
+-- the server checks everything itself):
+--   The button at a weapon shop pedestal (a ProximityPrompt made by the server, see
+--   server/WeaponService): "I want to use this pedestal". The server decides whether that buys
+--   the weapon, equips it, or does nothing.
+--
+-- Values the server shows to the client through attributes on the Player (read-only for the client;
+-- attributes on a Player are visible to all players):
 --   Strength: number
 --   Currency: number
 --   Rebirths: number
+--   EquippedWeapon: string           id of the weapon in use (others need it to draw the right weapon)
+--   OwnedWeapons: string             ids of the owned weapons, separated by commas
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -72,5 +81,7 @@ return {
 		Strength = "Strength",
 		Currency = "Currency",
 		Rebirths = "Rebirths",
+		EquippedWeapon = "EquippedWeapon",
+		OwnedWeapons = "OwnedWeapons",
 	},
 }

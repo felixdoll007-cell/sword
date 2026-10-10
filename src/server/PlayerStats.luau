@@ -19,17 +19,20 @@ local RebirthConfig = require(Shared.Config.Rebirth)
 local SaveConfig = require(Shared.Config.Save)
 local StrengthConfig = require(Shared.Config.Strength)
 local TestSettings = require(Shared.Config.TestSettings)
+local WeaponConfig = require(Shared.Config.Weapons)
 local Rebirth = require(Shared.Rules.Rebirth)
 local Rewards = require(Shared.Rules.Rewards)
 local SaveData = require(Shared.Rules.SaveData)
 local StartValues = require(Shared.Rules.StartValues)
+local Weapons = require(Shared.Rules.Weapons)
 
 local ProfileStore = require(script.Parent.Packages.ProfileStore) :: any
 
 local PlayerStats = {}
 
 local isStudio = RunService:IsStudio()
-local template = SaveData.template(SaveConfig, StartValues.startStrength(StrengthConfig, TestSettings, isStudio))
+local template =
+	SaveData.template(SaveConfig, StartValues.startStrength(StrengthConfig, TestSettings, isStudio), WeaponConfig)
 
 local store: any = nil
 -- Loaded profile per player. Missing = not loaded (yet), the player cannot train or throw.
@@ -46,6 +49,8 @@ local function publish(player: Player)
 		player:SetAttribute(Remotes.Attributes.Strength, values.strength)
 		player:SetAttribute(Remotes.Attributes.Currency, values.currency)
 		player:SetAttribute(Remotes.Attributes.Rebirths, values.rebirths)
+		player:SetAttribute(Remotes.Attributes.EquippedWeapon, values.equippedWeapon)
+		player:SetAttribute(Remotes.Attributes.OwnedWeapons, Weapons.encodeOwned(values.ownedWeapons))
 	end
 end
 
@@ -76,6 +81,35 @@ function PlayerStats.gainStrength(player: Player, baseAmount: number): number
 	values.strength += gained
 	publish(player)
 	return gained
+end
+
+-- Multiplier on training strength from the weapon the player has equipped. nil if not loaded.
+function PlayerStats.trainingBonus(player: Player): number?
+	local values = data(player)
+	return if values then Weapons.trainingBonus(WeaponConfig, values.equippedWeapon) else nil
+end
+
+-- The player uses the shop pedestal of a weapon: buys it if not owned and affordable, equips it
+-- if owned. Price, ownership and coins are checked here with the server's own values.
+-- Returns what happened, or nil if the player's data is not loaded.
+function PlayerStats.useWeaponPedestal(player: Player, weaponId: string): Weapons.Outcome?
+	local values = data(player)
+	if not values then
+		return nil
+	end
+	local result = Weapons.use(
+		WeaponConfig,
+		{ owned = values.ownedWeapons, equipped = values.equippedWeapon },
+		values.currency,
+		weaponId
+	)
+	if result.outcome == "bought" or result.outcome == "equipped" then
+		values.ownedWeapons = result.holdings.owned
+		values.equippedWeapon = result.holdings.equipped
+		values.currency = result.currency
+		publish(player)
+	end
+	return result.outcome
 end
 
 -- Does a rebirth if the player has enough strength. Returns whether it happened.
@@ -129,7 +163,7 @@ local function onPlayerAdded(player: Player)
 	profile:Reconcile()
 	-- Repair broken or missing values and convert old versions. Copy into the same table,
 	-- because ProfileStore saves exactly this table.
-	local repaired = SaveData.repair(SaveConfig, profile.Data, template)
+	local repaired = SaveData.repair(SaveConfig, profile.Data, template, WeaponConfig)
 	for field, value in repaired :: any do
 		profile.Data[field] = value
 	end

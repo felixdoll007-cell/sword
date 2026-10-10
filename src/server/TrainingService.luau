@@ -85,8 +85,11 @@ local function checkPlayers()
 		)
 		state.nextThrowAt = nextAt
 		if throws and lane then
-			-- Base gain times the lane's multiplier; gainStrength adds the rebirth multiplier on top.
-			local base = StrengthConfig.trainingStrengthPerThrow * TrainingConfig.lanes[lane].multiplier
+			-- Base gain times the lane's multiplier and the bonus of the equipped weapon;
+			-- gainStrength adds the rebirth multiplier on top.
+			local base = StrengthConfig.trainingStrengthPerThrow
+				* TrainingConfig.lanes[lane].multiplier
+				* (PlayerStats.trainingBonus(player) or 1)
 			local gained = PlayerStats.gainStrength(player, base)
 			if gained > 0 then
 				Remotes.TrainingThrow:FireClient(player, gained, lane)
