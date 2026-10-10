@@ -1,5 +1,5 @@
 --!strict
--- Shows strength and currency as plain text, abbreviated (1.5K, 3.2M, ...).
+-- Shows strength, currency and rebirths as plain text, abbreviated (1.5K, 3.2M, ...).
 -- Whenever a value grows, a short "+..." rises below it.
 -- The values come from the server (attributes on the Player); this script only displays them.
 --
@@ -109,9 +109,13 @@ function StatsView.addDuringThrow(currency: number, strength: number)
 	if not held then
 		return
 	end
+	local gains = {
+		[Remotes.Attributes.Currency] = currency,
+		[Remotes.Attributes.Strength] = strength,
+	}
 	for _, item in shown do
-		local add = if item.attribute == Remotes.Attributes.Currency then currency else strength
-		if item.value then
+		local add = gains[item.attribute]
+		if add and item.value then
 			item.value += add
 			item.label.Text = item.prefix .. NumberFormat.abbreviate(NumberFormatConfig, item.value :: number)
 		end
@@ -167,6 +171,7 @@ function StatsView.start()
 	local entries = {
 		{ attribute = Remotes.Attributes.Strength, prefix = settings.strengthPrefix, name = "StrengthLabel" },
 		{ attribute = Remotes.Attributes.Currency, prefix = settings.currencyPrefix, name = "CurrencyLabel" },
+		{ attribute = Remotes.Attributes.Rebirths, prefix = settings.rebirthsPrefix, name = "RebirthsLabel" },
 	}
 	for order, entry in entries do
 		local label = makeLabel(entry.name, row)

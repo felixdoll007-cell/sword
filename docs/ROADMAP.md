@@ -77,11 +77,11 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 ### Block A: Rebirth
 - [x] Zahlen freigegeben: erste Schwelle, Steigerung, Multiplikator pro Rebirth
 - [x] Rebirth-Regeln als reine Funktionen mit Tests: Schwelle, Multiplikator, was bleibt und was zurückgesetzt wird
-- [ ] Server: prüft den Wunsch (Begrenzung, Schwelle erreicht, kein Wurf läuft), führt den Rebirth aus
-- [ ] Multiplikator wirkt auf alle Stärke-Gewinne (Training und Hauptwurf)
-- [ ] Rebirths werden gespeichert; alte Spielstände laden weiter
-- [ ] Rebirth-Button mit Fenster: Fortschritt, was man verliert, was man bekommt, Bestätigen; per Touch bedienbar
-- [ ] Anzahl der Rebirths steht bei den Werten oben
+- [x] Server: prüft den Wunsch (Begrenzung, Schwelle erreicht, kein Wurf läuft), führt den Rebirth aus
+- [x] Multiplikator wirkt auf alle Stärke-Gewinne (Training und Hauptwurf)
+- [x] Rebirths werden gespeichert; alte Spielstände laden weiter
+- [x] Rebirth-Button mit Fenster: Fortschritt, was man verliert, was man bekommt, Bestätigen; per Touch bedienbar
+- [x] Anzahl der Rebirths steht bei den Werten oben
 - [ ] Von mir getestet
 
 ### Block B: Trainingsbahnen (erst nach dem Test von Block A)
