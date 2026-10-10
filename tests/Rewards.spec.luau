@@ -38,7 +38,7 @@ return {
 	["per wall: one entry per broken wall, adding up to the totals"] = function(expect)
 		for _, power in { 0, 10, 100, 1000, 1e6, math.huge } do
 			local result = ThrowCalculation.calculate(WallConfig, StrengthConfig, power)
-			local list = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls)
+			local list = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls, 1)
 			expect(#list).toBe(#result.brokenWalls)
 			local currency, strength = 0, 0
 			for _, entry in list do
@@ -56,7 +56,7 @@ return {
 
 	["per wall: only the last wall of a zone carries the zone bonus"] = function(expect)
 		local result = ThrowCalculation.calculate(WallConfig, StrengthConfig, 1e6)
-		local list = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls)
+		local list = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls, 1)
 		for index, entry in list do
 			if index % WallConfig.wallsPerZone == 0 then
 				expect(entry.zoneBonus).toBeNear(entry.currency * WallConfig.zoneBonusFactor)
@@ -64,6 +64,22 @@ return {
 				expect(entry.zoneBonus).toBe(0)
 			end
 		end
+	end,
+
+	["per wall: the strength multiplier multiplies strength, not currency"] = function(expect)
+		local result = ThrowCalculation.calculate(WallConfig, StrengthConfig, 1000)
+		local plain = Rewards.total(Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls, 1))
+		local tripled = Rewards.total(Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls, 3))
+		expect(tripled.strength).toBeNear(plain.strength * 3)
+		expect(tripled.currency).toBeNear(plain.currency)
+		expect(tripled.wallsBroken).toBe(#result.brokenWalls)
+	end,
+
+	["total of no walls is nothing"] = function(expect)
+		local total = Rewards.total({})
+		expect(total.currency).toBe(0)
+		expect(total.strength).toBe(0)
+		expect(total.wallsBroken).toBe(0)
 	end,
 
 	["the input values are not changed"] = function(expect)

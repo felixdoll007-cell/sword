@@ -12,7 +12,8 @@ export type SaveConfig = {
 }
 
 -- Everything that is saved per player. Fields are only added when the feature exists
--- (rebirths and pets come in later versions).
+-- (pets come in a later version). A new field with a default value needs no new data version:
+-- old saves simply get the default when they are loaded.
 export type Data = {
 	version: number,
 	strength: number,
@@ -21,6 +22,8 @@ export type Data = {
 	bestWall: number,
 	-- os.time() when the player last left. 0 = never.
 	lastLeftAt: number,
+	-- Number of rebirths done. Added in Version 2; older saves load with 0.
+	rebirths: number,
 }
 
 local SaveData = {}
@@ -32,6 +35,7 @@ function SaveData.template(config: SaveConfig, startStrength: number): Data
 		currency = 0,
 		bestWall = 0,
 		lastLeftAt = 0,
+		rebirths = 0,
 	}
 end
 
@@ -75,6 +79,8 @@ function SaveData.repair(config: SaveConfig, loaded: { [string]: unknown }, temp
 		currency = number("currency"),
 		bestWall = number("bestWall"),
 		lastLeftAt = number("lastLeftAt"),
+		-- Always a whole number.
+		rebirths = math.floor(number("rebirths")),
 	}
 end
 

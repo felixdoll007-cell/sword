@@ -75,8 +75,8 @@ Ab hier wird in Blöcken gebaut (siehe CLAUDE.md): Ein Block ist eine Funktion, 
 komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Blocks.
 
 ### Block A: Rebirth
-- [ ] Zahlen freigegeben: erste Schwelle, Steigerung, Multiplikator pro Rebirth
-- [ ] Rebirth-Regeln als reine Funktionen mit Tests: Schwelle, Multiplikator, was bleibt und was zurückgesetzt wird
+- [x] Zahlen freigegeben: erste Schwelle, Steigerung, Multiplikator pro Rebirth
+- [x] Rebirth-Regeln als reine Funktionen mit Tests: Schwelle, Multiplikator, was bleibt und was zurückgesetzt wird
 - [ ] Server: prüft den Wunsch (Begrenzung, Schwelle erreicht, kein Wurf läuft), führt den Rebirth aus
 - [ ] Multiplikator wirkt auf alle Stärke-Gewinne (Training und Hauptwurf)
 - [ ] Rebirths werden gespeichert; alte Spielstände laden weiter

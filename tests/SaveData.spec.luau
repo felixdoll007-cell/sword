@@ -10,6 +10,26 @@ return {
 		expect(template.currency).toBe(0)
 		expect(template.bestWall).toBe(0)
 		expect(template.lastLeftAt).toBe(0)
+		expect(template.rebirths).toBe(0)
+	end,
+
+	["a save from Version 1 (without rebirths) loads with 0 rebirths and keeps everything else"] = function(expect)
+		local data = SaveData.repair(
+			SaveConfig,
+			{ version = 1, strength = 500, currency = 42.5, bestWall = 7, lastLeftAt = 99 },
+			template
+		)
+		expect(data.rebirths).toBe(0)
+		expect(data.strength).toBe(500)
+		expect(data.currency).toBe(42.5)
+		expect(data.bestWall).toBe(7)
+	end,
+
+	["rebirths are kept, broken or fractional values are cleaned"] = function(expect)
+		expect(SaveData.repair(SaveConfig, { rebirths = 4 }, template).rebirths).toBe(4)
+		expect(SaveData.repair(SaveConfig, { rebirths = 2.7 }, template).rebirths).toBe(2)
+		expect(SaveData.repair(SaveConfig, { rebirths = -1 }, template).rebirths).toBe(0)
+		expect(SaveData.repair(SaveConfig, { rebirths = "many" }, template).rebirths).toBe(0)
 	end,
 
 	["Studio uses its own store, the real game the plain one"] = function(expect)

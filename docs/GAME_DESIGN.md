@@ -87,6 +87,9 @@ nächstes Ziel ist.
 - Rebirth-Button mit kleinem Fenster: Fortschritt bis zum nächsten Rebirth, was man verliert, was man bekommt, Bestätigen. Voll per Touch bedienbar.
 - Die Anzahl der Rebirths steht bei den Werten oben.
 - Der Server prüft alles, der Client meldet nur den Wunsch.
+- Zahlen (in `Config/Rebirth`): Multiplikator +1x pro Rebirth (2x, 3x, 4x ...). Die Schwellen stehen als Liste in der Config, abgeleitet aus Zieldauern reiner Trainingszeit pro Durchlauf mit den Bahnen aus Version 2: 3, 3, 3,5, 4, 4,5, 5, 6, 7, 8,5 und 10 Minuten. Das ergibt 200, 400, 2.500, 3.800, 13.500, 18.000, 50.000, 67.000, 92.000 und 120.000 Stärke. Ab Rebirth 11 dauert jeder Durchlauf 20 % länger als der vorige (Formel, schließt an den letzten Listenwert an).
+- Rebirths sollen mit der Zeit länger dauern: am Anfang schnell, dann stetig steigend.
+- Bekannt und hingenommen: Bei Rebirth 6, 10 und 12 erreicht man beim sofortigen Rebirth dieselbe Wand wie im Durchlauf davor, weil der Härtesprung zum nächsten Material größer ist als der Anstieg der Schwelle. Wer weitertrainiert, kommt weiter.
 - Schaltet Trainingsbahnen frei. Welche Bahnen frei sind, wird aus der Zahl der Rebirths berechnet und nicht gespeichert.
 
 ## Pets

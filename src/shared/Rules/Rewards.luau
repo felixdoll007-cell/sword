@@ -39,22 +39,34 @@ export type BrokenWall = {
 local Rewards = {}
 
 -- Splits the reward of a throw into one entry per broken wall, in the order the sword breaks them.
--- Added up, the entries give the same totals as ThrowCalculation.
+-- strengthMultiplier is the player's multiplier on strength gains (rebirths); currency is not multiplied.
+-- With multiplier 1 the entries add up to the same totals as ThrowCalculation.
 function Rewards.perWall(
 	wallConfig: WallConfig,
 	strengthConfig: StrengthConfig,
-	brokenWalls: { BrokenWall }
+	brokenWalls: { BrokenWall },
+	strengthMultiplier: number
 ): { WallReward }
 	local list = {}
 	for _, wall in brokenWalls do
 		local completesZone = wall.positionInZone == wallConfig.wallsPerZone
 		table.insert(list, {
 			currency = wall.reward,
-			strength = strengthConfig.strengthPerBrokenWall,
+			strength = strengthConfig.strengthPerBrokenWall * strengthMultiplier,
 			zoneBonus = if completesZone then wall.reward * wallConfig.zoneBonusFactor else 0,
 		})
 	end
 	return list
+end
+
+-- Adds the per-wall entries up to what the whole throw gives.
+function Rewards.total(perWall: { WallReward }): ThrowOutcome
+	local currency, strength = 0, 0
+	for _, entry in perWall do
+		currency += entry.currency + entry.zoneBonus
+		strength += entry.strength
+	end
+	return { currency = currency, strength = strength, wallsBroken = #perWall }
 end
 
 function Rewards.applyThrow(values: Values, outcome: ThrowOutcome): Values
