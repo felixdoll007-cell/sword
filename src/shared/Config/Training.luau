@@ -40,7 +40,7 @@ return {
 	sign = {
 		-- Bottom edge above the floor, size of the board.
 		heightAboveFloor = 12,
-		boardHeight = 5,
+		boardHeight = 7,
 		boardThickness = 0.4,
 		boardColor = { 40, 40, 40 },
 		textColor = { 255, 255, 255 },
@@ -51,8 +51,9 @@ return {
 		requirementText = "%s Rebirths",
 		freeText = "FREE",
 		lockedText = "LOCKED",
-		-- Share of the board height for the upper line (multiplier or LOCKED).
-		topLineHeight = 0.6,
+		-- Three lines from top to bottom: multiplier, requirement, LOCKED (empty when unlocked).
+		-- Share of the board height for each line.
+		lineHeights = { 0.44, 0.28, 0.28 },
 	},
 
 	-- Server: how often it looks who is standing on a pad.

@@ -29,8 +29,9 @@ type WallState = {
 }
 
 type Sign = {
-	topLine: TextLabel,
-	bottomLine: TextLabel,
+	multiplierLine: TextLabel,
+	requirementLine: TextLabel,
+	lockedLine: TextLabel,
 }
 
 local TrainingView = {}
@@ -113,9 +114,11 @@ local function buildSign(laneIndex: number, pad: Training.Pad, folder: Folder)
 	gui.LightInfluence = 0
 	gui.Parent = board
 
+	local heights = settings.lineHeights
 	signs[laneIndex] = {
-		topLine = makeSignLine(settings.topLineHeight, 0, gui),
-		bottomLine = makeSignLine(1 - settings.topLineHeight, settings.topLineHeight, gui),
+		multiplierLine = makeSignLine(heights[1], 0, gui),
+		requirementLine = makeSignLine(heights[2], heights[1], gui),
+		lockedLine = makeSignLine(heights[3], heights[1] + heights[2], gui),
 	}
 end
 
@@ -133,16 +136,10 @@ local function refreshSigns()
 			then string.format(settings.requirementText, tostring(lane.requiredRebirths))
 			else settings.freeText
 
-		if unlocked then
-			sign.topLine.Text = string.format(settings.multiplierText, multiplier)
-			sign.bottomLine.Text = requirement
-		else
-			sign.topLine.Text = settings.lockedText
-			sign.bottomLine.Text = string.format(settings.multiplierText, multiplier) .. "  -  " .. requirement
-		end
-		local textColor = color(if unlocked then settings.textColor else settings.lockedTextColor)
-		sign.topLine.TextColor3 = textColor
-		sign.bottomLine.TextColor3 = textColor
+		sign.multiplierLine.Text = string.format(settings.multiplierText, multiplier)
+		sign.requirementLine.Text = requirement
+		sign.lockedLine.Text = if unlocked then "" else settings.lockedText
+		sign.lockedLine.TextColor3 = color(settings.lockedTextColor)
 	end
 end
 
