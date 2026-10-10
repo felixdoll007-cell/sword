@@ -120,6 +120,14 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Balance-Test: kein Durchlauf unter 3 Minuten, jede Waffe in ihrem Fenster leistbar; Zieldauern weiter ohne Waffen
 - [ ] Von mir getestet
 
+### Block: Wurf fertig machen
+- [ ] Waffe in der rechten Hand, für alle sichtbar; beim Wurf verlässt sie die Hand und erscheint danach wieder
+- [ ] Wurfanimation für den ganzen Körper: eine für den Hauptwurf, eine kürzere für das Training; als echte Roblox-Animationen, im Editor nachbesserbar; Ersatz per Code, solange nichts hochgeladen ist
+- [ ] Kamera bleibt bei der Figur, bis die Waffe die Hand verlässt; Flugplan und Wurfsperre des Servers rechnen diese Zeit ein
+- [ ] Alle Zeiten in der Config
+- [ ] Animationen von mir angesehen und hochgeladen, Nummern in der Config
+- [ ] Von mir getestet
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

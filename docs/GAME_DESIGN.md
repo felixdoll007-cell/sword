@@ -107,6 +107,13 @@ nächstes Ziel ist.
 - Der Server prüft Preis, Besitz, Coins und die Nähe zum Sockel. Der Client meldet nur den Wunsch.
 - Waffen ohne Modell fliegen als grauer Platzhalter. Ein neues Modell braucht nur einen Config-Eintrag und die Vorlage in `ReplicatedStorage.Assets`.
 
+## Wurf: Waffe in der Hand, Animation, Kamera
+- Die ausgerüstete Waffe hängt an der rechten Hand der Figur, für alle Spieler sichtbar. Beim Wurf verlässt genau diese Waffe die Hand und erscheint danach wieder.
+- Wurfanimation für den ganzen Körper: ausholen, Oberkörper drehen, werfen, nachschwingen. Eine für den Hauptwurf, eine kürzere für das Training.
+- Die Animationen sind echte Roblox-Animationen (hochgeladen auf das Konto, dem das Spiel gehört). Der Client spielt sie auf der eigenen Figur, Roblox überträgt sie an alle anderen. Sie lassen sich im Animations-Editor nachbessern. Ohne hochgeladene Animation läuft als Ersatz die Schulterbewegung per Code.
+- In jeder Animation gibt es den Moment "Release". Dieselbe Zeit steht in der Config. Bis dahin bleibt die Kamera bei der Figur, erst dann folgt sie der Waffe. Flugplan und Wurfsperre des Servers rechnen diese Zeit ein.
+- Alle Zeiten stehen in der Config.
+
 ## Pets
 - Kosten Währung.
 - Geben Stärke-Multiplikator und Glück.
