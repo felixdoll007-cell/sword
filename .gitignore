@@ -16,3 +16,6 @@ blender-test/
 Thumbs.db
 .vscode/
 .idea/
+
+# Rendered preview pictures, can be recreated with tools/render_greatsword_compare.py
+assets/preview/
