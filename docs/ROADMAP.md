@@ -70,6 +70,28 @@ Ziel von Version 1 ist nur diese eine Frage. Alles ist grau und aus einfachen Pa
 - Anzeige bei sehr schlechter Verbindung: Nach dem zweiten Druck kann der Zeiger bis zu 2 Sekunden stehen bleiben, bevor das Schwert fliegt, weil der Client auf die Antwort des Servers wartet. Idee für später: Schwert sofort lokal starten und mit der Antwort abgleichen.
 
 ## Version 2: Rebirth und weitere Trainingsbahnen
+
+Ab hier wird in Blöcken gebaut (siehe CLAUDE.md): Ein Block ist eine Funktion, die der Spieler bemerkt,
+komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Blocks.
+
+### Block A: Rebirth
+- [ ] Zahlen freigegeben: erste Schwelle, Steigerung, Multiplikator pro Rebirth
+- [ ] Rebirth-Regeln als reine Funktionen mit Tests: Schwelle, Multiplikator, was bleibt und was zurückgesetzt wird
+- [ ] Server: prüft den Wunsch (Begrenzung, Schwelle erreicht, kein Wurf läuft), führt den Rebirth aus
+- [ ] Multiplikator wirkt auf alle Stärke-Gewinne (Training und Hauptwurf)
+- [ ] Rebirths werden gespeichert; alte Spielstände laden weiter
+- [ ] Rebirth-Button mit Fenster: Fortschritt, was man verliert, was man bekommt, Bestätigen; per Touch bedienbar
+- [ ] Anzahl der Rebirths steht bei den Werten oben
+- [ ] Von mir getestet
+
+### Block B: Trainingsbahnen (erst nach dem Test von Block A)
+- [ ] Vier Bahnen nebeneinander: Voraussetzung 0, 2, 4, 6 Rebirths; Multiplikator 1x, 4x, 10x, 20x; höhere Bahnen haben mehr Wände
+- [ ] Schild über jeder Bahn mit Multiplikator und Voraussetzung, bei gesperrten Bahnen "LOCKED"
+- [ ] Auf gesperrten Bahnen rastet man nicht ein und trainiert nicht (Entscheidung des Servers)
+- [ ] Freischaltung wird aus den Rebirths berechnet, nicht gespeichert
+- [ ] Mehrere Spieler auf derselben Bahn schieben sich nicht weg
+- [ ] Von mir getestet
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

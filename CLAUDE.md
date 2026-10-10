@@ -11,9 +11,13 @@ Beginn jeder Sitzung.
 - Die Planung kommt aus einem getrennten Chat. Ich gebe dir Aufträge von dort weiter. Wenn ein Auftrag dem Design-Dokument widerspricht oder technisch nicht sinnvoll ist, halte an und sag es, statt ihn einfach umzusetzen.
 
 ## Arbeitsweise
-- Arbeite immer nur an der aktuellen Etappe aus `docs/ROADMAP.md`. Bau nichts vor, was erst später dran ist.
-- Kleine Schritte. Nach jedem Schritt: `.\check.ps1` muss grün sein, dann Commit mit klarer Nachricht.
-- Sag am Ende jeder Etappe, was ich in Studio testen soll, und warte auf mein Ergebnis, bevor du die Etappe als erledigt abhakst.
+- Du baust in Blöcken. Ein Block ist eine Funktion, die der Spieler bemerkt, komplett mit Logik, Anzeige, Speichern und Tests.
+- Arbeite immer nur am aktuellen Block aus `docs/ROADMAP.md`. Bau nichts vor, was erst später dran ist.
+- Innerhalb eines Blocks fragst du mich nicht und lässt mich nichts testen. Interne Schritte prüfst du selbst.
+- Intern weiter in kleinen Schritten: Nach jedem Schritt muss `.\check.ps1` grün sein, dann Commit mit klarer Nachricht.
+- Rückfragen vorab nur bei Entscheidungen zu Spielgefühl, Zahlen oder Sicherheit.
+- Kleine Entscheidungen triffst du selbst und listest sie am Ende des Blocks auf.
+- Am Ende eines Blocks bekomme ich eine kurze Testanleitung, höchstens fünf Schritte, nur für das, was ich sehen oder fühlen muss. Warte auf mein Ergebnis, bevor du den Block als erledigt abhakst.
 - Hak erledigte Punkte in `docs/ROADMAP.md` ab.
 - Wenn etwas nicht funktioniert, behaupte nicht, es sei fertig. Sag, was offen ist.
 

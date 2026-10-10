@@ -27,6 +27,10 @@ Klein und sauber gemacht. Drei Bereiche:
 - Jeder Trainingswurf durchbricht die Wände der Bahn und gibt Stärke.
 - Bahnen unterscheiden sich durch Multiplikator und Anzahl der Wände. Bahn 1 hat eine Wand, höhere Bahnen mehr.
 - Höhere Bahnen brauchen eine Mindestzahl an Rebirths.
+- Version 2: vier Bahnen nebeneinander. Voraussetzung 0, 2, 4 und 6 Rebirths, Multiplikator 1x, 4x, 10x und 20x.
+- Über jeder Bahn steht ein schlichtes Schild mit Multiplikator und Voraussetzung, bei gesperrten Bahnen "LOCKED".
+- Auf dem Trainingsfeld rastet die Figur ein (Mitte, Blick zur Wand). Verlassen durch gehaltene Richtung oder Sprung. Auf gesperrten Bahnen rastet man nicht ein und trainiert nicht; das entscheidet der Server.
+- Mehrere Spieler auf derselben Bahn schieben sich nicht weg.
 
 ## Der Hauptwurf
 - Der Spieler steht in der Wurfzone und löst den Wurf aus.
@@ -77,9 +81,12 @@ nächstes Ziel ist.
 - Durchbrochene Wände im Hauptwurf geben zusätzlich etwas Stärke, deutlich weniger als Training.
 
 ## Rebirth
-- Verfügbar ab einer bestimmten Stärke. Die Schwelle steigt mit jedem Rebirth.
-- Setzt Stärke auf null. Währung und Pets bleiben.
-- Gibt einen dauerhaften Multiplikator auf Stärke.
+- Verfügbar ab einer bestimmten Stärke. Die Schwelle steigt mit jedem Rebirth (Formel in der Config).
+- Setzt die Stärke auf den Startwert. Währung, weiteste Wand, Rebirths und Pets bleiben.
+- Gibt einen dauerhaften Multiplikator auf alle Stärke-Gewinne (Training und Hauptwurf).
+- Rebirth-Button mit kleinem Fenster: Fortschritt bis zum nächsten Rebirth, was man verliert, was man bekommt, Bestätigen. Voll per Touch bedienbar.
+- Die Anzahl der Rebirths steht bei den Werten oben.
+- Der Server prüft alles, der Client meldet nur den Wunsch.
 - Schaltet Trainingsbahnen frei. Welche Bahnen frei sind, wird aus der Zahl der Rebirths berechnet und nicht gespeichert.
 
 ## Pets
