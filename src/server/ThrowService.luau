@@ -151,7 +151,8 @@ local function onThrowRequested(player: Player, pressTime: unknown, ...: any)
 	local position = Meter.position(MeterConfig, meter.startTime, meter.startPhase, usedTime)
 	local factor = Meter.factor(MeterConfig, position)
 	local strength = PlayerStats.getStrength(player)
-	if not strength then
+	local strengthMultiplier = PlayerStats.strengthMultiplier(player)
+	if not strength or not strengthMultiplier then
 		return
 	end
 	local throwPower = strength * factor
@@ -162,13 +163,21 @@ local function onThrowRequested(player: Player, pressTime: unknown, ...: any)
 
 	-- Credit the rewards now, while calculating. Even if the player leaves during the flight,
 	-- the throw counts. The client only shows the new values once the throw has ended.
-	PlayerStats.applyThrow(player, {
-		currency = result.currency,
-		strength = result.strength,
-		wallsBroken = #result.brokenWalls,
-	})
-	local perWall = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls)
+	-- The per-wall list is the one source for the reward: its sum is credited, and the same
+	-- list goes to the client to show during the flight. Strength includes the rebirth multiplier.
+	local perWall = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls, strengthMultiplier)
+	PlayerStats.applyThrow(player, Rewards.total(perWall))
 	Remotes.ThrowStarted:FireClient(player, throwPower, factor, perWall)
+end
+
+-- Is a meter or a throw running for this player? Used to block a rebirth in the middle of a throw.
+function ThrowService.isBusy(player: Player): boolean
+	local state = states[player]
+	if not state then
+		return false
+	end
+	local time = now()
+	return time < state.lockedUntil or isMeterRunning(state.meter, time)
 end
 
 function ThrowService.start()

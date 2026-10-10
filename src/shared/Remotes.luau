@@ -6,6 +6,7 @@
 --   MeterStartRequested()            first press: "I want to start the meter", no values
 --   ThrowRequested(pressTime: number) second press: only WHEN it was pressed, never a factor
 --   TrainingLeft()                   the player let go of the training pad; can only stop training
+--   RebirthRequested()               "I want to rebirth", no values; the server checks everything
 -- Server -> Client (only to the player who throws)
 --   MeterStarted(startTime: number, startPhase: number)
 --   ThrowStarted(throwPower: number, factor: number, perWall: { { currency, strength, zoneBonus } })
@@ -15,13 +16,21 @@
 -- Values the server shows to the client through attributes on the Player (read-only for the client):
 --   Strength: number
 --   Currency: number
+--   Rebirths: number
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local FOLDER_NAME = "Remotes"
-local EVENT_NAMES =
-	{ "MeterStartRequested", "ThrowRequested", "MeterStarted", "ThrowStarted", "TrainingThrow", "TrainingLeft" }
+local EVENT_NAMES = {
+	"MeterStartRequested",
+	"ThrowRequested",
+	"MeterStarted",
+	"ThrowStarted",
+	"TrainingThrow",
+	"TrainingLeft",
+	"RebirthRequested",
+}
 
 local folder: Instance
 if RunService:IsServer() then
@@ -44,9 +53,11 @@ return {
 	ThrowStarted = folder:WaitForChild("ThrowStarted") :: RemoteEvent,
 	TrainingThrow = folder:WaitForChild("TrainingThrow") :: RemoteEvent,
 	TrainingLeft = folder:WaitForChild("TrainingLeft") :: RemoteEvent,
+	RebirthRequested = folder:WaitForChild("RebirthRequested") :: RemoteEvent,
 
 	Attributes = {
 		Strength = "Strength",
 		Currency = "Currency",
+		Rebirths = "Rebirths",
 	},
 }

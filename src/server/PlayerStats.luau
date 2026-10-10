@@ -15,9 +15,11 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
+local RebirthConfig = require(Shared.Config.Rebirth)
 local SaveConfig = require(Shared.Config.Save)
 local StrengthConfig = require(Shared.Config.Strength)
 local TestSettings = require(Shared.Config.TestSettings)
+local Rebirth = require(Shared.Rules.Rebirth)
 local Rewards = require(Shared.Rules.Rewards)
 local SaveData = require(Shared.Rules.SaveData)
 local StartValues = require(Shared.Rules.StartValues)
@@ -43,6 +45,7 @@ local function publish(player: Player)
 	if values then
 		player:SetAttribute(Remotes.Attributes.Strength, values.strength)
 		player:SetAttribute(Remotes.Attributes.Currency, values.currency)
+		player:SetAttribute(Remotes.Attributes.Rebirths, values.rebirths)
 	end
 end
 
@@ -51,15 +54,44 @@ function PlayerStats.getStrength(player: Player): number?
 	return if values then values.strength else nil
 end
 
-function PlayerStats.addStrength(player: Player, amount: number)
+-- The player's lasting multiplier on all strength gains (from rebirths). nil if not loaded.
+function PlayerStats.strengthMultiplier(player: Player): number?
 	local values = data(player)
-	if values then
-		values.strength += amount
-		publish(player)
+	return if values then Rebirth.multiplier(RebirthConfig, values.rebirths) else nil
+end
+
+-- Adds strength from training. baseAmount is the gain before the player's multiplier.
+-- Returns what was really added (0 if the player's data is not loaded).
+function PlayerStats.gainStrength(player: Player, baseAmount: number): number
+	local values = data(player)
+	if not values then
+		return 0
 	end
+	local gained = baseAmount * Rebirth.multiplier(RebirthConfig, values.rebirths)
+	values.strength += gained
+	publish(player)
+	return gained
+end
+
+-- Does a rebirth if the player has enough strength. Returns whether it happened.
+function PlayerStats.rebirth(player: Player): boolean
+	local values = data(player)
+	if not values then
+		return false
+	end
+	local after = Rebirth.apply(RebirthConfig, values, template.strength)
+	if not after then
+		return false
+	end
+	-- Only strength and the rebirth count change. Currency and best wall stay.
+	values.strength = after.strength
+	values.rebirths = after.rebirths
+	publish(player)
+	return true
 end
 
 -- Credits a main throw: currency, strength and the best wall.
+-- The strength in outcome already contains the player's multiplier (see Rewards.perWall).
 function PlayerStats.applyThrow(player: Player, outcome: Rewards.ThrowOutcome)
 	local values = data(player)
 	if not values then

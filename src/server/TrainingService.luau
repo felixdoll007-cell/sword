@@ -68,9 +68,11 @@ local function checkPlayers()
 		)
 		state.nextThrowAt = nextAt
 		if throws then
-			local gained = StrengthConfig.trainingStrengthPerThrow
-			PlayerStats.addStrength(player, gained)
-			Remotes.TrainingThrow:FireClient(player, gained)
+			-- gained includes the player's multiplier from rebirths.
+			local gained = PlayerStats.gainStrength(player, StrengthConfig.trainingStrengthPerThrow)
+			if gained > 0 then
+				Remotes.TrainingThrow:FireClient(player, gained)
+			end
 		end
 	end
 end
