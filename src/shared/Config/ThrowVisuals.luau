@@ -15,6 +15,15 @@ return {
 	handleThickness = 0.4,
 	bladeColor = { 210, 210, 215 },
 	handleColor = { 70, 70, 70 },
+	-- Where the grip of a weapon model is, if the model does not say so itself: this share of its
+	-- length behind the tip.
+	gripFallbackShare = 0.85,
+
+	-- The weapon in the character's right hand. Rotation of the weapon in the hand, in degrees
+	-- around the X, Y and Z axis of the hand's grip. With 0, 0, 0 the tip points down along the arm.
+	-- x = 90 turns the tip forward, z = 90 stands the blade on its edge.
+	handRotationDegrees = { x = 90, y = 0, z = 90 },
+
 	-- Height of the flying sword above the floor.
 	swordHeight = 5,
 

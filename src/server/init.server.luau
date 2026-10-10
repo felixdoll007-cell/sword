@@ -1,4 +1,5 @@
 --!strict
+local HandWeapons = require(script.HandWeapons)
 local LaneBuilder = require(script.LaneBuilder)
 local PlayerCollisions = require(script.PlayerCollisions)
 local PlayerStats = require(script.PlayerStats)
@@ -14,3 +15,4 @@ ThrowService.start()
 TrainingService.start()
 RebirthService.start()
 WeaponService.start()
+HandWeapons.start()
