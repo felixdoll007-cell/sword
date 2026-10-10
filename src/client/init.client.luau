@@ -1,6 +1,7 @@
 --!strict
 local DebugTools = require(script.DebugTools)
 local LaneView = require(script.LaneView)
+local OtherThrowsView = require(script.OtherThrowsView)
 local RebirthView = require(script.RebirthView)
 local StatsView = require(script.StatsView)
 local ThrowController = require(script.ThrowController)
@@ -13,4 +14,5 @@ TrainingSnap.start()
 StatsView.start()
 ThrowController.start()
 RebirthView.start()
+OtherThrowsView.start()
 DebugTools.start()

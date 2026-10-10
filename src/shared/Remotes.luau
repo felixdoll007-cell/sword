@@ -12,6 +12,11 @@
 --   ThrowStarted(throwPower: number, factor: number, perWall: { { currency, strength, zoneBonus } })
 --                                    reward of each broken wall, so the client can show it during the flight
 --   TrainingThrow(gained: number, lane: number)  a training throw happened on this lane, strength was added
+-- Server -> Client (to players NEAR the one who throws, never to the thrower)
+--   OtherPlayerThrew(thrower: Player, kind: "Training" | "Main", lane: number?)
+--                                    only for showing it; sent by the server from its own training
+--                                    rhythm and its own throw check. There is no message a client
+--                                    could send to make others see a throw.
 --
 -- Values the server shows to the client through attributes on the Player (read-only for the client):
 --   Strength: number
@@ -30,6 +35,7 @@ local EVENT_NAMES = {
 	"TrainingThrow",
 	"TrainingLeft",
 	"RebirthRequested",
+	"OtherPlayerThrew",
 }
 
 local folder: Instance
@@ -54,6 +60,13 @@ return {
 	TrainingThrow = folder:WaitForChild("TrainingThrow") :: RemoteEvent,
 	TrainingLeft = folder:WaitForChild("TrainingLeft") :: RemoteEvent,
 	RebirthRequested = folder:WaitForChild("RebirthRequested") :: RemoteEvent,
+	OtherPlayerThrew = folder:WaitForChild("OtherPlayerThrew") :: RemoteEvent,
+
+	-- Values for the "kind" of OtherPlayerThrew.
+	ThrowKind = {
+		Training = "Training",
+		Main = "Main",
+	},
 
 	Attributes = {
 		Strength = "Strength",

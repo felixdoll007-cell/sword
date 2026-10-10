@@ -22,6 +22,7 @@ local Rewards = require(Shared.Rules.Rewards)
 local ThrowCalculation = require(Shared.Rules.ThrowCalculation)
 
 local PlayerStats = require(script.Parent.PlayerStats)
+local Spectators = require(script.Parent.Spectators)
 
 type RunningMeter = {
 	startTime: number,
@@ -168,6 +169,8 @@ local function onThrowRequested(player: Player, pressTime: unknown, ...: any)
 	local perWall = Rewards.perWall(WallConfig, StrengthConfig, result.brokenWalls, strengthMultiplier)
 	PlayerStats.applyThrow(player, Rewards.total(perWall))
 	Remotes.ThrowStarted:FireClient(player, throwPower, factor, perWall)
+	-- Players nearby see the throw start. Only reached after all checks above have passed.
+	Spectators.tell(player, Remotes.ThrowKind.Main, nil)
 end
 
 -- Is a meter or a throw running for this player? Used to block a rebirth in the middle of a throw.

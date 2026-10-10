@@ -1,6 +1,7 @@
 --!strict
 -- A simple throwing movement of the right arm, made from code. No uploaded animation needed.
--- Only this player sees it (changes on the client are not sent on).
+-- It only changes what THIS client draws (changes on the client are not sent on). To let others
+-- see a throw, the server tells their clients, and each of them plays the swing on its own screen.
 --
 -- How: every frame, after Roblox's own animations have posed the character, the shoulder joint's
 -- "Transform" is overwritten with our arm angle. When the swing is over, Roblox's animations take
@@ -63,8 +64,9 @@ function ArmSwing.releaseDelay(): number
 	return ThrowVisuals.armWindUpSeconds + ThrowVisuals.armThrowSeconds
 end
 
-function ArmSwing.play()
-	local character = Players.LocalPlayer.Character
+-- Plays the swing on a character. Without one, on this player's own character.
+function ArmSwing.play(ofCharacter: Model?)
+	local character = ofCharacter or Players.LocalPlayer.Character
 	if not character then
 		return
 	end

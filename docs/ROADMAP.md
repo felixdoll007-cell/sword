@@ -93,12 +93,12 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Von mir getestet
 
 ### Block C: Andere Spieler sichtbar
-- [ ] Training: Andere Spieler in der Nähe sehen die Armbewegung und das kleine Schwert; die Trainingswand bricht nur beim Spieler selbst
-- [ ] Hauptwurf: Andere sehen das Ausholen und das Schwert losfliegen; es verblasst nach kurzer Strecke und berührt keine Wände
-- [ ] Der Server meldet diese Ereignisse selbst weiter (eigener Takt, eigene Wurfprüfung); Clients können nichts für andere auslösen
-- [ ] Nur innerhalb einer Entfernung aus der Config, mit Obergrenze für gleichzeitig dargestellte fremde Würfe
-- [ ] Vorbereitung: Jede Bahn hat in der Config eine Art der Freischaltung (jetzt nur "Rebirths", später "Kauf" ohne Umbau)
-- [ ] Vorbereitung: Weitere Bahnen nur durch Einträge in der Config, inklusive Platz auf der Map; der Balance-Test deckt das ab
+- [x] Training: Andere Spieler in der Nähe sehen die Armbewegung und das kleine Schwert; die Trainingswand bricht nur beim Spieler selbst
+- [x] Hauptwurf: Andere sehen das Ausholen und das Schwert losfliegen; es verblasst nach kurzer Strecke und berührt keine Wände
+- [x] Der Server meldet diese Ereignisse selbst weiter (eigener Takt, eigene Wurfprüfung); Clients können nichts für andere auslösen
+- [x] Nur innerhalb einer Entfernung aus der Config, mit Obergrenze für gleichzeitig dargestellte fremde Würfe
+- [x] Vorbereitung: Jede Bahn hat in der Config eine Art der Freischaltung (jetzt nur "Rebirths", später "Kauf" ohne Umbau)
+- [x] Vorbereitung: Weitere Bahnen nur durch Einträge in der Config, inklusive Platz auf der Map; der Balance-Test deckt das ab
 - [ ] Von mir getestet (zwei Spieler: einer trainiert und wirft, der andere schaut zu)
 
 ## Version 3: Pets, Glück und Glückswurf

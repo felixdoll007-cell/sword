@@ -19,6 +19,7 @@ local RateLimit = require(Shared.Rules.RateLimit)
 local Training = require(Shared.Rules.Training)
 
 local PlayerStats = require(script.Parent.PlayerStats)
+local Spectators = require(script.Parent.Spectators)
 
 type PlayerState = {
 	-- When the next training throw is due. nil = not training.
@@ -89,6 +90,8 @@ local function checkPlayers()
 			local gained = PlayerStats.gainStrength(player, base)
 			if gained > 0 then
 				Remotes.TrainingThrow:FireClient(player, gained, lane)
+				-- Players nearby see the throw. This comes from the server's own rhythm.
+				Spectators.tell(player, Remotes.ThrowKind.Training, lane)
 			end
 		end
 	end
