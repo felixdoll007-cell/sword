@@ -1,5 +1,5 @@
 --!strict
--- Builds what every player sees: throw zone, main lane floor, training pad and training lane floor,
+-- Builds what every player sees: throw zone, main lane floor, training pads and training lane floors,
 -- plus invisible barriers so nobody walks onto a lane.
 -- The walls are NOT built here. Each client builds its own (see client/LaneView, client/TrainingView).
 
@@ -11,6 +11,7 @@ local LaneConfig = require(Shared.Config.Lane)
 local TrainingConfig = require(Shared.Config.Training)
 local WallConfig = require(Shared.Config.Walls)
 local LaneLayout = require(Shared.Rules.LaneLayout)
+local Training = require(Shared.Rules.Training)
 
 local LaneBuilder = {}
 
@@ -111,29 +112,31 @@ local function buildMainLane()
 	folder.Parent = Workspace
 end
 
-local function buildTrainingLane()
-	local folder = Instance.new("Folder")
-	folder.Name = "TrainingLane"
+local function buildTrainingLanes()
+	for laneIndex = 1, Training.laneCount(TrainingConfig) do
+		local pad = Training.lanePad(TrainingConfig, laneIndex) :: Training.Pad
+		local folder = Instance.new("Folder")
+		folder.Name = `TrainingLane{laneIndex}`
 
-	local pad = TrainingConfig.pad
-	local padFrontZ = pad.z - pad.length / 2
-	addFencedLane(folder, pad.x, padFrontZ, pad.width, TrainingConfig.laneLength, TrainingConfig.laneColor)
+		local padFrontZ = pad.z - pad.length / 2
+		addFencedLane(folder, pad.x, padFrontZ, pad.width, TrainingConfig.laneLength, TrainingConfig.laneColor)
 
-	addPart(
-		folder,
-		Instance.new("Part"),
-		"TrainingPad",
-		Vector3.new(pad.width, LaneConfig.floorThickness, pad.length),
-		Vector3.new(pad.x, floorCenterY(), pad.z),
-		TrainingConfig.padColor
-	)
+		addPart(
+			folder,
+			Instance.new("Part"),
+			"TrainingPad",
+			Vector3.new(pad.width, LaneConfig.floorThickness, pad.length),
+			Vector3.new(pad.x, floorCenterY(), pad.z),
+			TrainingConfig.padColor
+		)
 
-	folder.Parent = Workspace
+		folder.Parent = Workspace
+	end
 end
 
 function LaneBuilder.build()
 	buildMainLane()
-	buildTrainingLane()
+	buildTrainingLanes()
 end
 
 return LaneBuilder

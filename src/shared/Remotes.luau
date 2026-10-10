@@ -11,7 +11,7 @@
 --   MeterStarted(startTime: number, startPhase: number)
 --   ThrowStarted(throwPower: number, factor: number, perWall: { { currency, strength, zoneBonus } })
 --                                    reward of each broken wall, so the client can show it during the flight
---   TrainingThrow(gained: number)    a training throw happened, strength was added
+--   TrainingThrow(gained: number, lane: number)  a training throw happened on this lane, strength was added
 --
 -- Values the server shows to the client through attributes on the Player (read-only for the client):
 --   Strength: number

@@ -1,18 +1,76 @@
 --!strict
--- Pure functions for training: is the player on the pad, and is it time for the next training throw?
+-- Pure functions for training: where the lanes are, which lane a player stands on, whether it is
+-- unlocked, and whether it is time for the next training throw.
+-- Lanes are numbered from 1 (next to the throw zone) to the left.
 
-export type PadConfig = {
-	pad: { x: number, z: number, width: number, length: number },
+export type Lane = {
+	requiredRebirths: number,
+	multiplier: number,
+	walls: number,
+}
+
+export type Pad = { x: number, z: number, width: number, length: number }
+
+export type TrainingConfig = {
+	lanes: { Lane },
+	pad: Pad,
+	laneSpacing: number,
 	padTolerance: number,
+	wallDistance: number,
+	wallSpacing: number,
 }
 
 local Training = {}
 
-function Training.isOnPad(config: PadConfig, x: number, z: number): boolean
-	local pad = config.pad
-	local halfWidth = pad.width / 2 + config.padTolerance
-	local halfLength = pad.length / 2 + config.padTolerance
-	return math.abs(x - pad.x) <= halfWidth and math.abs(z - pad.z) <= halfLength
+function Training.laneCount(config: TrainingConfig): number
+	return #config.lanes
+end
+
+-- The pad of a lane: center and size on the ground. nil if the lane does not exist.
+function Training.lanePad(config: TrainingConfig, laneIndex: number): Pad?
+	if not config.lanes[laneIndex] then
+		return nil
+	end
+	local first = config.pad
+	return {
+		x = first.x - (laneIndex - 1) * config.laneSpacing,
+		z = first.z,
+		width = first.width,
+		length = first.length,
+	}
+end
+
+-- Which lane's pad is this position on? nil if on none.
+function Training.laneAt(config: TrainingConfig, x: number, z: number): number?
+	for laneIndex = 1, #config.lanes do
+		local pad = Training.lanePad(config, laneIndex) :: Pad
+		local halfWidth = pad.width / 2 + config.padTolerance
+		local halfLength = pad.length / 2 + config.padTolerance
+		if math.abs(x - pad.x) <= halfWidth and math.abs(z - pad.z) <= halfLength then
+			return laneIndex
+		end
+	end
+	return nil
+end
+
+-- Unlocking is always calculated from the rebirths, never saved.
+function Training.isUnlocked(config: TrainingConfig, laneIndex: number, rebirths: number): boolean
+	local lane = config.lanes[laneIndex]
+	return lane ~= nil and rebirths >= lane.requiredRebirths
+end
+
+-- The lane a player trains on right now: standing on its pad AND unlocked. nil otherwise.
+function Training.trainingLane(config: TrainingConfig, x: number, z: number, rebirths: number): number?
+	local laneIndex = Training.laneAt(config, x, z)
+	if laneIndex and Training.isUnlocked(config, laneIndex, rebirths) then
+		return laneIndex
+	end
+	return nil
+end
+
+-- Distance from the front edge of the pad to the middle of a lane's wall (1 = nearest).
+function Training.wallOffset(config: TrainingConfig, wallNumber: number): number
+	return config.wallDistance + (wallNumber - 1) * config.wallSpacing
 end
 
 -- Called regularly by the server for each player.

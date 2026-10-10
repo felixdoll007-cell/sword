@@ -4,23 +4,86 @@ local TrainingConfig = require("../src/shared/Config/Training")
 local pad = TrainingConfig.pad
 
 return {
-	["standing in the middle of the pad counts"] = function(expect)
-		expect(Training.isOnPad(TrainingConfig, pad.x, pad.z)).toBe(true)
+	["there are four lanes with the planned requirements and multipliers"] = function(expect)
+		expect(Training.laneCount(TrainingConfig)).toBe(4)
+		local required = { 0, 2, 4, 6 }
+		local multipliers = { 1, 4, 10, 20 }
+		for index, lane in TrainingConfig.lanes do
+			expect(lane.requiredRebirths).toBe(required[index])
+			expect(lane.multiplier).toBe(multipliers[index])
+		end
+	end,
+
+	["higher lanes have more walls"] = function(expect)
+		for index = 2, #TrainingConfig.lanes do
+			expect(TrainingConfig.lanes[index].walls > TrainingConfig.lanes[index - 1].walls).toBe(true)
+		end
+	end,
+
+	["lane 1 uses the configured pad, further lanes lie to the left without overlapping"] = function(expect)
+		local first = Training.lanePad(TrainingConfig, 1) :: Training.Pad
+		expect(first.x).toBe(pad.x)
+		expect(first.z).toBe(pad.z)
+		for index = 2, 4 do
+			local previous = Training.lanePad(TrainingConfig, index - 1) :: Training.Pad
+			local current = Training.lanePad(TrainingConfig, index) :: Training.Pad
+			local gap = (previous.x - previous.width / 2) - (current.x + current.width / 2)
+			-- Room between two pads, also with the position tolerance on both sides.
+			expect(gap > 2 * TrainingConfig.padTolerance).toBe(true)
+		end
+		expect(Training.lanePad(TrainingConfig, 5)).toBe(nil)
+		expect(Training.lanePad(TrainingConfig, 0)).toBe(nil)
+	end,
+
+	["standing in the middle of each pad gives that lane"] = function(expect)
+		for index = 1, 4 do
+			local lanePad = Training.lanePad(TrainingConfig, index) :: Training.Pad
+			expect(Training.laneAt(TrainingConfig, lanePad.x, lanePad.z)).toBe(index)
+		end
 	end,
 
 	["edge with tolerance counts, just outside does not"] = function(expect)
 		local edge = pad.width / 2 + TrainingConfig.padTolerance
-		expect(Training.isOnPad(TrainingConfig, pad.x + edge, pad.z)).toBe(true)
-		expect(Training.isOnPad(TrainingConfig, pad.x + edge + 0.1, pad.z)).toBe(false)
-		expect(Training.isOnPad(TrainingConfig, pad.x, pad.z - pad.length)).toBe(false)
+		expect(Training.laneAt(TrainingConfig, pad.x + edge, pad.z)).toBe(1)
+		expect(Training.laneAt(TrainingConfig, pad.x + edge + 0.1, pad.z)).toBe(nil)
+		expect(Training.laneAt(TrainingConfig, pad.x, pad.z - pad.length)).toBe(nil)
 	end,
 
-	["the throw zone is not the training pad"] = function(expect)
-		expect(Training.isOnPad(TrainingConfig, 0, 10)).toBe(false)
+	["between two pads, in the throw zone and at NaN there is no lane"] = function(expect)
+		expect(Training.laneAt(TrainingConfig, pad.x - TrainingConfig.laneSpacing / 2, pad.z)).toBe(nil)
+		expect(Training.laneAt(TrainingConfig, 0, 10)).toBe(nil)
+		expect(Training.laneAt(TrainingConfig, 0 / 0, pad.z)).toBe(nil)
 	end,
 
-	["NaN position is not on the pad"] = function(expect)
-		expect(Training.isOnPad(TrainingConfig, 0 / 0, pad.z)).toBe(false)
+	["lanes unlock exactly at their required rebirths"] = function(expect)
+		expect(Training.isUnlocked(TrainingConfig, 1, 0)).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 2, 1)).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 2, 2)).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 3, 3)).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 3, 4)).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 4, 5)).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 4, 6)).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 4, 100)).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 5, 100)).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 2, 0 / 0)).toBe(false)
+	end,
+
+	["standing on a locked pad is not training"] = function(expect)
+		local second = Training.lanePad(TrainingConfig, 2) :: Training.Pad
+		expect(Training.trainingLane(TrainingConfig, second.x, second.z, 1)).toBe(nil)
+		expect(Training.trainingLane(TrainingConfig, second.x, second.z, 2)).toBe(2)
+		expect(Training.trainingLane(TrainingConfig, pad.x, pad.z, 0)).toBe(1)
+		expect(Training.trainingLane(TrainingConfig, 0, 10, 50)).toBe(nil)
+	end,
+
+	["walls of a lane stand one spacing apart and fit on the lane floor"] = function(expect)
+		expect(Training.wallOffset(TrainingConfig, 1)).toBe(TrainingConfig.wallDistance)
+		expect(Training.wallOffset(TrainingConfig, 2) - Training.wallOffset(TrainingConfig, 1)).toBe(
+			TrainingConfig.wallSpacing
+		)
+		for _, lane in TrainingConfig.lanes do
+			expect(Training.wallOffset(TrainingConfig, lane.walls) < TrainingConfig.laneLength).toBe(true)
+		end
 	end,
 
 	["stepping on starts the clock, first throw one interval later"] = function(expect)

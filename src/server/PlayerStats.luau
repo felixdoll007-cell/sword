@@ -54,6 +54,11 @@ function PlayerStats.getStrength(player: Player): number?
 	return if values then values.strength else nil
 end
 
+function PlayerStats.getRebirths(player: Player): number?
+	local values = data(player)
+	return if values then values.rebirths else nil
+end
+
 -- The player's lasting multiplier on all strength gains (from rebirths). nil if not loaded.
 function PlayerStats.strengthMultiplier(player: Player): number?
 	local values = data(player)

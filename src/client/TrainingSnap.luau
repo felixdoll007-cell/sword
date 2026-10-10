@@ -1,6 +1,6 @@
 --!strict
--- Comfort on the training pad: stepping on snaps the character to the pad center, facing the wall,
--- and holds it still. Holding a direction for a moment or jumping lets go. After letting go,
+-- Comfort on the training pads: stepping on an unlocked pad snaps the character to the pad center,
+-- facing the wall, and holds it still. Locked pads (not enough rebirths) do not snap. Holding a direction for a moment or jumping lets go. After letting go,
 -- the character only snaps again once it has fully left the pad.
 --
 -- This is only comfort on this client. Whether training happens is still decided by the server
@@ -51,8 +51,7 @@ local function loadControls()
 	end
 end
 
-local function snap(character: Model, root: BasePart)
-	local pad = TrainingConfig.pad
+local function snap(character: Model, root: BasePart, pad: Training.Pad)
 	local position = Vector3.new(pad.x, root.Position.Y, pad.z)
 	-- Facing the wall: the lane runs towards negative Z.
 	character:PivotTo(CFrame.lookAt(position, position + Vector3.new(0, 0, -1)))
@@ -95,11 +94,18 @@ local function update(deltaTime: number)
 		return
 	end
 
-	local onPad = Training.isOnPad(TrainingConfig, root.Position.X, root.Position.Z)
-	if not onPad then
+	-- Fully off every pad arms the snap again. Locked pads never snap; the server would not
+	-- let the player train there anyway.
+	local padLane = Training.laneAt(TrainingConfig, root.Position.X, root.Position.Z)
+	if not padLane then
 		armed = true
-	elseif armed then
-		snap(character, root)
+		return
+	end
+	local value = Players.LocalPlayer:GetAttribute(Remotes.Attributes.Rebirths)
+	local rebirths = if typeof(value) == "number" then value else 0
+	local pad = Training.lanePad(TrainingConfig, padLane)
+	if armed and pad and Training.isUnlocked(TrainingConfig, padLane, rebirths) then
+		snap(character, root, pad)
 	end
 end
 
