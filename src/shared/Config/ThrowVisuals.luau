@@ -19,11 +19,6 @@ return {
 	-- length behind the tip.
 	gripFallbackShare = 0.85,
 
-	-- The weapon in the character's right hand. Rotation of the weapon in the hand, in degrees
-	-- around the X, Y and Z axis of the hand's grip. With 0, 0, 0 the tip points down along the arm.
-	-- x = 90 turns the tip forward, z = 90 stands the blade on its edge.
-	handRotationDegrees = { x = 90, y = 0, z = 90 },
-
 	-- After the release the flying weapon glides from the hand onto its path along the lane
 	-- within this time.
 	launchBlendSeconds = 0.2,

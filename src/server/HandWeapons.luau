@@ -10,7 +10,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
-local ThrowVisuals = require(Shared.Config.ThrowVisuals)
+local WeaponConfig = require(Shared.Config.Weapons)
+local Weapons = require(Shared.Rules.Weapons)
 local WeaponModel = require(Shared.WeaponModel)
 
 -- Names the clients look for (client/HandWeaponView).
@@ -32,7 +33,8 @@ local function build(player: Player, character: Model)
 		return
 	end
 
-	local weapon = WeaponModel.create(player:GetAttribute(Remotes.Attributes.EquippedWeapon), 1, false)
+	local equipped = player:GetAttribute(Remotes.Attributes.EquippedWeapon)
+	local weapon = WeaponModel.create(equipped, 1, false)
 	weapon.Name = MODEL_NAME
 	local root = weapon.PrimaryPart
 	if not root then
@@ -40,10 +42,10 @@ local function build(player: Player, character: Model)
 		return
 	end
 
-	-- Where the hand holds things, and how the weapon is turned in the hand.
+	-- Where the hand holds things, and how this weapon is turned in the hand.
 	local gripAttachment = hand:FindFirstChild(GRIP_ATTACHMENT_NAME)
 	local handGrip = if gripAttachment and gripAttachment:IsA("Attachment") then gripAttachment.CFrame else CFrame.new()
-	local rotation = ThrowVisuals.handRotationDegrees
+	local rotation = Weapons.gripDegrees(WeaponConfig, equipped)
 	local turned = CFrame.Angles(math.rad(rotation.x), math.rad(rotation.y), math.rad(rotation.z))
 
 	-- A weld holds: hand.CFrame * C0 == root.CFrame * C1. Both sides describe the weapon's grip.

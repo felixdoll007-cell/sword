@@ -113,6 +113,10 @@ nächstes Ziel ist.
 - Die Animationen sind echte Roblox-Animationen (hochgeladen auf das Konto, dem das Spiel gehört). Der Client spielt sie auf der eigenen Figur, Roblox überträgt sie an alle anderen. Sie lassen sich im Animations-Editor nachbessern. Ohne hochgeladene Animation läuft als Ersatz die Schulterbewegung per Code.
 - In jeder Animation gibt es den Moment "Release". Dieselbe Zeit steht in der Config. Bis dahin bleibt die Kamera bei der Figur, erst dann folgt sie der Waffe. Flugplan und Wurfsperre des Servers rechnen diese Zeit ein.
 - Alle Zeiten stehen in der Config.
+- Die Trainings-Animation bewegt nur Oberkörper und rechten Arm. Hüfte und Beine bleiben, wie sie sind.
+- Haltung der Waffe, solange nicht geworfen wird: Beim Stehen ist der rechte Arm leicht angewinkelt, die Klinge zeigt schräg nach oben und vom Körper weg. Beim Laufen ist der Arm zur Seite genommen, die Klinge zeigt nach hinten unten. Die Klinge fährt nie durch den Körper.
+- Die Haltung macht jeder Client per Code für alle Figuren in der Nähe. Dafür wird nichts hochgeladen. Die Wurfanimation hat Vorrang vor der Haltung.
+- Der Griffwinkel (wie die Waffe in der Hand sitzt) steht pro Waffe in der Config.
 
 ## Pets
 - Kosten Währung.

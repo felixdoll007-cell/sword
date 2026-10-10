@@ -26,6 +26,24 @@ return {
 		expect(Weapons.trainingBonus(WeaponConfig, nil)).toBe(1)
 	end,
 
+	["every weapon has its own grip angles"] = function(expect)
+		for _, weapon in WeaponConfig.list do
+			local grip = Weapons.gripDegrees(WeaponConfig, weapon.id)
+			expect(grip).toBe(weapon.gripDegrees)
+			expect(typeof(grip.x)).toBe("number")
+			expect(typeof(grip.y)).toBe("number")
+			expect(typeof(grip.z)).toBe("number")
+		end
+	end,
+
+	["unknown weapons and weapons without grip angles use the default grip"] = function(expect)
+		expect(Weapons.gripDegrees(WeaponConfig, "laser_gun")).toBe(WeaponConfig.defaultGripDegrees)
+		expect(Weapons.gripDegrees(WeaponConfig, nil)).toBe(WeaponConfig.defaultGripDegrees)
+		local config = table.clone(WeaponConfig)
+		config.list = { { id = "stick", name = "Stick", price = 0, trainingBonus = 1 } }
+		expect(Weapons.gripDegrees(config, "stick")).toBe(WeaponConfig.defaultGripDegrees)
+	end,
+
 	["the bonus is shown as whole percent"] = function(expect)
 		local percents = { 0, 25, 50, 100, 200 }
 		for index, weapon in WeaponConfig.list do

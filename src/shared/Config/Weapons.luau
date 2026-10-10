@@ -11,20 +11,55 @@ return {
 	--     The main throw is not affected. 1.25 is shown as "+25% Strength".
 	--   template: name of the model in ReplicatedStorage.Assets (see assets/weapon-templates.NOTES.md).
 	--     Without a template, or if the model is missing, a plain grey sword is shown instead.
+	--   gripDegrees: how the weapon sits in the hand, in degrees around the X, Y and Z axis of the
+	--     hand's grip. With 0, 0, 0 the tip points down along the arm. x = 90 turns the tip forward,
+	--     z = 90 stands the blade on its edge. The arm poses (Config/HoldPose) and the throw
+	--     animations expect the tip to point forward, so change this in small steps only.
 	list = {
-		{ id = "wooden_sword", name = "Wooden Sword", price = 0, trainingBonus = 1, template = "wooden_sword" },
-		{ id = "iron_dagger", name = "Iron Dagger", price = 500, trainingBonus = 1.25, template = "iron_dagger" },
-		{ id = "battle_axe", name = "Battle Axe", price = 8000, trainingBonus = 1.5, template = "battle_axe" },
+		{
+			id = "wooden_sword",
+			name = "Wooden Sword",
+			price = 0,
+			trainingBonus = 1,
+			template = "wooden_sword",
+			gripDegrees = { x = 90, y = 0, z = 90 },
+		},
+		{
+			id = "iron_dagger",
+			name = "Iron Dagger",
+			price = 500,
+			trainingBonus = 1.25,
+			template = "iron_dagger",
+			gripDegrees = { x = 90, y = 0, z = 90 },
+		},
+		{
+			id = "battle_axe",
+			name = "Battle Axe",
+			price = 8000,
+			trainingBonus = 1.5,
+			template = "battle_axe",
+			gripDegrees = { x = 90, y = 0, z = 90 },
+		},
 		{
 			id = "ember_greatsword",
 			name = "Ember Greatsword",
 			price = 120000,
 			trainingBonus = 2,
 			template = "ember_greatsword",
+			gripDegrees = { x = 90, y = 0, z = 90 },
 		},
 		-- Placeholder: has no model yet.
-		{ id = "void_blade", name = "Void Blade", price = 800000, trainingBonus = 3 },
+		{
+			id = "void_blade",
+			name = "Void Blade",
+			price = 800000,
+			trainingBonus = 3,
+			gripDegrees = { x = 90, y = 0, z = 90 },
+		},
 	},
+
+	-- For a weapon without gripDegrees, and for a weapon id the game does not know.
+	defaultGripDegrees = { x = 90, y = 0, z = 90 },
 
 	-- Every player owns this weapon from the start and has it equipped.
 	startWeapon = "wooden_sword",

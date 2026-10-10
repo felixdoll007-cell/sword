@@ -2,17 +2,22 @@
 -- Pure functions for weapons: which ones exist, what a player owns, what happens when a player
 -- uses a shop pedestal, and where the pedestals stand.
 
+-- Degrees around the X, Y and Z axis.
+export type Angles = { x: number, y: number, z: number }
+
 export type Weapon = {
 	id: string,
 	name: string,
 	price: number,
 	trainingBonus: number,
 	template: string?,
+	gripDegrees: Angles?,
 }
 
 export type WeaponConfig = {
 	list: { Weapon },
 	startWeapon: string,
+	defaultGripDegrees: Angles,
 	shop: {
 		firstPedestal: { x: number, z: number },
 		spacing: number,
@@ -64,6 +69,13 @@ end
 function Weapons.trainingBonus(config: WeaponConfig, equippedId: unknown): number
 	local weapon = Weapons.get(config, equippedId)
 	return if weapon then weapon.trainingBonus else 1
+end
+
+-- How the weapon sits in the hand. Weapons without their own angles, and unknown weapons, use
+-- the default.
+function Weapons.gripDegrees(config: WeaponConfig, id: unknown): Angles
+	local weapon = Weapons.get(config, id)
+	return if weapon and weapon.gripDegrees then weapon.gripDegrees else config.defaultGripDegrees
 end
 
 -- The bonus as whole percent for the sign: 1.25 -> 25.

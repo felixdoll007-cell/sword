@@ -125,6 +125,8 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Wurfanimation für den ganzen Körper: eine für den Hauptwurf, eine kürzere für das Training; als echte Roblox-Animationen, im Editor nachbesserbar; Ersatz per Code, solange nichts hochgeladen ist (erste Fassung gebaut, Anleitung in `docs/ANIMATIONS.md`)
 - [x] Kamera bleibt bei der Figur, bis die Waffe die Hand verlässt; Flugplan und Wurfsperre des Servers rechnen diese Zeit ein
 - [x] Alle Zeiten in der Config
+- [x] Nachbesserung: Trainings-Animation bewegt nur Oberkörper und rechten Arm, Hüfte und Beine nicht
+- [x] Nachbesserung: eigene Haltung der Waffe beim Stehen und beim Laufen (per Code, ohne Upload), Griffwinkel pro Waffe in der Config, Wurfanimation hat Vorrang
 - [ ] Animationen von mir angesehen und hochgeladen, Nummern in der Config
 - [ ] Von mir getestet
 

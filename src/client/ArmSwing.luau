@@ -64,6 +64,11 @@ function ArmSwing.releaseDelay(): number
 	return ThrowVisuals.armWindUpSeconds + ThrowVisuals.armThrowSeconds
 end
 
+-- Seconds the whole swing takes, from its start until the arm hangs down again.
+function ArmSwing.duration(): number
+	return ThrowVisuals.armWindUpSeconds + ThrowVisuals.armThrowSeconds + ThrowVisuals.armReturnSeconds
+end
+
 -- Plays the swing on a character. Without one, on this player's own character.
 function ArmSwing.play(ofCharacter: Model?)
 	local character = ofCharacter or Players.LocalPlayer.Character

@@ -1,5 +1,6 @@
 --!strict
 local DebugTools = require(script.DebugTools)
+local HoldPoseView = require(script.HoldPoseView)
 local LaneView = require(script.LaneView)
 local OtherThrowsView = require(script.OtherThrowsView)
 local RebirthView = require(script.RebirthView)
@@ -12,6 +13,7 @@ local TrainingView = require(script.TrainingView)
 
 LaneView.build()
 ThrowAnimation.preload()
+HoldPoseView.start()
 TrainingView.start()
 TrainingSnap.start()
 StatsView.start()

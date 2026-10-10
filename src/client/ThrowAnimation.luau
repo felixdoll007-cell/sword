@@ -17,6 +17,7 @@ local RunService = game:GetService("RunService")
 local AnimationConfig = require(ReplicatedStorage.Shared.Config.Animations)
 
 local ArmSwing = require(script.Parent.ArmSwing)
+local HoldPoseView = require(script.Parent.HoldPoseView)
 
 export type Entry = {
 	assetId: number,
@@ -107,7 +108,11 @@ end
 
 -- The arm swing from code, started so that the arm comes forward at the release moment.
 local function playArmSwing(character: Model, entry: Entry)
-	task.delay(math.max(entry.releaseSeconds - ArmSwing.releaseDelay(), 0), function()
+	local wait = math.max(entry.releaseSeconds - ArmSwing.releaseDelay(), 0)
+	-- The holding pose of the arm steps aside for the swing. (A real animation makes it step
+	-- aside by itself, see HoldPoseView.)
+	HoldPoseView.pauseFor(character, wait + ArmSwing.duration())
+	task.delay(wait, function()
 		if character.Parent then
 			ArmSwing.play(character)
 		end
