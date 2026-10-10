@@ -182,7 +182,11 @@ local function launchSword(laneIndex: number)
 	local y = LaneConfig.floorTopY + TrainingConfig.swordHeight
 	local from = Vector3.new(root.Position.X, y, root.Position.Z)
 	local to = Vector3.new(root.Position.X, y, wallZ(pad, #laneWalls))
-	local sword = SwordView.create("MyTrainingSword", TrainingConfig.swordScale)
+	local sword = SwordView.create(
+		"MyTrainingSword",
+		TrainingConfig.swordScale,
+		player:GetAttribute(Remotes.Attributes.EquippedWeapon)
+	)
 	SwordView.moveTo(sword, CFrame.new(from))
 
 	local elapsed = 0

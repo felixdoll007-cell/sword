@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
+local Remotes = require(Shared.Remotes)
 local LaneConfig = require(Shared.Config.Lane)
 local StrengthConfig = require(Shared.Config.Strength)
 local ThrowConfig = require(Shared.Config.Throw)
@@ -108,7 +109,7 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 	end)
 
 	ArmSwing.play()
-	local sword = SwordView.create("MySword", 1)
+	local sword = SwordView.create("MySword", 1, player:GetAttribute(Remotes.Attributes.EquippedWeapon))
 	table.insert(cleanupTasks, function()
 		sword:Destroy()
 	end)

@@ -3,13 +3,9 @@
 -- Lengths in studs, colors as { red, green, blue } from 0 to 255.
 
 return {
-	-- The sword model. It is cloned from a template in the place: ReplicatedStorage.<folder>.<name>.
-	-- The template is made in Studio (imported from assets/ember-greatsword-roblox.glb) and is not
-	-- part of the repo; see assets/ember-greatsword-roblox.NOTES.md.
-	swordTemplateFolder = "Assets",
-	swordTemplateName = "ember_greatsword",
-
-	-- Only used if the template is missing: a plain grey sword made of three simple parts.
+	-- Which weapon flies is decided by the player's equipped weapon (Config/Weapons).
+	-- The plain grey sword made of three simple parts: the placeholder for weapons without a
+	-- model, and the replacement if a model is missing.
 	bladeLength = 5,
 	bladeWidth = 0.8,
 	bladeThickness = 0.2,

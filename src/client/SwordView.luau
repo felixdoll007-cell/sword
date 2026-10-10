@@ -1,13 +1,13 @@
 --!strict
--- The sword that flies, built only on this client: for the main throw, the training throw and
--- the throws of other players.
+-- The weapon that flies, built only on this client: for the main throw, the training throw, the
+-- throws of other players and the display in the shop.
 --
--- The model is cloned from a template that lives in the place itself
--- (ReplicatedStorage.Assets, see Config/ThrowVisuals). The template is not in the repo: its meshes
--- are uploaded Roblox assets. If it is missing, a plain grey sword is built instead, so the game
--- still works.
+-- Every weapon in Config/Weapons can name a template: a model in ReplicatedStorage.Assets that
+-- lives in the place itself. The templates are not in the repo, their meshes are uploaded Roblox
+-- assets. A weapon without a template, or whose template is missing, is shown as a plain grey
+-- sword, so the game always works. A new model only needs the config entry and the template.
 --
--- Convention for every sword: the pivot of the model is the tip of the blade, and with no rotation
+-- Convention for every weapon: the pivot of the model is the tip of the blade, and with no rotation
 -- the tip points along the lane (negative Z) with the flat side of the blade facing up.
 --
 -- The parts are welded to one anchored root part. Moving the sword sets the position of that one
@@ -17,24 +17,31 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local ThrowVisuals = require(ReplicatedStorage.Shared.Config.ThrowVisuals)
+local WeaponConfig = require(ReplicatedStorage.Shared.Config.Weapons)
+local Weapons = require(ReplicatedStorage.Shared.Rules.Weapons)
 
 local SwordView = {}
 
--- One finished sword per scale, kept outside the world and cloned for every throw.
-local prototypes: { [number]: Model } = {}
-local warnedAboutTemplate = false
+-- One finished model per weapon and scale, kept outside the world and cloned for every throw.
+local prototypes: { [string]: Model } = {}
+local warnedAbout: { [string]: boolean } = {}
 
 local function color(rgb: { number }): Color3
 	return Color3.fromRGB(rgb[1], rgb[2], rgb[3])
 end
 
-local function findTemplate(): Model?
-	local folder = ReplicatedStorage:FindFirstChild(ThrowVisuals.swordTemplateFolder)
-	local template = folder and folder:FindFirstChild(ThrowVisuals.swordTemplateName)
+local function findTemplate(templateName: string): Model?
+	local folder = ReplicatedStorage:FindFirstChild(WeaponConfig.templateFolder)
+	local template = folder and folder:FindFirstChild(templateName)
 	if template and template:IsA("Model") and template.PrimaryPart then
 		return template
 	end
 	return nil
+end
+
+-- The weapon to draw for an id. Unknown or missing ids are drawn as the start weapon.
+local function resolve(weaponId: unknown): Weapons.Weapon
+	return Weapons.get(WeaponConfig, weaponId) or Weapons.get(WeaponConfig, WeaponConfig.startWeapon) :: Weapons.Weapon
 end
 
 -- The plain grey sword from Version 1, with the same convention (pivot at the tip).
@@ -96,36 +103,44 @@ local function makeRigid(model: Model, scale: number)
 	end
 end
 
-local function getPrototype(scale: number): Model
-	local prototype = prototypes[scale]
+local function getPrototype(weapon: Weapons.Weapon, scale: number): Model
+	local key = `{weapon.id}@{scale}`
+	local prototype = prototypes[key]
 	if prototype then
 		return prototype
 	end
 
-	local template = findTemplate()
+	local template = if weapon.template then findTemplate(weapon.template) else nil
 	if template then
 		prototype = template:Clone()
 	else
-		if not warnedAboutTemplate then
-			warnedAboutTemplate = true
+		-- No template named: the grey sword is the planned placeholder. Named but missing: say so once.
+		if weapon.template and not warnedAbout[weapon.id] then
+			warnedAbout[weapon.id] = true
 			warn(
-				`[SwordView] sword template {ThrowVisuals.swordTemplateFolder}.{ThrowVisuals.swordTemplateName} `
+				`[SwordView] template {WeaponConfig.templateFolder}.{weapon.template} for {weapon.id} `
 					.. "not found in ReplicatedStorage, using the plain grey sword"
 			)
 		end
 		prototype = buildGreySword()
 	end
 	makeRigid(prototype, scale)
-	prototypes[scale] = prototype
+	prototypes[key] = prototype
 	return prototype
 end
 
--- scale 1 = the normal throw sword; training uses a smaller one.
-function SwordView.create(name: string, scale: number): Model
-	local sword = getPrototype(scale):Clone()
+-- weaponId: which weapon to draw (see Config/Weapons). scale 1 = normal size; training uses a smaller one.
+function SwordView.create(name: string, scale: number, weaponId: unknown): Model
+	local sword = getPrototype(resolve(weaponId), scale):Clone()
 	sword.Name = name
 	sword.Parent = Workspace
 	return sword
+end
+
+-- Length of a weapon from its tip to its other end, in studs.
+function SwordView.length(scale: number, weaponId: unknown): number
+	local _, size = getPrototype(resolve(weaponId), scale):GetBoundingBox()
+	return size.Z
 end
 
 -- Puts the tip of the sword at this position and rotation. Only the root part is moved;

@@ -46,7 +46,9 @@ Größe 1,30 × 5,14 × 0,23 Studs, Spitze 4,14 über der Griffmitte.
 | haft_wood | rbxassetid://95464016108713 | 138, 94, 59 |
 | cloth_wrap | rbxassetid://123251319820774 | 125, 70, 54 |
 
-## Geplante Zuordnung im Waffen-Shop (noch nicht gebaut)
+## Zuordnung im Waffen-Shop
+
+Die Zuordnung steht in `src/shared/Config/Weapons.luau` (Feld `template`).
 
 | Waffe im Shop | Vorlage |
 |---|---|
@@ -54,4 +56,11 @@ Größe 1,30 × 5,14 × 0,23 Studs, Spitze 4,14 über der Griffmitte.
 | Iron Dagger | iron_dagger |
 | Battle Axe | battle_axe |
 | Ember Greatsword | ember_greatsword |
-| fünfte Waffe (Platzhalter) | keine, grauer Platzhalter |
+| Void Blade | keine, grauer Platzhalter |
+
+## Ein neues Modell einbinden
+1. Modell in Studio importieren (Meshes nicht zusammenführen), Farben setzen.
+2. Als Modell unter `ReplicatedStorage.Assets` ablegen und wie oben einrichten
+   (`PrimaryPart`, Drehpunkt an der Spitze).
+3. Beim Eintrag der Waffe in `Config/Weapons.luau` `template = "<Name des Modells>"` setzen.
+4. Den Ort auf Roblox speichern.

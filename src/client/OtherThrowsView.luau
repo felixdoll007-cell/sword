@@ -37,7 +37,7 @@ local function rootPosition(character: Model): Vector3?
 end
 
 local function setTransparency(sword: Model, transparency: number)
-	for _, part in sword:GetChildren() do
+	for _, part in sword:GetDescendants() do
 		if part:IsA("BasePart") then
 			part.Transparency = transparency
 		end
@@ -45,8 +45,16 @@ local function setTransparency(sword: Model, transparency: number)
 end
 
 -- One sword flying in a straight line, optionally fading out on the way. Calls done() when it is gone.
-local function flySword(from: Vector3, to: Vector3, seconds: number, scale: number, fades: boolean, done: () -> ())
-	local sword = SwordView.create("OtherPlayerSword", scale)
+local function flySword(
+	weaponId: unknown,
+	from: Vector3,
+	to: Vector3,
+	seconds: number,
+	scale: number,
+	fades: boolean,
+	done: () -> ()
+)
+	local sword = SwordView.create("OtherPlayerSword", scale, weaponId)
 	SwordView.moveTo(sword, CFrame.new(from))
 
 	local elapsed = 0
@@ -68,7 +76,14 @@ end
 
 -- Draws one throw: arm swing first, the sword leaves when the arm moves forward.
 -- path: returns where the sword flies from and to, or nil if it cannot be shown any more.
-local function show(character: Model, seconds: number, scale: number, fades: boolean, path: () -> (Vector3?, Vector3?))
+local function show(
+	character: Model,
+	weaponId: unknown,
+	seconds: number,
+	scale: number,
+	fades: boolean,
+	path: () -> (Vector3?, Vector3?)
+)
 	if not Visibility.canShowAnother(shownNow, OtherPlayersConfig.maxShownAtOnce) then
 		return
 	end
@@ -84,19 +99,19 @@ local function show(character: Model, seconds: number, scale: number, fades: boo
 			done()
 			return
 		end
-		flySword(from, to, seconds, scale, fades, done)
+		flySword(weaponId, from, to, seconds, scale, fades, done)
 	end)
 end
 
--- Another player's training throw on a lane.
-function OtherThrowsView.showTraining(character: Model, laneIndex: number)
+-- Another player's training throw on a lane. weaponId: the weapon that player has equipped.
+function OtherThrowsView.showTraining(character: Model, laneIndex: number, weaponId: unknown)
 	local pad = Training.lanePad(TrainingConfig, laneIndex)
 	local lane = TrainingConfig.lanes[laneIndex]
 	if not pad or not lane then
 		return
 	end
 	local lastWallZ = pad.z - pad.length / 2 - Training.wallOffset(TrainingConfig, lane.walls)
-	show(character, TrainingConfig.flightSeconds, TrainingConfig.swordScale, false, function()
+	show(character, weaponId, TrainingConfig.flightSeconds, TrainingConfig.swordScale, false, function()
 		local position = rootPosition(character)
 		if not position then
 			return nil, nil
@@ -107,8 +122,8 @@ function OtherThrowsView.showTraining(character: Model, laneIndex: number)
 end
 
 -- Another player's main throw: flies a short way along the lane and fades out.
-function OtherThrowsView.showMain(character: Model)
-	show(character, OtherPlayersConfig.mainThrowSeconds, 1, true, function()
+function OtherThrowsView.showMain(character: Model, weaponId: unknown)
+	show(character, weaponId, OtherPlayersConfig.mainThrowSeconds, 1, true, function()
 		local position = rootPosition(character)
 		if not position then
 			return nil, nil
@@ -134,10 +149,12 @@ function OtherThrowsView.start()
 			return
 		end
 
+		-- The equipped weapon of every player is visible to all (attribute on the Player).
+		local weaponId = thrower:GetAttribute(Remotes.Attributes.EquippedWeapon)
 		if kind == Remotes.ThrowKind.Training and typeof(lane) == "number" then
-			OtherThrowsView.showTraining(character, lane)
+			OtherThrowsView.showTraining(character, lane, weaponId)
 		elseif kind == Remotes.ThrowKind.Main then
-			OtherThrowsView.showMain(character)
+			OtherThrowsView.showMain(character, weaponId)
 		end
 	end)
 end
