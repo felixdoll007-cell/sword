@@ -31,6 +31,7 @@ Klein und sauber gemacht. Drei Bereiche:
 - Über jeder Bahn steht ein schlichtes Schild mit Multiplikator und Voraussetzung, bei gesperrten Bahnen "LOCKED".
 - Auf dem Trainingsfeld rastet die Figur ein (Mitte, Blick zur Wand). Verlassen durch gehaltene Richtung oder Sprung. Auf gesperrten Bahnen rastet man nicht ein und trainiert nicht; das entscheidet der Server.
 - Mehrere Spieler auf derselben Bahn schieben sich nicht weg.
+- Jede Bahn hat in der Config eine Art der Freischaltung. Bisher gibt es nur "Rebirths". Später kommt "Kauf" dazu (Robux-Bahn), ohne Umbau der Struktur. Weitere Bahnen entstehen allein durch Einträge in der Config, inklusive Platz auf der Map.
 
 ## Der Hauptwurf
 - Der Spieler steht in der Wurfzone und löst den Wurf aus.
@@ -73,6 +74,8 @@ nächstes Ziel ist.
 - Die Struktur erlaubt später weitere Welten hinter der letzten Zone.
 - Jeder Spieler hat seine eigenen Wände. Sie existieren nur auf seinem Client und brechen nur für ihn sichtbar. Der Server baut keine Wände, er rechnet nur.
 - In Version 1 sieht man die Schwerter anderer Spieler nicht.
+- Ab Version 2 (Block C): Andere Spieler in der Nähe sehen beim Training die Armbewegung und das kleine Schwert, beim Hauptwurf das Ausholen und das losfliegende Schwert. Das fremde Schwert verblasst nach kurzer Strecke und berührt keine Wände. Die Wände brechen weiter nur beim Spieler selbst.
+- Der Server meldet diese Ereignisse selbst weiter, aus seinem eigenen Takt und seiner eigenen Wurfprüfung. Clients können keine Ereignisse für andere auslösen. Gezeigt wird nur innerhalb einer Entfernung aus der Config, mit Obergrenze für gleichzeitig dargestellte fremde Würfe.
 - Nach dem Wurf stehen alle Wände wieder.
 
 ## Belohnung

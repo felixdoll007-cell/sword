@@ -90,9 +90,24 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Auf gesperrten Bahnen rastet man nicht ein und trainiert nicht (Entscheidung des Servers)
 - [x] Freischaltung wird aus den Rebirths berechnet, nicht gespeichert
 - [x] Mehrere Spieler auf derselben Bahn schieben sich nicht weg
-- [ ] Von mir getestet
+- [x] Von mir getestet
+
+### Block C: Andere Spieler sichtbar
+- [ ] Training: Andere Spieler in der Nähe sehen die Armbewegung und das kleine Schwert; die Trainingswand bricht nur beim Spieler selbst
+- [ ] Hauptwurf: Andere sehen das Ausholen und das Schwert losfliegen; es verblasst nach kurzer Strecke und berührt keine Wände
+- [ ] Der Server meldet diese Ereignisse selbst weiter (eigener Takt, eigene Wurfprüfung); Clients können nichts für andere auslösen
+- [ ] Nur innerhalb einer Entfernung aus der Config, mit Obergrenze für gleichzeitig dargestellte fremde Würfe
+- [ ] Vorbereitung: Jede Bahn hat in der Config eine Art der Freischaltung (jetzt nur "Rebirths", später "Kauf" ohne Umbau)
+- [ ] Vorbereitung: Weitere Bahnen nur durch Einträge in der Config, inklusive Platz auf der Map; der Balance-Test deckt das ab
+- [ ] Von mir getestet (zwei Spieler: einer trainiert und wirft, der andere schaut zu)
 
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
+
+## Vor dem Veröffentlichen: Block Käufe
+Kommt vor dem öffentlichen Start, noch nicht geplant im Detail. Bis dahin wird keine Kauflogik gebaut.
+- [ ] Robux-Bahn: Trainingsbahn mit Freischaltung "Kauf" (die Config-Struktur dafür steht seit Block C)
+- [ ] Prüfung der Käufe ausschließlich auf dem Server; ein Kauf wird erst gutgeschrieben, wenn er sicher gespeichert ist
+- [ ] Abgleich mit den Roblox-Regeln für Käufe, bevor etwas verkauft wird
 - Mit weiteren Welten: Wände nur in der Nähe des Schwerts aufbauen. In Version 1 stehen alle 30 Wände immer.
