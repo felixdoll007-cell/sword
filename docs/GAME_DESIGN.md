@@ -114,8 +114,8 @@ nächstes Ziel ist.
 - In jeder Animation gibt es den Moment "Release". Dieselbe Zeit steht in der Config. Bis dahin bleibt die Kamera bei der Figur, erst dann folgt sie der Waffe. Flugplan und Wurfsperre des Servers rechnen diese Zeit ein.
 - Alle Zeiten stehen in der Config.
 - Die Trainings-Animation bewegt nur Oberkörper und rechten Arm. Hüfte und Beine bleiben, wie sie sind.
-- Haltung der Waffe, solange nicht geworfen wird: Beim Stehen ist der rechte Arm leicht angewinkelt, die Klinge zeigt schräg nach oben und vom Körper weg. Beim Laufen ist der Arm zur Seite genommen, die Klinge zeigt nach hinten unten. Die Klinge fährt nie durch den Körper.
-- Die Haltung macht jeder Client per Code für alle Figuren in der Nähe. Dafür wird nichts hochgeladen. Die Wurfanimation hat Vorrang vor der Haltung.
+- Haltung der Waffe, solange nicht geworfen wird: Der rechte Arm ist leicht angewinkelt vor dem Körper, die Klinge zeigt schräg nach oben und vom Körper weg. Die Haltung ist in jeder Bewegung dieselbe: Stehen, Laufen, Springen, Fallen, Landen. Der Rest des Körpers bewegt sich normal mit den Standard-Animationen von Roblox. Die Klinge fährt nie durch den Körper.
+- Die Haltung macht jeder Client per Code für alle Figuren in der Nähe, sie steuert nur Schulter, Ellbogen und Handgelenk des rechten Arms. Dafür wird nichts hochgeladen. Die Wurfanimation hat Vorrang; danach gleitet der Arm weich in die Haltung zurück, die Dauer steht in der Config.
 - Der Griffwinkel (wie die Waffe in der Hand sitzt) steht pro Waffe in der Config.
 
 ## Pets

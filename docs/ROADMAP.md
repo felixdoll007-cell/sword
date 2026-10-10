@@ -126,7 +126,8 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Kamera bleibt bei der Figur, bis die Waffe die Hand verlässt; Flugplan und Wurfsperre des Servers rechnen diese Zeit ein
 - [x] Alle Zeiten in der Config
 - [x] Nachbesserung: Trainings-Animation bewegt nur Oberkörper und rechten Arm, Hüfte und Beine nicht
-- [x] Nachbesserung: eigene Haltung der Waffe beim Stehen und beim Laufen (per Code, ohne Upload), Griffwinkel pro Waffe in der Config, Wurfanimation hat Vorrang
+- [x] Nachbesserung: eigene Haltung der Waffe (per Code, ohne Upload), Griffwinkel pro Waffe in der Config, Wurfanimation hat Vorrang
+- [x] Nachbesserung: Laufhaltung entfernt, die Haltung vom Stehen gilt in jeder Bewegung; Waffe ist nach dem Respawn wieder in der Hand
 - [ ] Animationen von mir angesehen und hochgeladen, Nummern in der Config
 - [ ] Von mir getestet
 

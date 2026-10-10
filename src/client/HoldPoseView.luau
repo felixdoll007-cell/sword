@@ -1,15 +1,17 @@
 --!strict
--- How characters hold the weapon in the right hand while they are not throwing: one pose for
--- standing, one for walking (Config/HoldPose). Without it Roblox's own arm movement swings the
--- blade through the body.
+-- How characters hold the weapon in the right hand while they are not throwing: one fixed pose
+-- of the right arm (Config/HoldPose), whether they stand, walk, jump, fall or land. Without it
+-- Roblox's own arm movement swings the blade through the body.
 --
 -- Made from code, on this client, for every character near the camera. Each client does this for
 -- itself, so nothing is sent over the network and no uploaded animation is needed.
 --
 -- How: every frame, after Roblox's animations have posed the character, the three joints of the
--- right arm are overwritten with the pose (the same way as ArmSwing).
+-- right arm are overwritten with the pose (the same way as ArmSwing). Nothing else of the body
+-- is touched. This is not an animation: there are no keyframes, and it needs no restart after a
+-- respawn, a new weapon or a rebirth, because it looks at every character anew each frame.
 -- A throw has priority: while an animation of priority Action or higher plays on the character
--- (the throw animations are such), the pose lets go of the arm and takes it back afterwards.
+-- (the throw animations are such), the pose lets go of the arm and glides back in afterwards.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -46,8 +48,6 @@ type State = {
 	animator: Animator?,
 	played: RBXScriptConnection?,
 	nextSearch: number,
-	-- 0 = standing pose, 1 = walking pose.
-	walkShare: number,
 	-- 0 = Roblox's animations alone, 1 = fully the holding pose.
 	holdShare: number,
 	-- Animations playing right now that take the arm away from the pose.
@@ -59,6 +59,15 @@ type State = {
 local HoldPoseView = {}
 
 local states: { [Model]: State } = {}
+
+local function toCFrame(angles: HoldPose.Angles): CFrame
+	return CFrame.Angles(math.rad(angles.x), math.rad(angles.y), math.rad(angles.z))
+end
+
+-- The pose of each joint. It never changes, so it is worked out once.
+local SHOULDER_POSE = toCFrame(HoldConfig.arm.shoulder)
+local ELBOW_POSE = toCFrame(HoldConfig.arm.elbow)
+local WRIST_POSE = toCFrame(HoldConfig.arm.wrist)
 
 local function findJoint(character: Model, name: string): Joint?
 	local joint = character:FindFirstChild(name, true)
@@ -99,36 +108,28 @@ local function isArmTaken(state: State, now: number): boolean
 	return #winning > 0 or now < state.pausedUntil
 end
 
--- sideDegrees: extra lift of the arm to the side (only used for the shoulder).
-local function turn(
-	joint: Joint,
-	from: HoldPose.Angles,
-	to: HoldPose.Angles,
-	walkShare: number,
-	holdShare: number,
-	sideDegrees: number
-)
-	local x, y, z = HoldPose.mix(from, to, walkShare)
-	local pose = CFrame.Angles(math.rad(x), math.rad(y), math.rad(z + sideDegrees))
+local function turn(joint: Joint, pose: CFrame, share: number)
 	-- joint.Transform is what Roblox's animations have set for this frame.
-	joint.Transform = if holdShare >= 1 then pose else joint.Transform:Lerp(pose, holdShare)
+	joint.Transform = if share >= 1 then pose else joint.Transform:Lerp(pose, share)
 end
 
 local function update(character: Model, state: State, deltaTime: number, now: number, cameraPosition: Vector3)
 	local root = character:FindFirstChild(ROOT_NAME)
-	if
-		not root
-		or not root:IsA("BasePart")
-		or not character:FindFirstChild(WEAPON_NAME)
-		or (root.Position - cameraPosition).Magnitude > HoldConfig.maxDistance
-	then
-		-- Nothing in the hand, or too far away to matter: Roblox's animations alone.
-		state.holdShare = 0
+	if not root or not root:IsA("BasePart") then
 		return
 	end
 
 	local shoulder, elbow, wrist = state.shoulder, state.elbow, state.wrist
-	if not shoulder or not elbow or not wrist or not shoulder.Parent or not elbow.Parent or not wrist.Parent then
+	if
+		not shoulder
+		or not elbow
+		or not wrist
+		or not shoulder.Parent
+		or not elbow.Parent
+		or not wrist.Parent
+		-- Without the animator a throw could not be noticed.
+		or not state.animator
+	then
 		if now >= state.nextSearch then
 			state.nextSearch = now + SEARCH_AGAIN_SECONDS
 			search(character, state)
@@ -136,24 +137,23 @@ local function update(character: Model, state: State, deltaTime: number, now: nu
 		return
 	end
 
-	local holdTarget = if isArmTaken(state, now) then 0 else 1
-	state.holdShare = HoldPose.approach(state.holdShare, holdTarget, deltaTime, HoldConfig.throwBlendSeconds)
-
-	local velocity = root.AssemblyLinearVelocity
-	local groundSpeed = math.sqrt(velocity.X * velocity.X + velocity.Z * velocity.Z)
-	local walkTarget = if HoldPose.isWalking(HoldConfig, groundSpeed) then 1 else 0
-	state.walkShare = HoldPose.approach(state.walkShare, walkTarget, deltaTime, HoldConfig.blendSeconds)
-
+	-- The pose holds the arm whenever a weapon is in the hand and no throw is playing.
+	local wanted = character:FindFirstChild(WEAPON_NAME) ~= nil and not isArmTaken(state, now)
+	state.holdShare = HoldPose.nextShare(HoldConfig, state.holdShare, wanted, deltaTime)
 	if state.holdShare <= 0 then
 		return
 	end
-	local standing, walking = HoldConfig.standing, HoldConfig.walking
-	local walkShare = HoldPose.ease(state.walkShare)
-	local holdShare = HoldPose.ease(state.holdShare)
-	local sideSwing = HoldPose.sideSwing(HoldConfig, walkShare)
-	turn(shoulder, standing.shoulder, walking.shoulder, walkShare, holdShare, sideSwing)
-	turn(elbow, standing.elbow, walking.elbow, walkShare, holdShare, 0)
-	turn(wrist, standing.wrist, walking.wrist, walkShare, holdShare, 0)
+	-- Other characters too far away to be seen: skip the work, but keep the state. The own
+	-- character is always posed, so nothing pops when the camera comes back from a throw.
+	local isOwn = character == Players.LocalPlayer.Character
+	if not isOwn and (root.Position - cameraPosition).Magnitude > HoldConfig.maxDistance then
+		return
+	end
+
+	local share = HoldPose.ease(state.holdShare)
+	turn(shoulder, SHOULDER_POSE, share)
+	turn(elbow, ELBOW_POSE, share)
+	turn(wrist, WRIST_POSE, share)
 end
 
 local function add(character: Model)
@@ -162,7 +162,6 @@ local function add(character: Model)
 	end
 	states[character] = {
 		nextSearch = 0,
-		walkShare = 0,
 		holdShare = 0,
 		winning = {},
 		pausedUntil = 0,
