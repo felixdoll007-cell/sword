@@ -183,7 +183,7 @@ local function launchSword(laneIndex: number)
 	local from = Vector3.new(root.Position.X, y, root.Position.Z)
 	local to = Vector3.new(root.Position.X, y, wallZ(pad, #laneWalls))
 	local sword = SwordView.create("MyTrainingSword", TrainingConfig.swordScale)
-	sword:PivotTo(CFrame.new(from))
+	SwordView.moveTo(sword, CFrame.new(from))
 
 	local elapsed = 0
 	local nextWall = 1
@@ -192,7 +192,7 @@ local function launchSword(laneIndex: number)
 		elapsed += deltaTime
 		local progress = math.clamp(elapsed / TrainingConfig.flightSeconds, 0, 1)
 		local position = from:Lerp(to, progress)
-		sword:PivotTo(CFrame.new(position))
+		SwordView.moveTo(sword, CFrame.new(position))
 
 		-- Break every wall the tip has reached.
 		while nextWall <= #laneWalls and position.Z <= wallZ(pad, nextWall) do

@@ -47,14 +47,14 @@ end
 -- One sword flying in a straight line, optionally fading out on the way. Calls done() when it is gone.
 local function flySword(from: Vector3, to: Vector3, seconds: number, scale: number, fades: boolean, done: () -> ())
 	local sword = SwordView.create("OtherPlayerSword", scale)
-	sword:PivotTo(CFrame.new(from))
+	SwordView.moveTo(sword, CFrame.new(from))
 
 	local elapsed = 0
 	local connection: RBXScriptConnection
 	connection = RunService.Heartbeat:Connect(function(deltaTime: number)
 		elapsed += deltaTime
 		local progress = math.clamp(elapsed / seconds, 0, 1)
-		sword:PivotTo(CFrame.new(from:Lerp(to, progress)))
+		SwordView.moveTo(sword, CFrame.new(from:Lerp(to, progress)))
 		if fades then
 			setTransparency(sword, progress)
 		end

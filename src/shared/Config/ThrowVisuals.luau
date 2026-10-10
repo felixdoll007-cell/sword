@@ -3,7 +3,13 @@
 -- Lengths in studs, colors as { red, green, blue } from 0 to 255.
 
 return {
-	-- Sword made of three simple parts. The tip points along the lane.
+	-- The sword model. It is cloned from a template in the place: ReplicatedStorage.<folder>.<name>.
+	-- The template is made in Studio (imported from assets/ember-greatsword-roblox.glb) and is not
+	-- part of the repo; see assets/ember-greatsword-roblox.NOTES.md.
+	swordTemplateFolder = "Assets",
+	swordTemplateName = "ember_greatsword",
+
+	-- Only used if the template is missing: a plain grey sword made of three simple parts.
 	bladeLength = 5,
 	bladeWidth = 0.8,
 	bladeThickness = 0.2,

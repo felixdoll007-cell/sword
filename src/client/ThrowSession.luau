@@ -159,7 +159,7 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 		end
 
 		local pose = swordPose(plan, time)
-		sword:PivotTo(pose)
+		SwordView.moveTo(sword, pose)
 		WallPopups.follow(pose.Position)
 		if plan.ending == "bounce" and time > plan.flightSeconds then
 			-- Pull the camera back and keep it on the point of impact, so sword, wall and scratch are in view.

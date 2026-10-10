@@ -103,6 +103,14 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 
 **Stand 11.10.2026: Version 2 ist gebaut.** Block A (Rebirth), Block B (Trainingsbahnen) und Block C (andere Spieler sichtbar) sind erledigt und getestet.
 
+### Zwischenblock: Schwertmodell (Vorgriff auf Version 4)
+- [x] Importiertes Modell `ember_greatsword` als Vorlage in `ReplicatedStorage.Assets`, Farben gesetzt, Glut als Neon; Rojo lässt die Vorlage in Ruhe
+- [x] Hauptwurf, Trainingswurf (kleiner) und die Würfe anderer Spieler benutzen das Modell; ohne Vorlage gibt es das graue Schwert als Ersatz
+- [x] Spitze zeigt in Flugrichtung; Abprallen und Steckenbleiben wie vorher
+- [x] Teile sind verschweißt, bewegt wird nur ein verankertes Teil
+- [ ] Von mir getestet
+- Wichtig: Die Vorlage liegt nur im Ort, nicht im Repo. Der Ort muss in Studio auf Roblox gespeichert sein. Details in `assets/ember-greatsword-roblox.NOTES.md`.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
