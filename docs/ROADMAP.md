@@ -82,7 +82,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Rebirths werden gespeichert; alte Spielstände laden weiter
 - [x] Rebirth-Button mit Fenster: Fortschritt, was man verliert, was man bekommt, Bestätigen; per Touch bedienbar
 - [x] Anzahl der Rebirths steht bei den Werten oben
-- [ ] Von mir getestet
+- [x] Von mir getestet
 
 ### Block B: Trainingsbahnen (erst nach dem Test von Block A)
 - [ ] Vier Bahnen nebeneinander: Voraussetzung 0, 2, 4, 6 Rebirths; Multiplikator 1x, 4x, 10x, 20x; höhere Bahnen haben mehr Wände
