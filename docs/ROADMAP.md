@@ -85,11 +85,11 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Von mir getestet
 
 ### Block B: Trainingsbahnen (erst nach dem Test von Block A)
-- [ ] Vier Bahnen nebeneinander: Voraussetzung 0, 2, 4, 6 Rebirths; Multiplikator 1x, 4x, 10x, 20x; höhere Bahnen haben mehr Wände
-- [ ] Schild über jeder Bahn mit Multiplikator und Voraussetzung, bei gesperrten Bahnen "LOCKED"
-- [ ] Auf gesperrten Bahnen rastet man nicht ein und trainiert nicht (Entscheidung des Servers)
-- [ ] Freischaltung wird aus den Rebirths berechnet, nicht gespeichert
-- [ ] Mehrere Spieler auf derselben Bahn schieben sich nicht weg
+- [x] Vier Bahnen nebeneinander: Voraussetzung 0, 2, 4, 6 Rebirths; Multiplikator 1x, 4x, 10x, 20x; höhere Bahnen haben mehr Wände
+- [x] Schild über jeder Bahn mit Multiplikator und Voraussetzung, bei gesperrten Bahnen "LOCKED"
+- [x] Auf gesperrten Bahnen rastet man nicht ein und trainiert nicht (Entscheidung des Servers)
+- [x] Freischaltung wird aus den Rebirths berechnet, nicht gespeichert
+- [x] Mehrere Spieler auf derselben Bahn schieben sich nicht weg
 - [ ] Von mir getestet
 
 ## Version 3: Pets, Glück und Glückswurf
