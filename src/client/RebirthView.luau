@@ -1,8 +1,11 @@
 --!strict
--- The REBIRTH button and its small window: progress to the next rebirth, what is lost, what is
--- kept, what is gained, and Confirm. Everything works by touch.
--- The window only shows; pressing Confirm sends the wish to the server, which checks everything.
--- The window closes by itself when the server has done the rebirth (the Rebirths value goes up).
+-- Everything the player sees about rebirth:
+--   * the progress bar to the next rebirth at the bottom center, always visible
+--   * the rebirth window: now and after side by side, a red warning, the progress bar and the
+--     green button. It is opened from the menu (MenuView).
+-- The window only shows; pressing the button sends the wish to the server, which checks
+-- everything. The window closes by itself when the server has done the rebirth (the Rebirths
+-- value goes up).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,249 +21,238 @@ local Ui = require(Shared.Config.Ui)
 local NumberFormat = require(Shared.Rules.NumberFormat)
 local Rebirth = require(Shared.Rules.Rebirth)
 local StartValues = require(Shared.Rules.StartValues)
+local UiLayout = require(Shared.Rules.UiLayout)
 
-local ThrowSession = require(script.Parent.ThrowSession)
+local StatsView = require(script.Parent.StatsView)
+local Button = require(script.Parent.Ui.Button)
+local Draw = require(script.Parent.Ui.Draw)
+local Hud = require(script.Parent.Ui.Hud)
+local OutlinedText = require(script.Parent.Ui.OutlinedText)
+local ProgressBar = require(script.Parent.Ui.ProgressBar)
+local Window = require(script.Parent.Ui.Window)
 
 local RebirthView = {}
 
+-- One of the two cards: what the player has now, or what the player has after the rebirth.
+type Card = {
+	multiplier: OutlinedText.OutlinedText,
+	strength: OutlinedText.OutlinedText,
+}
+
 local player = Players.LocalPlayer
 
-local openButton: TextButton
-local window: Frame
-local barFill: Frame
-local progressLabel: TextLabel
-local loseLabel: TextLabel
-local getLabel: TextLabel
-local hintLabel: TextLabel
-local confirmButton: TextButton
+local hudBar: ProgressBar.ProgressBar
+local window: Window.Window
+local windowBar: ProgressBar.ProgressBar
+local beforeCard: Card
+local afterCard: Card
+local confirmButton: Button.Button
 
--- os.clock() until which Confirm stays inactive after a press.
+-- os.clock() until which the button stays inactive after a press.
 local confirmBlockedUntil = 0
-
-local function color(rgb: { number }): Color3
-	return Color3.fromRGB(rgb[1], rgb[2], rgb[3])
-end
 
 local function short(value: number): string
 	return NumberFormat.abbreviate(NumberFormatConfig, value)
 end
 
-local function numberAttribute(name: string): number
-	local value = player:GetAttribute(name)
+local function rebirths(): number
+	local value = player:GetAttribute(Remotes.Attributes.Rebirths)
 	return if typeof(value) == "number" then value else 0
 end
 
-local function sizeLimits(parent: Instance, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
-	local limits = Instance.new("UISizeConstraint")
-	limits.MinSize = Vector2.new(minWidth, minHeight)
-	limits.MaxSize = Vector2.new(maxWidth, maxHeight)
-	limits.Parent = parent
+-- The strength on screen. During a throw that is the held value, so the bar gives nothing away.
+local function strength(): number
+	return StatsView.shown(Remotes.Attributes.Strength)
 end
 
-local function makeText(name: string, heightShare: number, order: number, parent: Instance): TextLabel
-	local label = Instance.new("TextLabel")
-	label.Name = name
-	label.Size = UDim2.fromScale(1, heightShare)
-	label.LayoutOrder = order
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.GothamBold
-	label.TextScaled = true
-	label.TextColor3 = color(Ui.rebirthWindow.textColor)
-	label.Parent = parent
-	return label
-end
-
-local function makeButton(
-	name: string,
-	text: string,
-	rgb: { number },
-	textPadding: number,
-	parent: Instance
-): TextButton
-	local button = Instance.new("TextButton")
-	button.Name = name
-	button.Text = text
-	button.Font = Enum.Font.GothamBlack
-	button.TextScaled = true
-	button.TextColor3 = color(Ui.rebirthWindow.textColor)
-	button.BackgroundColor3 = color(rgb)
-	button.AutoButtonColor = true
-	button.Parent = parent
-
-	local padding = Instance.new("UIPadding")
-	padding.PaddingTop = UDim.new(textPadding, 0)
-	padding.PaddingBottom = UDim.new(textPadding, 0)
-	padding.PaddingLeft = UDim.new(textPadding / 2, 0)
-	padding.PaddingRight = UDim.new(textPadding / 2, 0)
-	padding.Parent = button
-	return button
-end
-
-local function createOpenButton(gui: ScreenGui)
-	local settings = Ui.rebirthButton
-	openButton = makeButton("RebirthButton", settings.text, settings.color, settings.textPadding, gui)
-	openButton.TextColor3 = color(settings.textColor)
-	openButton.AnchorPoint = Vector2.new(0, 0.5)
-	openButton.Position = UDim2.fromScale(settings.positionX, settings.positionY)
-	-- The outer box; the aspect ratio fits the button into it without changing its shape.
-	openButton.Size = UDim2.fromScale(settings.widthScale, settings.heightScale)
-
-	local aspect = Instance.new("UIAspectRatioConstraint")
-	aspect.AspectRatio = settings.aspectRatio
-	aspect.Parent = openButton
-	sizeLimits(openButton, settings.minWidth, settings.minHeight, settings.maxWidth, settings.maxHeight)
-end
-
-local function createWindow(gui: ScreenGui)
-	local settings = Ui.rebirthWindow
-	window = Instance.new("Frame")
-	window.Name = "RebirthWindow"
-	window.AnchorPoint = Vector2.new(0.5, 0.5)
-	window.Position = UDim2.fromScale(0.5, 0.5)
-	window.Size = UDim2.fromScale(settings.widthScale, settings.heightScale)
-	window.BackgroundColor3 = color(settings.backgroundColor)
-	window.Visible = false
-	window.Parent = gui
-	sizeLimits(window, settings.minWidth, settings.minHeight, settings.maxWidth, settings.maxHeight)
-
-	local border = Instance.new("UIStroke")
-	border.Color = color(settings.borderColor)
-	border.Thickness = settings.borderThickness
-	border.Parent = window
-
-	local padding = Instance.new("UIPadding")
-	padding.PaddingTop = UDim.new(settings.padding, 0)
-	padding.PaddingBottom = UDim.new(settings.padding, 0)
-	padding.PaddingLeft = UDim.new(settings.padding, 0)
-	padding.PaddingRight = UDim.new(settings.padding, 0)
-	padding.Parent = window
-
-	local layout = Instance.new("UIListLayout")
-	layout.FillDirection = Enum.FillDirection.Vertical
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Padding = UDim.new(settings.rowGap, 0)
-	layout.Parent = window
-
-	local title = makeText("Title", settings.titleHeight, 1, window)
-	title.Font = Enum.Font.GothamBlack
-	title.Text = settings.title
-
-	-- Progress bar with the numbers on top of it.
-	local bar = Instance.new("Frame")
-	bar.Name = "ProgressBar"
-	bar.Size = UDim2.fromScale(1, settings.barHeight)
-	bar.LayoutOrder = 2
-	bar.BackgroundColor3 = color(settings.barBackColor)
-	bar.BorderSizePixel = 0
-	bar.Parent = window
-
-	barFill = Instance.new("Frame")
-	barFill.Name = "Fill"
-	barFill.Size = UDim2.fromScale(0, 1)
-	barFill.BackgroundColor3 = color(settings.barFillColor)
-	barFill.BorderSizePixel = 0
-	barFill.Parent = bar
-
-	progressLabel = makeText("ProgressText", 1, 1, bar)
-	progressLabel.ZIndex = 2
-
-	loseLabel = makeText("LoseText", settings.lineHeight, 3, window)
-	local keepLabel = makeText("KeepText", settings.lineHeight, 4, window)
-	keepLabel.Text = settings.keepText
-	getLabel = makeText("GetText", settings.lineHeight, 5, window)
-	hintLabel = makeText("HintText", settings.hintHeight, 6, window)
-
-	local buttons = Instance.new("Frame")
-	buttons.Name = "Buttons"
-	buttons.Size = UDim2.fromScale(1, settings.buttonsHeight)
-	buttons.LayoutOrder = 7
-	buttons.BackgroundTransparency = 1
-	buttons.Parent = window
-
-	confirmButton =
-		makeButton("ConfirmButton", settings.confirmText, settings.confirmColor, settings.buttonTextPadding, buttons)
-	confirmButton.Size = UDim2.fromScale(settings.buttonWidth, 1)
-
-	local closeButton =
-		makeButton("CloseButton", settings.closeText, settings.closeColor, settings.buttonTextPadding, buttons)
-	closeButton.AnchorPoint = Vector2.new(1, 0)
-	closeButton.Position = UDim2.fromScale(1, 0)
-	closeButton.Size = UDim2.fromScale(settings.buttonWidth, 1)
-	closeButton.Activated:Connect(function()
-		window.Visible = false
-	end)
-end
-
--- Fills in the numbers from the values the server shows.
-local function refresh()
-	local settings = Ui.rebirthWindow
-	local strength = numberAttribute(Remotes.Attributes.Strength)
-	local rebirths = numberAttribute(Remotes.Attributes.Rebirths)
-	local threshold = Rebirth.threshold(RebirthConfig, rebirths)
-	local ready = Rebirth.canRebirth(RebirthConfig, strength, rebirths)
-
-	openButton.BackgroundColor3 = color(if ready then Ui.rebirthButton.readyColor else Ui.rebirthButton.color)
-	-- Not during a throw: the reward is still being counted up on screen.
-	openButton.Visible = not ThrowSession.isActive()
-	if ThrowSession.isActive() then
-		window.Visible = false
+-- The picture of the menu entry a window belongs to.
+local function menuIcon(id: string): string?
+	for _, entry in Ui.menu.entries do
+		if entry.id == id then
+			return entry.icon
+		end
 	end
-	if not window.Visible then
+	return nil
+end
+
+local function fillBar(bar: ProgressBar.ProgressBar)
+	local settings = Ui.rebirthBar
+	local count = rebirths()
+	local value = strength()
+	local percent = Rebirth.progressPercent(RebirthConfig, value, count)
+	bar.set(
+		Rebirth.progress(RebirthConfig, value, count),
+		string.format(settings.leftText, short(value), short(Rebirth.threshold(RebirthConfig, count))),
+		if percent >= 100 then settings.readyText else string.format(settings.percentText, tostring(percent))
+	)
+end
+
+local function makeCard(
+	name: string,
+	title: string,
+	multiplierColor: { number },
+	strengthColor: { number },
+	parent: Instance
+): (Frame, Card)
+	local settings = Ui.rebirthWindow
+	local frame = Draw.panel(name, Ui.colors.card, parent)
+	Draw.corner(frame, Ui.corners.card)
+	Draw.border(frame)
+
+	-- Five rows from top to bottom, spread evenly over the card.
+	local rows = settings.cardRows
+	local used = 0
+	for _, share in rows do
+		used += share
+	end
+	local space = (1 - used) / (#rows + 1)
+	local y = space
+	local function row(index: number, text: string, rgb: { number }?): OutlinedText.OutlinedText
+		local line = OutlinedText.new({ name = `Row{index}`, parent = frame, text = text, color = rgb })
+		line.frame.AnchorPoint = Vector2.new(0.5, 0)
+		line.frame.Position = UDim2.fromScale(0.5, y)
+		line.frame.Size = UDim2.fromScale(settings.cardTextWidth, rows[index])
+		y += rows[index] + space
+		return line
+	end
+
+	row(1, title)
+	local multiplier = row(2, "", multiplierColor)
+	row(3, settings.multiplierCaption)
+	local strengthLine = row(4, "", strengthColor)
+	row(5, settings.strengthCaption)
+	return frame, { multiplier = multiplier, strength = strengthLine }
+end
+
+local function createWindow()
+	local settings = Ui.rebirthWindow
+	window = Window.new({
+		name = "RebirthWindow",
+		title = settings.title,
+		icon = menuIcon(settings.menuEntry),
+		maxWidth = settings.maxWidth,
+		maxHeight = settings.maxHeight,
+	})
+	local content = window.content
+
+	-- Four rows from top to bottom with the same space between them.
+	local space = (1 - settings.cardsHeight - settings.warningHeight - settings.barHeight - settings.buttonHeight) / 5
+	local y = space
+
+	local cards = Draw.box("Cards", content)
+	cards.Position = UDim2.fromScale(0, y)
+	cards.Size = UDim2.fromScale(1, settings.cardsHeight)
+	y += settings.cardsHeight + space
+
+	local sideSpace = (1 - 2 * settings.cardWidth - settings.arrowWidth) / 2
+	local before, beforeTexts = makeCard("Before", settings.beforeTitle, Ui.colors.rebirths, Ui.colors.strength, cards)
+	before.Position = UDim2.fromScale(sideSpace, 0)
+	before.Size = UDim2.fromScale(settings.cardWidth, 1)
+	beforeCard = beforeTexts
+
+	local arrow = OutlinedText.new({ name = "Arrow", parent = cards, text = settings.arrowText })
+	arrow.frame.Position = UDim2.fromScale(sideSpace + settings.cardWidth, (1 - settings.arrowHeight) / 2)
+	arrow.frame.Size = UDim2.fromScale(settings.arrowWidth, settings.arrowHeight)
+
+	-- After: the multiplier is the gain (green), the strength is the loss (red).
+	local after, afterTexts = makeCard("After", settings.afterTitle, Ui.colors.positive, Ui.colors.danger, cards)
+	after.Position = UDim2.fromScale(sideSpace + settings.cardWidth + settings.arrowWidth, 0)
+	after.Size = UDim2.fromScale(settings.cardWidth, 1)
+	afterCard = afterTexts
+
+	local warning = OutlinedText.new({
+		name = "Warning",
+		parent = content,
+		text = settings.warningText,
+		color = Ui.colors.danger,
+	})
+	warning.frame.AnchorPoint = Vector2.new(0.5, 0)
+	warning.frame.Position = UDim2.fromScale(0.5, y)
+	warning.frame.Size = UDim2.fromScale(1 - 2 * sideSpace, settings.warningHeight)
+	y += settings.warningHeight + space
+
+	windowBar = ProgressBar.new("ProgressBar", content)
+	windowBar.frame.AnchorPoint = Vector2.new(0.5, 0)
+	windowBar.frame.Position = UDim2.fromScale(0.5, y)
+	windowBar.frame.Size = UDim2.fromScale(1 - 2 * sideSpace, settings.barHeight)
+	y += settings.barHeight + space
+
+	confirmButton = Button.new({
+		name = "ConfirmButton",
+		parent = content,
+		text = settings.confirmText,
+		color = Ui.colors.confirm,
+	})
+	confirmButton.frame.AnchorPoint = Vector2.new(0.5, 0)
+	confirmButton.frame.Position = UDim2.fromScale(0.5, y)
+	confirmButton.frame.Size = UDim2.fromScale(settings.buttonWidth, settings.buttonHeight)
+end
+
+-- Fills in the numbers of the window from the values the server shows.
+local function refreshWindow()
+	if not window.isOpen() then
 		return
 	end
+	local settings = Ui.rebirthWindow
+	local count = rebirths()
+	local value = strength()
+	local ready = Rebirth.canRebirth(RebirthConfig, value, count)
 
-	barFill.Size = UDim2.fromScale(Rebirth.progress(RebirthConfig, strength, rebirths), 1)
-	progressLabel.Text = string.format(settings.progressText, short(strength), short(threshold))
-	local strengthAfter = StartValues.startStrength(StrengthConfig, TestSettings, RunService:IsStudio())
-	loseLabel.Text = string.format(settings.loseText, short(strengthAfter))
-	getLabel.Text = string.format(
-		settings.getText,
-		short(Rebirth.multiplier(RebirthConfig, rebirths + 1)),
-		short(Rebirth.multiplier(RebirthConfig, rebirths))
+	beforeCard.multiplier.setText(
+		string.format(settings.multiplierText, short(Rebirth.multiplier(RebirthConfig, count)))
 	)
-	hintLabel.Text = if ready then settings.readyText else settings.notReadyText
+	beforeCard.strength.setText(string.format(settings.strengthText, short(value)))
+	afterCard.multiplier.setText(
+		string.format(settings.multiplierText, short(Rebirth.multiplier(RebirthConfig, count + 1)))
+	)
+	local strengthAfter = StartValues.startStrength(StrengthConfig, TestSettings, RunService:IsStudio())
+	afterCard.strength.setText(string.format(settings.strengthText, short(strengthAfter)))
+	fillBar(windowBar)
 
-	local canPress = ready and os.clock() >= confirmBlockedUntil
-	confirmButton.Active = canPress
-	confirmButton.AutoButtonColor = canPress
-	confirmButton.BackgroundColor3 = color(if canPress then settings.confirmColor else settings.confirmDisabledColor)
+	confirmButton.setEnabled(ready and os.clock() >= confirmBlockedUntil)
+	confirmButton.setText(if ready then settings.confirmText else settings.notReadyText)
 end
 
 local function onConfirm()
-	local strength = numberAttribute(Remotes.Attributes.Strength)
-	local rebirths = numberAttribute(Remotes.Attributes.Rebirths)
+	local count = rebirths()
 	-- Only ask when it can work. The server checks again with its own values.
-	if os.clock() < confirmBlockedUntil or not Rebirth.canRebirth(RebirthConfig, strength, rebirths) then
+	if os.clock() < confirmBlockedUntil or not Rebirth.canRebirth(RebirthConfig, strength(), count) then
 		return
 	end
 	confirmBlockedUntil = os.clock() + Ui.rebirthWindow.confirmWaitSeconds
 	Remotes.RebirthRequested:FireServer()
 end
 
+-- Opens the window, or closes it if it is open.
+function RebirthView.toggle()
+	window.toggle()
+	refreshWindow()
+end
+
 function RebirthView.start()
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "RebirthGui"
-	gui.ResetOnSpawn = false
-	-- Above the other screen elements, so the window is never hidden behind a button.
-	gui.DisplayOrder = 1
-
-	createOpenButton(gui)
-	createWindow(gui)
-
-	openButton.Activated:Connect(function()
-		window.Visible = not window.Visible
+	hudBar = ProgressBar.new("RebirthBar", Hud.gui())
+	Hud.onLayout(function(layout: UiLayout.Hud)
+		Draw.place(hudBar.frame, layout.bar)
 	end)
-	confirmButton.Activated:Connect(onConfirm)
+
+	createWindow()
+	confirmButton.onActivated(onConfirm)
+
+	local function refreshBar()
+		fillBar(hudBar)
+	end
+	StatsView.onChanged(refreshBar)
+	refreshBar()
 
 	-- The rebirth happened: close the window.
 	player:GetAttributeChangedSignal(Remotes.Attributes.Rebirths):Connect(function()
-		window.Visible = false
+		window.close()
 		confirmBlockedUntil = 0
+		refreshBar()
 	end)
 
-	RunService.Heartbeat:Connect(refresh)
-
-	gui.Parent = player:WaitForChild("PlayerGui")
+	-- While the window is open, keep its numbers and the button up to date.
+	RunService.Heartbeat:Connect(refreshWindow)
 end
 
 return RebirthView

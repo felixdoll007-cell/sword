@@ -11,6 +11,8 @@ return {
 	--     The main throw is not affected. 1.25 is shown as "+25% Strength".
 	--   template: name of the model in ReplicatedStorage.Assets (see assets/weapon-templates.NOTES.md).
 	--     Without a template, or if the model is missing, a plain grey sword is shown instead.
+	--   rarity: color of the tile and the name in the shop window: common, uncommon, rare, epic or
+	--     legendary (colors in Config/Ui).
 	--   gripDegrees: how the weapon sits in the hand, in degrees around the X, Y and Z axis of the
 	--     hand's grip. With 0, 0, 0 the tip points down along the arm. x = 90 turns the tip forward,
 	--     z = 90 stands the blade on its edge. The arm poses (Config/HoldPose) and the throw
@@ -18,6 +20,7 @@ return {
 	list = {
 		{
 			id = "wooden_sword",
+			rarity = "common",
 			name = "Wooden Sword",
 			price = 0,
 			trainingBonus = 1,
@@ -26,6 +29,7 @@ return {
 		},
 		{
 			id = "iron_dagger",
+			rarity = "uncommon",
 			name = "Iron Dagger",
 			price = 500,
 			trainingBonus = 1.25,
@@ -34,6 +38,7 @@ return {
 		},
 		{
 			id = "battle_axe",
+			rarity = "rare",
 			name = "Battle Axe",
 			price = 8000,
 			trainingBonus = 1.5,
@@ -42,6 +47,7 @@ return {
 		},
 		{
 			id = "ember_greatsword",
+			rarity = "epic",
 			name = "Ember Greatsword",
 			price = 120000,
 			trainingBonus = 2,
@@ -51,6 +57,7 @@ return {
 		-- Placeholder: has no model yet.
 		{
 			id = "void_blade",
+			rarity = "legendary",
 			name = "Void Blade",
 			price = 800000,
 			trainingBonus = 3,
@@ -67,9 +74,11 @@ return {
 	-- Folder in ReplicatedStorage with the weapon models.
 	templateFolder = "Assets",
 
-	-- Server: at most this many uses of a shop pedestal per player within the time window.
+	-- Server: at most this many uses of the shop (pedestal or shop window) per player within the time window.
 	maxRequests = 3,
 	requestWindowSeconds = 2,
+	-- Server: a weapon id sent by a client that is longer than this is thrown away unread.
+	maxIdLength = 40,
 	-- Server: a player must stand this close to a pedestal to buy or equip there.
 	useDistance = 12,
 

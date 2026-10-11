@@ -131,6 +131,45 @@ return {
 		expect(#Weapons.decodeOwned(nil)).toBe(0)
 	end,
 
+	["the shop shows what a weapon is for the player"] = function(expect)
+		local holdings = { owned = { "wooden_sword", "iron_dagger" }, equipped = "iron_dagger" }
+		expect(Weapons.shopState(WeaponConfig, holdings, 0, "iron_dagger")).toBe("equipped")
+		expect(Weapons.shopState(WeaponConfig, holdings, 0, "wooden_sword")).toBe("owned")
+		expect(Weapons.shopState(WeaponConfig, holdings, 8000, "battle_axe")).toBe("canBuy")
+		expect(Weapons.shopState(WeaponConfig, holdings, 7999.9, "battle_axe")).toBe("tooExpensive")
+		expect(Weapons.shopState(WeaponConfig, holdings, 0 / 0, "battle_axe")).toBe("tooExpensive")
+		expect(Weapons.shopState(WeaponConfig, holdings, 1e300, "void_blade")).toBe("canBuy")
+		expect(Weapons.shopState(WeaponConfig, holdings, 1e300, "laser_gun")).toBe("unknown")
+		expect(Weapons.shopState(WeaponConfig, holdings, 1e300, nil)).toBe("unknown")
+	end,
+
+	["what the shop shows matches what a press does"] = function(expect)
+		local holdings = { owned = { "wooden_sword" }, equipped = "wooden_sword" }
+		for _, coins in { 0, 499, 500, 8000, 1e9 } do
+			for _, weapon in WeaponConfig.list do
+				local state = Weapons.shopState(WeaponConfig, holdings, coins, weapon.id)
+				local outcome = Weapons.use(WeaponConfig, holdings, coins, weapon.id).outcome
+				local expected = ({
+					equipped = "alreadyEquipped",
+					owned = "equipped",
+					canBuy = "bought",
+					tooExpensive = "notEnoughCoins",
+				})[state]
+				expect(outcome).toBe(expected)
+			end
+		end
+	end,
+
+	["every weapon has a rarity that has a color, and ids fit the length limit"] = function(expect)
+		local Ui = require("../src/shared/Config/Ui")
+		for _, weapon in WeaponConfig.list do
+			expect(typeof(weapon.rarity)).toBe("string")
+			expect(typeof(Ui.rarity[weapon.rarity])).toBe("table")
+			expect(#weapon.id <= WeaponConfig.maxIdLength).toBe(true)
+		end
+		expect(typeof(Ui.rarity[Ui.defaultRarity])).toBe("table")
+	end,
+
 	["pedestals stand in a row, one spacing apart"] = function(expect)
 		local first = Weapons.pedestalPosition(WeaponConfig, 1)
 		expect(first.x).toBe(WeaponConfig.shop.firstPedestal.x)

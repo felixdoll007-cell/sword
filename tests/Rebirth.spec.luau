@@ -72,6 +72,18 @@ return {
 		expect(Rebirth.apply(RebirthConfig, { strength = 250, rebirths = 1 }, 10)).toBe(nil)
 	end,
 
+	["progress in percent is rounded down and shows 100 only when ready"] = function(expect)
+		local first = RebirthConfig.thresholds[1]
+		expect(Rebirth.progressPercent(RebirthConfig, 0, 0)).toBe(0)
+		expect(Rebirth.progressPercent(RebirthConfig, first / 2, 0)).toBe(50)
+		expect(Rebirth.progressPercent(RebirthConfig, first * 0.999, 0)).toBe(99)
+		expect(Rebirth.progressPercent(RebirthConfig, first, 0)).toBe(100)
+		expect(Rebirth.progressPercent(RebirthConfig, first * 1e6, 0)).toBe(100)
+		expect(Rebirth.progressPercent(RebirthConfig, -5, 0)).toBe(0)
+		expect(Rebirth.progressPercent(RebirthConfig, 0 / 0, 0)).toBe(0)
+		expect(Rebirth.progressPercent(RebirthConfig, 1e300, 0)).toBe(100)
+	end,
+
 	["apply does not change the input"] = function(expect)
 		local values = { strength = 250, rebirths = 0 }
 		Rebirth.apply(RebirthConfig, values, 10)

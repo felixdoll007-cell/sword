@@ -137,6 +137,20 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir angesehen
 - Nur lokal: nichts ist nach Roblox hochgeladen oder in die Oberfläche eingebaut.
 
+### Block: Oberfläche im neuen Stil (Vorgriff auf Version 4)
+- [x] `docs/STYLE.md`, Abschnitt Symbole: Menü-Symbole sind fertige Bilder, der Shop ist ein Korb
+- [x] Bausteine als wiederverwendbare Module in `src/client/Ui`: Text mit Rand, Button, Menü-Button, Fenster, Kachel, Fortschrittsbalken (dazu Symbol-Platzhalter, Kurzmeldung, Waffen-Vorschau)
+- [x] Alle Farben, Größen, Zeiten und Texte der Oberfläche in `Config/Ui`; die Anordnung für jedes Bildschirmformat rechnet `Rules/UiLayout` (mit Tests für Handy, Tablet und Monitor, hoch und quer)
+- [x] Werte links unter dem Menü, Fortschrittsbalken unten mittig, Wurf-Button und Anzeige mit dem Zeiger im neuen Stil
+- [x] Rebirth-Fenster als Vorher-Nachher mit Warnzeile, Balken und grünem Button
+- [x] Menü-Raster links mit sechs Buttons; Shop-Fenster mit Waffen-Kacheln (3D-Modell), Kaufen und Ausrüsten über den Server; vier Buttons gesperrt mit "Coming soon" und Schalter in der Config
+- [x] Einblendungen "+..." im selben Schriftstil
+- [x] Zahlen nie länger als vier Zeichen vor der Einheit
+- [ ] Noppen-Textur: Kachel-Grafik erzeugen und hochladen (wartet auf meine Freigabe), Nummer in `Config/Ui`
+- [ ] Symbole für Stärke, Coins, Schloss, Haken und Schließen (bis dahin Platzhalter)
+- [ ] Von mir getestet
+- Nicht umgestellt: die Schilder in der Welt (Trainingsbahnen, Shop-Sockel). Sie stehen in STYLE.md, waren aber nicht Teil dieses Blocks.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

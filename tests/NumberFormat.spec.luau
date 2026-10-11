@@ -15,7 +15,27 @@ return {
 	["decimals below 1000 are rounded down to one digit"] = function(expect)
 		expect(abbreviate(10.5)).toBe("10.5")
 		expect(abbreviate(10.59)).toBe("10.5")
-		expect(abbreviate(999.99)).toBe("999.9")
+		expect(abbreviate(99.99)).toBe("99.9")
+	end,
+
+	["the number part never gets longer than four characters"] = function(expect)
+		expect(abbreviate(999.99)).toBe("999")
+		expect(abbreviate(150.5)).toBe("150")
+		expect(abbreviate(15300)).toBe("15.3K")
+		expect(abbreviate(153200)).toBe("153K")
+		expect(abbreviate(999999)).toBe("999K")
+		expect(abbreviate(99950)).toBe("99.9K")
+		expect(abbreviate(1.2345e36)).toBe("1.2e36")
+		for _, value in { 1, 12.34, 123.45, 1234.5, 98765.4, 999999.9, 1e9 - 1, 7.77e20, 9.99e32 } do
+			local numberPart = abbreviate(value):match("^[%d%.]+") :: string
+			expect(#numberPart <= NumberFormatConfig.maxCharacters).toBe(true)
+		end
+	end,
+
+	["without a limit all decimals stay"] = function(expect)
+		local config = { decimals = 1, suffixes = NumberFormatConfig.suffixes }
+		expect(NumberFormat.abbreviate(config, 999.99)).toBe("999.9")
+		expect(NumberFormat.abbreviate(config, 999999)).toBe("999.9K")
 	end,
 
 	["exactly on a boundary gets the next suffix"] = function(expect)
@@ -35,7 +55,8 @@ return {
 
 	["rounds down, never up"] = function(expect)
 		expect(abbreviate(1999)).toBe("1.9K")
-		expect(abbreviate(999999)).toBe("999.9K")
+		expect(abbreviate(19999)).toBe("19.9K")
+		expect(abbreviate(199999)).toBe("199K")
 	end,
 
 	["beyond the last suffix uses e notation"] = function(expect)

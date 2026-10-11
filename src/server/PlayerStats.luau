@@ -89,8 +89,8 @@ function PlayerStats.trainingBonus(player: Player): number?
 	return if values then Weapons.trainingBonus(WeaponConfig, values.equippedWeapon) else nil
 end
 
--- The player uses the shop pedestal of a weapon: buys it if not owned and affordable, equips it
--- if owned. Price, ownership and coins are checked here with the server's own values.
+-- The player uses a weapon in the shop (pedestal or shop window): buys it if not owned and
+-- affordable, equips it if owned. Price, ownership and coins are checked here with the server's own values.
 -- Returns what happened, or nil if the player's data is not loaded.
 function PlayerStats.useWeaponPedestal(player: Player, weaponId: string): Weapons.Outcome?
 	local values = data(player)

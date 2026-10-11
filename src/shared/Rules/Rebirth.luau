@@ -50,6 +50,15 @@ function Rebirth.progress(config: RebirthConfig, strength: number, rebirths: num
 	return math.clamp(progress, 0, 1)
 end
 
+-- The progress as whole percent for the screen, rounded down. 100 only shows when the rebirth
+-- is really possible.
+function Rebirth.progressPercent(config: RebirthConfig, strength: number, rebirths: number): number
+	if Rebirth.canRebirth(config, strength, rebirths) then
+		return 100
+	end
+	return math.min(math.floor(Rebirth.progress(config, strength, rebirths) * 100), 99)
+end
+
 -- What a rebirth changes: strength back to the start, one more rebirth.
 -- Everything else (currency, best wall) is not touched. Returns nil if not allowed.
 function Rebirth.apply(config: RebirthConfig, values: Values, startStrength: number): Values?

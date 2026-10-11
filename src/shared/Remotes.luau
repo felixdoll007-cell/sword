@@ -7,6 +7,9 @@
 --   ThrowRequested(pressTime: number) second press: only WHEN it was pressed, never a factor
 --   TrainingLeft()                   the player let go of the training pad; can only stop training
 --   RebirthRequested()               "I want to rebirth", no values; the server checks everything
+--   WeaponUseRequested(weaponId: string)  "I pressed the button of this weapon in the shop window".
+--                                    Only the id; whether that buys the weapon, equips it or does
+--                                    nothing is decided by the server, like at a shop pedestal.
 -- Server -> Client (only to the player who throws)
 --   MeterStarted(startTime: number, startPhase: number)
 --   ThrowStarted(throwPower: number, factor: number, perWall: { { currency, strength, zoneBonus } })
@@ -44,6 +47,7 @@ local EVENT_NAMES = {
 	"TrainingThrow",
 	"TrainingLeft",
 	"RebirthRequested",
+	"WeaponUseRequested",
 	"OtherPlayerThrew",
 }
 
@@ -69,6 +73,7 @@ return {
 	TrainingThrow = folder:WaitForChild("TrainingThrow") :: RemoteEvent,
 	TrainingLeft = folder:WaitForChild("TrainingLeft") :: RemoteEvent,
 	RebirthRequested = folder:WaitForChild("RebirthRequested") :: RemoteEvent,
+	WeaponUseRequested = folder:WaitForChild("WeaponUseRequested") :: RemoteEvent,
 	OtherPlayerThrew = folder:WaitForChild("OtherPlayerThrew") :: RemoteEvent,
 
 	-- Values for the "kind" of OtherPlayerThrew.

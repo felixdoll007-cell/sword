@@ -12,6 +12,8 @@ export type Weapon = {
 	trainingBonus: number,
 	template: string?,
 	gripDegrees: Angles?,
+	-- Color of the weapon's tile and name in the shop window (see Config/Ui, rarity).
+	rarity: string?,
 }
 
 export type WeaponConfig = {
@@ -38,6 +40,9 @@ export type UseResult = {
 	holdings: Holdings,
 	currency: number,
 }
+
+-- What a weapon is for a player in the shop.
+export type ShopState = "equipped" | "owned" | "canBuy" | "tooExpensive" | "unknown"
 
 local SEPARATOR = ","
 
@@ -131,6 +136,20 @@ function Weapons.use(config: WeaponConfig, holdings: Holdings, currency: number,
 	table.insert(owned, weapon.id)
 	local cleaned = Weapons.sanitize(config, owned, weapon.id)
 	return { outcome = "bought", holdings = cleaned, currency = currency - weapon.price }
+end
+
+-- What the shop shows for this weapon: in use, owned, affordable or too expensive.
+-- Only for showing; what really happens on a press is decided by Weapons.use on the server.
+function Weapons.shopState(config: WeaponConfig, holdings: Holdings, currency: number, id: unknown): ShopState
+	local weapon = Weapons.get(config, id)
+	if not weapon then
+		return "unknown"
+	end
+	if Weapons.isOwned(holdings, weapon.id) then
+		return if holdings.equipped == weapon.id then "equipped" else "owned"
+	end
+	-- NaN coins are never enough.
+	return if currency >= weapon.price then "canBuy" else "tooExpensive"
 end
 
 -- Where the pedestal of the weapon at this place in the list stands on the ground.

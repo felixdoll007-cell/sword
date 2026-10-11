@@ -1,5 +1,6 @@
 --!strict
--- The THROW button (touch and mouse) plus a keyboard shortcut.
+-- The THROW button (touch and mouse) plus a keyboard shortcut. It sits above the progress bar at
+-- the bottom center and is only there in the throw zone.
 -- First press: ask the server to start the meter. Second press: tell the server WHEN it was pressed.
 -- The server answers with the throw power and the factor, then the throw is played.
 --
@@ -24,7 +25,11 @@ local Ui = require(Shared.Config.Ui)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Meter = require(Shared.Rules.Meter)
 local Rewards = require(Shared.Rules.Rewards)
+local UiLayout = require(Shared.Rules.UiLayout)
 
+local Button = require(script.Parent.Ui.Button)
+local Draw = require(script.Parent.Ui.Draw)
+local Hud = require(script.Parent.Ui.Hud)
 local CharacterFreeze = require(script.Parent.CharacterFreeze)
 local MeterView = require(script.Parent.MeterView)
 local StatsView = require(script.Parent.StatsView)
@@ -41,13 +46,11 @@ local step: Step = "idle"
 local stepStartedAt = 0
 local meterStartTime = 0
 local meterStartPhase = 0
+-- Whether the button currently reads STOP.
+local showsStop = false
 
 local function now(): number
 	return Workspace:GetServerTimeNow()
-end
-
-local function color(rgb: { number }): Color3
-	return Color3.fromRGB(rgb[1], rgb[2], rgb[3])
 end
 
 local function setStep(newStep: Step)
@@ -146,7 +149,7 @@ local function onThrowStarted(throwPower: unknown, factor: unknown, perWall: unk
 end
 
 -- Runs every frame: moves the pointer and ends steps that took too long.
-local function update(button: TextButton)
+local function update(button: Button.Button)
 	local time = now()
 
 	if step == "meterRunning" then
@@ -165,46 +168,35 @@ local function update(button: TextButton)
 	end
 
 	-- The button is there when it can do something: start the meter or stop it.
-	button.Visible = not ThrowSession.isActive() and ((step == "idle" and isInThrowZone()) or step == "meterRunning")
-	button.Text = if step == "meterRunning" then Ui.throwButton.stopText else Ui.throwButton.text
+	button.frame.Visible = not ThrowSession.isActive()
+		and ((step == "idle" and isInThrowZone()) or step == "meterRunning")
+	-- THROW in the game's action color, STOP in red.
+	local stopping = step == "meterRunning"
+	if stopping ~= showsStop then
+		showsStop = stopping
+		button.setText(if stopping then Ui.throwButton.stopText else Ui.throwButton.text)
+		button.setColor(if stopping then Ui.colors.danger else Ui.colors.action)
+	end
 end
 
-local function createButton(): TextButton
-	local settings = Ui.throwButton
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "ThrowGui"
-	gui.ResetOnSpawn = false
-
-	local button = Instance.new("TextButton")
-	button.Name = "ThrowButton"
-	button.AnchorPoint = Vector2.new(0.5, 1)
-	button.Position = UDim2.fromScale(settings.positionX, settings.positionY)
-	-- Full width as the outer box; the aspect ratio below makes it as wide as the height allows.
-	button.Size = UDim2.fromScale(1, settings.heightScale)
-	button.BackgroundColor3 = color(settings.color)
-	button.TextColor3 = color(settings.textColor)
-	button.Text = settings.text
-	button.Font = Enum.Font.GothamBlack
-	button.TextScaled = true
-	button.Parent = gui
-
-	local aspect = Instance.new("UIAspectRatioConstraint")
-	aspect.AspectRatio = settings.aspectRatio
-	aspect.Parent = button
-
-	local limits = Instance.new("UISizeConstraint")
-	limits.MinSize = Vector2.new(settings.minWidth, settings.minHeight)
-	limits.MaxSize = Vector2.new(settings.maxWidth, settings.maxHeight)
-	limits.Parent = button
-
-	gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+local function createButton(): Button.Button
+	local button = Button.new({
+		name = "ThrowButton",
+		parent = Hud.gui(),
+		text = Ui.throwButton.text,
+		color = Ui.colors.action,
+	})
+	button.frame.Visible = false
+	Hud.onLayout(function(layout: UiLayout.Hud)
+		Draw.place(button.frame, layout.throwButton)
+	end)
 	return button
 end
 
 function ThrowController.start()
 	MeterView.create()
 	local button = createButton()
-	button.Activated:Connect(onPress)
+	button.onActivated(onPress)
 
 	local key = (Enum.KeyCode :: any)[Ui.throwButton.key]
 	UserInputService.InputBegan:Connect(function(input: InputObject, typingInTextBox: boolean)

@@ -3,6 +3,8 @@
 
 export type NumberFormatConfig = {
 	decimals: number,
+	-- Longest number part (digits and the point) before the suffix. nil = no limit.
+	maxCharacters: number?,
 	suffixes: { string },
 }
 
@@ -23,8 +25,18 @@ local function withoutTrailingZeros(text: string): string
 	return text
 end
 
-local function formatPlain(value: number, decimals: number): string
-	return withoutTrailingZeros(string.format(`%.{decimals}f`, roundDown(value, decimals)))
+-- Uses as many decimals as allowed, but fewer if the number would get too long: 15.3 stays,
+-- 153.2 becomes 153.
+local function formatPlain(value: number, config: NumberFormatConfig): string
+	local limit = config.maxCharacters or math.huge
+	local text = ""
+	for decimals = math.max(config.decimals, 0), 0, -1 do
+		text = withoutTrailingZeros(string.format(`%.{decimals}f`, roundDown(value, decimals)))
+		if #text <= limit then
+			break
+		end
+	end
+	return text
 end
 
 function NumberFormat.abbreviate(config: NumberFormatConfig, value: number): string
@@ -48,7 +60,7 @@ function NumberFormat.abbreviate(config: NumberFormatConfig, value: number): str
 	end
 
 	if tier == 0 then
-		return formatPlain(value, config.decimals)
+		return formatPlain(value, config)
 	end
 
 	if tier > #config.suffixes then
@@ -61,10 +73,10 @@ function NumberFormat.abbreviate(config: NumberFormatConfig, value: number): str
 			mantissa *= 10
 			exponent -= 1
 		end
-		return `{formatPlain(mantissa, config.decimals)}e{exponent}`
+		return `{formatPlain(mantissa, config)}e{exponent}`
 	end
 
-	return formatPlain(value / 1000 ^ tier, config.decimals) .. config.suffixes[tier]
+	return formatPlain(value / 1000 ^ tier, config) .. config.suffixes[tier]
 end
 
 return NumberFormat

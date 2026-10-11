@@ -1,7 +1,10 @@
 --!strict
 -- The weapon shop on the server: builds the pedestals with their button and handles a player
--- using one. The client only says "I used this pedestal". Whether that buys the weapon, equips
--- it or does nothing is decided here: price, ownership, coins and the distance to the pedestal.
+-- using the shop. There are two ways in, and both only state a wish:
+--   * the button at a pedestal ("I used this pedestal"), only when standing next to it
+--   * a button in the shop window ("I pressed the button of this weapon"), from anywhere
+-- Whether that buys the weapon, equips it or does nothing is decided here, for both ways with the
+-- same rules: price, ownership and coins come from the server's own values.
 --
 -- The weapon models on the pedestals and the signs are drawn by each client (client/ShopView),
 -- because OWNED / EQUIPPED / LOCKED is different for every player.
@@ -11,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
+local Remotes = require(Shared.Remotes)
 local LaneConfig = require(Shared.Config.Lane)
 local WeaponConfig = require(Shared.Config.Weapons)
 local RateLimit = require(Shared.Rules.RateLimit)
@@ -18,6 +22,7 @@ local Visibility = require(Shared.Rules.Visibility)
 local Weapons = require(Shared.Rules.Weapons)
 
 local PlayerStats = require(script.Parent.PlayerStats)
+local ThrowService = require(script.Parent.ThrowService)
 
 -- Names the client looks for (client/ShopView).
 local FOLDER_NAME = "WeaponShop"
@@ -38,8 +43,8 @@ local function isNearPedestal(player: Player, weaponIndex: number): boolean
 	return Visibility.isNear(WeaponConfig.useDistance, root.Position.X, root.Position.Z, pedestal.x, pedestal.z)
 end
 
-local function onPedestalUsed(player: Player, weaponIndex: number)
-	-- 1. Rate limit
+-- One limit for both ways into the shop.
+local function passesRateLimit(player: Player): boolean
 	local allowed, times = RateLimit.check(
 		requestTimes[player] or {},
 		Workspace:GetServerTimeNow(),
@@ -47,7 +52,12 @@ local function onPedestalUsed(player: Player, weaponIndex: number)
 		WeaponConfig.requestWindowSeconds
 	)
 	requestTimes[player] = times
-	if not allowed then
+	return allowed
+end
+
+local function onPedestalUsed(player: Player, weaponIndex: number)
+	-- 1. Rate limit
+	if not passesRateLimit(player) then
 		return
 	end
 
@@ -60,6 +70,37 @@ local function onPedestalUsed(player: Player, weaponIndex: number)
 
 	-- 4. The player must really stand at the pedestal. A cheating client can press a button from far away.
 	if not isNearPedestal(player, weaponIndex) then
+		return
+	end
+
+	-- 5. PlayerStats checks price, ownership and coins with its own values and applies the result.
+	PlayerStats.useWeaponPedestal(player, weapon.id)
+end
+
+-- A button in the shop window was pressed. Everything the client sends is checked here.
+local function onWeaponUseRequested(player: Player, ...: any)
+	-- 1. Rate limit
+	if not passesRateLimit(player) then
+		return
+	end
+
+	-- 2. Exactly one value, and it is a text of sensible length.
+	if select("#", ...) ~= 1 then
+		return
+	end
+	local weaponId = ...
+	if typeof(weaponId) ~= "string" or #weaponId > WeaponConfig.maxIdLength then
+		return
+	end
+
+	-- 3. It must name a weapon the game knows.
+	local weapon = Weapons.get(WeaponConfig, weaponId)
+	if not weapon then
+		return
+	end
+
+	-- 4. Not in the middle of a meter or a throw: the reward of that throw is still being shown.
+	if ThrowService.isBusy(player) then
 		return
 	end
 
@@ -107,6 +148,7 @@ function WeaponService.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		requestTimes[player] = nil
 	end)
+	Remotes.WeaponUseRequested.OnServerEvent:Connect(onWeaponUseRequested)
 end
 
 return WeaponService

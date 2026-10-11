@@ -1,6 +1,6 @@
 --!strict
--- "+..." labels during a throw: currency of each broken wall, and a bigger one for the zone bonus.
--- Only on this client.
+-- "+..." labels during a throw: Coins of each broken wall (gold), and a bigger one for the zone
+-- bonus (light green). Same font and border as the rest of the interface. Only on this client.
 --
 -- A label appears where the sword breaks the wall and then travels along above the sword while it
 -- rises and fades. (Fixed to the wall it would be gone at once: the camera follows the sword and
@@ -17,11 +17,13 @@ local NumberFormatConfig = require(Shared.Config.NumberFormat)
 local Ui = require(Shared.Config.Ui)
 local NumberFormat = require(Shared.Rules.NumberFormat)
 
+local OutlinedText = require(script.Parent.Ui.OutlinedText)
+
 local FOLDER_NAME = "MyWallPopups"
 
 type Popup = {
 	anchor: Part,
-	label: TextLabel,
+	text: OutlinedText.OutlinedText,
 	amount: number,
 	isZoneBonus: boolean,
 	-- Height above the sword.
@@ -31,10 +33,6 @@ type Popup = {
 local WallPopups = {}
 
 local active: { Popup } = {}
-
-local function color(rgb: { number }): Color3
-	return Color3.fromRGB(rgb[1], rgb[2], rgb[3])
-end
 
 local function getFolder(): Folder
 	local folder = Workspace:FindFirstChild(FOLDER_NAME) :: Folder?
@@ -80,7 +78,7 @@ function WallPopups.show(swordTip: Vector3, amount: number, isZoneBonus: boolean
 		local target = newestOfKind(isZoneBonus)
 		if target then
 			target.amount += amount
-			target.label.Text = textFor(target.amount)
+			target.text.setText(textFor(target.amount))
 			return
 		end
 	end
@@ -103,30 +101,27 @@ function WallPopups.show(swordTip: Vector3, amount: number, isZoneBonus: boolean
 	gui.Size = UDim2.fromScale(settings.widthStuds * sizeFactor, settings.heightStuds * sizeFactor)
 	gui.AlwaysOnTop = true
 	gui.LightInfluence = 0
+	-- Needed so the text lies on top of its own shadow.
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	gui.Adornee = anchor
 	gui.Parent = anchor
 
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.GothamBlack
-	label.TextScaled = true
-	label.TextColor3 = color(if isZoneBonus then settings.zoneColor else settings.color)
-	label.TextStrokeTransparency = 0
-	label.Text = textFor(amount)
-	label.Parent = gui
+	local text = OutlinedText.new({
+		name = "Amount",
+		parent = gui,
+		text = textFor(amount),
+		color = if isZoneBonus then Ui.colors.positive else Ui.colors.coins,
+	})
 
 	anchor.Parent = getFolder()
-	local popup: Popup = { anchor = anchor, label = label, amount = amount, isZoneBonus = isZoneBonus, height = height }
+	local popup: Popup = { anchor = anchor, text = text, amount = amount, isZoneBonus = isZoneBonus, height = height }
 	table.insert(active, popup)
 
 	local info = TweenInfo.new(settings.seconds)
 	TweenService:Create(gui, info, { StudsOffsetWorldSpace = Vector3.new(0, settings.riseStuds, 0) }):Play()
-	local fade = TweenService:Create(label, info, { TextTransparency = 1, TextStrokeTransparency = 1 })
-	fade.Completed:Connect(function()
+	text.fadeOut(settings.seconds).Completed:Connect(function()
 		remove(popup)
 	end)
-	fade:Play()
 end
 
 -- Called every frame during the throw: the labels travel along above the sword.

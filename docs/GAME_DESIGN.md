@@ -87,8 +87,9 @@ nächstes Ziel ist.
 - Verfügbar ab einer bestimmten Stärke. Die Schwelle steigt mit jedem Rebirth (Formel in der Config).
 - Setzt die Stärke auf den Startwert. Währung, weiteste Wand, Rebirths und Pets bleiben.
 - Gibt einen dauerhaften Multiplikator auf alle Stärke-Gewinne (Training und Hauptwurf).
-- Rebirth-Button mit kleinem Fenster: Fortschritt bis zum nächsten Rebirth, was man verliert, was man bekommt, Bestätigen. Voll per Touch bedienbar.
-- Die Anzahl der Rebirths steht bei den Werten oben.
+- Rebirth-Button im Menü-Raster links, mit dem Fortschritt als Prozent oben auf dem Button. Er öffnet das Rebirth-Fenster: jetzt und danach nebeneinander, rote Warnzeile, Fortschrittsbalken, grüner Button. Voll per Touch bedienbar.
+- Der Fortschritt zum nächsten Rebirth steht außerdem immer als Balken unten in der Mitte.
+- Die Anzahl der Rebirths steht bei den Werten links unter dem Menü.
 - Der Server prüft alles, der Client meldet nur den Wunsch.
 - Zahlen (in `Config/Rebirth`): Multiplikator +1x pro Rebirth (2x, 3x, 4x ...). Die Schwellen stehen als Liste in der Config, abgeleitet aus Zieldauern reiner Trainingszeit pro Durchlauf mit den Bahnen aus Version 2: 3, 3, 3,5, 4, 4,5, 5, 6, 7, 8,5 und 10 Minuten. Das ergibt 200, 400, 2.500, 3.800, 13.500, 18.000, 50.000, 67.000, 92.000 und 120.000 Stärke. Ab Rebirth 11 dauert jeder Durchlauf 20 % länger als der vorige (Formel, schließt an den letzten Listenwert an).
 - Rebirths sollen mit der Zeit länger dauern: am Anfang schnell, dann stetig steigend.
@@ -102,9 +103,11 @@ nächstes Ziel ist.
 - Waffen sind eine echte Beschleunigung: Nach einem Waffenkauf darf der nächste Durchlauf kürzer sein als der davor. Die Rebirth-Schwellen bleiben unverändert und rechnen ohne Waffen.
 - Der Shop steht in der Welt, rechts neben der Wurfzone: fünf Sockel nebeneinander, auf jedem die Waffe, darüber ein Schild mit Name, Bonus ("+25% Strength"), Preis und OWNED, EQUIPPED oder LOCKED.
 - Am Sockel kauft man und rüstet aus, per Touch bedienbar. Ein Kauf rüstet die Waffe sofort aus. Zwischen gekauften Waffen wechselt man frei.
+- Dasselbe geht im Shop-Fenster (Menü-Button Shop), von überall: jede Waffe als Kachel mit dem echten 3D-Modell, Bonus, Preis und einem Button zum Kaufen oder Ausrüsten. Die Sockel in der Welt bleiben.
+- Jede Waffe hat eine Seltenheit (in der Config), die die Farbe ihrer Kachel und ihres Namens bestimmt: Wooden Sword Common, Iron Dagger Uncommon, Battle Axe Rare, Ember Greatsword Epic, Void Blade Legendary.
 - Die ausgerüstete Waffe fliegt bei Hauptwurf, Training und für Zuschauer.
 - Waffen und Coins bleiben beim Rebirth erhalten. Besitz und Ausrüstung werden gespeichert.
-- Der Server prüft Preis, Besitz, Coins und die Nähe zum Sockel. Der Client meldet nur den Wunsch.
+- Der Server prüft immer Preis, Besitz und Coins. Der Client meldet nur den Wunsch. Am Sockel prüft der Server zusätzlich die Nähe zum Sockel. Im Shop-Fenster gibt es keine Nähe-Prüfung (gewollt, man kauft von überall); dafür prüft der Server dort, dass die gemeldete Waffe existiert und gerade kein Wurf läuft.
 - Waffen ohne Modell fliegen als grauer Platzhalter. Ein neues Modell braucht nur einen Config-Eintrag und die Vorlage in `ReplicatedStorage.Assets`.
 
 ## Wurf: Waffe in der Hand, Animation, Kamera
@@ -137,8 +140,24 @@ aus den Rebirths berechnet.
 
 ## Aussehen
 Details sind wichtiger als Umfang. Wenige kräftige Farben, einheitliche Klötzchen-Optik,
-dicke Schrift mit Umriss, klare große Buttons. Genaue Regeln kommen in `docs/STYLE.md`,
-sobald die Mechanik steht.
+dicke Schrift mit Umriss, klare große Buttons. Die genauen Regeln stehen in `docs/STYLE.md`.
+
+Die Oberfläche ist aus wiederverwendbaren Bausteinen gebaut (Text mit Rand, Button,
+Menü-Button, Fenster, Kachel, Fortschrittsbalken). Alle Farben, Größen, Zeiten und Texte
+stehen in `Config/Ui`. Aufbau des Bildschirms:
+- Links: Menü-Raster in zwei Spalten (Shop, Rebirth, Pets, Trails, Inventory, Gifts), darunter
+  Stärke, Coins und Rebirths, je mit Symbol und Zahl in ihrer Farbe. Pets, Trails, Inventory
+  und Gifts sind abgedunkelt mit Schloss und sagen beim Antippen "Coming soon"; jeder Button
+  hat einen Schalter in der Config.
+- Unten mittig: Fortschritt zum nächsten Rebirth, darüber der Wurf-Button (nur in der
+  Wurfzone), rechts daneben die Anzeige mit dem Zeiger.
+- Hochformat am Handy: Alles unten in der Mitte rückt nach oben, damit Joystick und
+  Sprung-Button frei bleiben. Fenster füllen fast den ganzen Bildschirm.
+- Es ist immer nur ein Fenster offen. Dahinter ist die Welt weichgezeichnet und abgedunkelt.
+- Zahlen sind immer abgekürzt und haben nie mehr als vier Zeichen vor der Einheit
+  (15.3K, aber 153K).
+- Die Noppen-Textur ist vorbereitet, aber noch aus: Sie braucht eine hochgeladene
+  Kachel-Grafik, deren Nummer in `Config/Ui` (studs) eingetragen wird.
 
 ## Balance
 Alle Zahlen stehen im Config-Ordner und werden beim Spielen eingestellt. Ziel: Der Spieler
