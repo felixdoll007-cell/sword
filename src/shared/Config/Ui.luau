@@ -548,17 +548,23 @@ return {
 		-- The main lane. Every zone can have its own look; the paper zone is the first and the
 		-- pattern for the others. A zone is named after its material in Config/Walls.
 		lane = {
-			-- Raised walkways left and right of a zone with a look, along its whole length.
-			-- Next to the lane runs their edge, outside of it the walkway itself.
+			-- Raised walkways left and right of a zone with a look, along its whole length. They are
+			-- scenery, not ground to walk on. From the lane outwards: the edge, a lower inner step
+			-- and a higher outer step. Decoration stands on the outer step.
+			-- Edge, inner and outer step together should be a whole number of floor pictures wide
+			-- (10 studs), see surroundings below.
 			walk = {
-				-- Width of the walkway without its edge. Edge and walkway together should be a
-				-- whole number of floor pictures wide (10 studs), see surroundings below.
-				width = 9,
-				-- How far the walkway stands above the lane floor.
-				height = 1,
-				-- The edge towards the lane: its width, and how far it stands above the walkway.
+				-- The edge towards the lane: its width, and how far it stands above the inner step.
 				curbWidth = 1,
 				curbAbove = 0.2,
+				-- Width of each step, and how far it stands above the lane floor.
+				innerWidth = 9,
+				innerHeight = 1,
+				outerWidth = 10,
+				outerHeight = 2.5,
+				-- Invisible walls around the walkways keep players off them (height as the lane's
+				-- barriers, Config/Lane). This is their thickness.
+				fenceThickness = 1,
 			},
 
 			-- The name of the next zone, floating at the end of a zone, turned towards the camera.
@@ -594,27 +600,117 @@ return {
 					nameColor = { 250, 244, 226 },
 					-- Two tones of cream.
 					floor = { darkColor = { 236, 224, 194 }, lightColor = { 248, 238, 212 } },
-					-- Two tones of cherry blossom pink, dark red edge.
+					-- Walkways: two tones of calm sand beige, dark red edge towards the lane.
 					walk = {
-						darkColor = { 244, 160, 180 },
-						lightColor = { 255, 186, 200 },
+						darkColor = { 214, 190, 150 },
+						lightColor = { 228, 206, 168 },
 						curbColor = { 140, 28, 40 },
 					},
 					-- Cream white with a dark red frame, like a paper wall.
 					wall = { color = { 250, 245, 230 }, frameColor = { 140, 28, 40 } },
-					-- Decoration on both walkways, in a row along the zone.
+					-- Decoration: scenery on the outer step of the walkways. A fixed list, set by hand,
+					-- so it does not look lined up. For every piece:
+					--   model: a name from decor.models below.
+					--   side: "left" or "right" of the lane, seen from the throw zone.
+					--   along: distance from the start of the zone (the throw line), in studs.
+					--   across: where on the outer step: 0 = its inner edge, 1 = its outer edge.
+					--   turnDegrees: turned this much away from looking straight at the lane.
+					--   scale: size, 1 = as modelled. At most decor.maxScaleChange away from 1.
 					decor = {
-						-- Which models, in this order, again and again (names from decor.models below).
-						order = { "paper_lantern", "origami_crane", "paper_pinwheel" },
-						-- From the start of the zone to the first piece, and the same room at its end.
-						firstDistance = 10,
-						-- Distance between two pieces.
-						spacing = 15,
-						-- How far from the lane's edge they stand (the walkway is 1 to 10 studs from it).
-						distanceFromLane = 5.5,
-						-- The right walkway starts this many places further in the order, so two
-						-- different pieces face each other across the lane.
-						sideShift = 1,
+						pieces = {
+							-- A lantern on each side at the start of the zone, like a gate.
+							{
+								model = "paper_lantern",
+								side = "left",
+								along = 5,
+								across = 0.25,
+								turnDegrees = 5,
+								scale = 1.1,
+							},
+							{
+								model = "paper_lantern",
+								side = "right",
+								along = 5,
+								across = 0.25,
+								turnDegrees = -7,
+								scale = 1.1,
+							},
+							-- Left side.
+							{
+								model = "origami_crane",
+								side = "left",
+								along = 27,
+								across = 0.35,
+								turnDegrees = 16,
+								scale = 1.08,
+							},
+							{
+								model = "paper_pinwheel",
+								side = "left",
+								along = 58,
+								across = 0.2,
+								turnDegrees = -22,
+								scale = 0.9,
+							},
+							{
+								model = "paper_lantern",
+								side = "left",
+								along = 92,
+								across = 0.4,
+								turnDegrees = 11,
+								scale = 0.95,
+							},
+							-- Right side.
+							{
+								model = "paper_pinwheel",
+								side = "right",
+								along = 19,
+								across = 0.3,
+								turnDegrees = 18,
+								scale = 1.05,
+							},
+							{
+								model = "paper_lantern",
+								side = "right",
+								along = 46,
+								across = 0.4,
+								turnDegrees = -13,
+								scale = 1,
+							},
+							{
+								model = "origami_crane",
+								side = "right",
+								along = 79,
+								across = 0.25,
+								turnDegrees = -9,
+								scale = 0.92,
+							},
+							-- Trees at the very outside, behind the other pieces.
+							{
+								model = "cherry_tree",
+								side = "left",
+								along = 42,
+								across = 0.85,
+								turnDegrees = 25,
+								scale = 1.12,
+							},
+							{
+								model = "cherry_tree",
+								side = "right",
+								along = 30,
+								across = 0.9,
+								turnDegrees = -40,
+								scale = 0.9,
+							},
+							{
+								model = "cherry_tree",
+								side = "right",
+								along = 99,
+								across = 0.8,
+								turnDegrees = 70,
+								scale = 1.05,
+							},
+						},
 					},
 				},
 				-- No look yet; only its name, announced at the end of the paper zone.
@@ -638,6 +734,11 @@ return {
 			-- Each piece starts its movement this much later than the one before (share of a
 			-- whole round), so pieces of the same kind do not move in step.
 			rhythmStep = 0.37,
+			-- A piece may be this much bigger or smaller than modelled (0.15 = 15 %). Sizes in a
+			-- zone's list beyond that are pulled back to this limit.
+			maxScaleChange = 0.15,
+			-- A zone never shows more pieces than this; further ones in its list are left out.
+			maxPiecesPerZone = 12,
 
 			models = {
 				paper_lantern = {
@@ -679,6 +780,12 @@ return {
 						parts = { "BladesPink", "BladesWhite", "Hub" },
 						secondsPerTurn = 6,
 					},
+				},
+				-- Stands still.
+				cherry_tree = {
+					template = "cherry_tree",
+					front = { x = -1, z = 0 },
+					turnTowardsThrowZoneDegrees = 0,
 				},
 			},
 		},

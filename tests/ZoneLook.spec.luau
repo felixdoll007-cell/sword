@@ -94,6 +94,7 @@ return {
 		expect(#segments).toBe(1)
 		expect(segments[1].material).toBe(nil)
 		expect(#ZoneLook.walks(LaneConfig, WallConfig, plain, PAPER)).toBe(0)
+		expect(#ZoneLook.fences(LaneConfig, WallConfig, plain, PAPER)).toBe(0)
 		expect(ZoneLook.walkWidthAtThrowZone(LaneConfig, WallConfig, plain)).toBe(0)
 		expect(ZoneLook.sign(LaneConfig, WallConfig, plain, PAPER)).toBe(nil)
 	end,
@@ -111,39 +112,72 @@ return {
 		end
 	end,
 
-	["walkways run along the whole paper zone, next to the lane, on both sides"] = function(expect)
+	["walkways run along the whole paper zone on both sides: edge, inner step, outer step"] = function(expect)
 		local from, to = ZoneLook.range(LaneConfig, WallConfig, PAPER)
 		local lane = ZoneLook.laneArea(LaneConfig, from, to)
 		local parts = ZoneLook.walks(LaneConfig, WallConfig, look, PAPER)
-		expect(#parts).toBe(4)
-		local curbs, walks = 0, 0
+		expect(#parts).toBe(6)
+		local count = { curb = 0, inner = 0, outer = 0 }
 		for index, part in parts do
+			count[part.kind] += 1
 			expect(overlap(part.area, lane)).toBe(false)
+			-- No block lies on top of another one.
 			for other = index + 1, #parts do
 				expect(overlap(part.area, parts[other].area)).toBe(false)
 			end
 			-- From the throw line to the end of the zone.
 			expect(back(part.area)).toBeNear(LaneConfig.throwLine.z)
 			expect(front(part.area)).toBeNear(LaneConfig.throwLine.z - to)
-			if part.kind == "curb" then
-				curbs += 1
-				-- The edge touches the lane.
-				local touches = math.abs(left(part.area) - right(lane)) < 0.001
-					or math.abs(right(part.area) - left(lane)) < 0.001
-				expect(touches).toBe(true)
-				expect(part.topY > LaneConfig.floorTopY + look.walk.height).toBe(true)
-			else
-				walks += 1
-				expect(part.topY).toBeNear(LaneConfig.floorTopY + look.walk.height)
-			end
+			-- On its own side of the lane.
+			expect((part.area.x - lane.x) * part.side > 0).toBe(true)
 		end
-		expect(curbs).toBe(2)
-		expect(walks).toBe(2)
-		-- Zones without a look have no walkways.
+		expect(count.curb).toBe(2)
+		expect(count.inner).toBe(2)
+		expect(count.outer).toBe(2)
+		-- Zones without a look have no walkways and no fence.
 		expect(#ZoneLook.walks(LaneConfig, WallConfig, look, 2)).toBe(0)
+		expect(#ZoneLook.fences(LaneConfig, WallConfig, look, 2)).toBe(0)
 	end,
 
-	["lane and walkways together are at least as wide as the throw zone and meet it"] = function(expect)
+	["from the lane outwards: edge, then the lower step, then the higher step, without gaps"] = function(expect)
+		local from, to = ZoneLook.range(LaneConfig, WallConfig, PAPER)
+		local lane = ZoneLook.laneArea(LaneConfig, from, to)
+		for _, side in { -1, 1 } do
+			local bySide = {}
+			for _, part in ZoneLook.walks(LaneConfig, WallConfig, look, PAPER) do
+				if part.side == side then
+					bySide[part.kind] = part
+				end
+			end
+			-- Nearest and furthest edge of a block, measured from the lane's middle.
+			local function near(part: ZoneLook.WalkPart): number
+				return math.abs(part.area.x - lane.x) - part.area.width / 2
+			end
+			local function far(part: ZoneLook.WalkPart): number
+				return math.abs(part.area.x - lane.x) + part.area.width / 2
+			end
+			expect(near(bySide.curb)).toBeNear(lane.width / 2)
+			expect(near(bySide.inner)).toBeNear(far(bySide.curb))
+			expect(near(bySide.outer)).toBeNear(far(bySide.inner))
+			expect(far(bySide.outer)).toBeNear(lane.width / 2 + ZoneLook.walkWidth(look))
+			expect(bySide.inner.topY).toBeNear(LaneConfig.floorTopY + look.walk.innerHeight)
+			expect(bySide.outer.topY).toBeNear(LaneConfig.floorTopY + look.walk.outerHeight)
+			expect(bySide.curb.topY > bySide.inner.topY).toBe(true)
+			expect(bySide.outer.topY > bySide.curb.topY).toBe(true)
+		end
+	end,
+
+	["the walkways are two steps of about the same width, about 1 and 2.5 studs high"] = function(expect)
+		local walk = look.walk
+		expect(walk.innerHeight >= 0.8 and walk.innerHeight <= 1.2).toBe(true)
+		expect(walk.outerHeight >= 2.2 and walk.outerHeight <= 2.8).toBe(true)
+		expect(math.abs(walk.outerWidth - (walk.innerWidth + walk.curbWidth)) <= 1).toBe(true)
+		-- Two surfaces of different height next to each other need at least 0.2 studs between them.
+		expect(walk.curbAbove >= 0.2).toBe(true)
+		expect(walk.outerHeight - walk.innerHeight - walk.curbAbove >= 0.2).toBe(true)
+	end,
+
+	["lane and walkways together are wider than the throw zone and meet it"] = function(expect)
 		local zone = ThrowZoneLayout.zone(LaneConfig)
 		local parts = ZoneLook.walks(LaneConfig, WallConfig, look, PAPER)
 		local minX, maxX = math.huge, -math.huge
@@ -157,10 +191,48 @@ return {
 		expect(maxX - minX).toBeNear(LaneConfig.laneWidth + 2 * ZoneLook.walkWidth(look))
 	end,
 
-	["walkways are about one stud higher than the lane and their edge is clearly above them"] = function(expect)
-		expect(look.walk.height >= 0.8 and look.walk.height <= 1.2).toBe(true)
-		-- Two surfaces on top of each other need at least 0.2 studs between them.
-		expect(look.walk.curbAbove >= 0.2).toBe(true)
+	["an invisible fence closes every open side of the walkways"] = function(expect)
+		local from, to = ZoneLook.range(LaneConfig, WallConfig, PAPER)
+		local lane = ZoneLook.laneArea(LaneConfig, from, to)
+		local width = ZoneLook.walkWidth(look)
+		local fences = ZoneLook.fences(LaneConfig, WallConfig, look, PAPER)
+		expect(#fences).toBe(6)
+		for index, fence in fences do
+			expect(overlap(fence, lane)).toBe(false)
+			for other = index + 1, #fences do
+				expect(overlap(fence, fences[other])).toBe(false)
+			end
+		end
+		for _, side in { -1, 1 } do
+			-- The outline of this side's walkway.
+			local walkLeft = if side < 0 then left(lane) - width else right(lane)
+			local walkRight = walkLeft + width
+			local nearEnd, farEnd, outerSide = false, false, false
+			for _, fence in fences do
+				local onThisSide = (fence.x - lane.x) * side > 0
+				if onThisSide then
+					-- Inside the walkway's outline, never on the ground around it.
+					expect(left(fence) >= walkLeft - 0.001 and right(fence) <= walkRight + 0.001).toBe(true)
+					expect(back(fence) <= back(lane) + 0.001 and front(fence) >= front(lane) - 0.001).toBe(true)
+					local acrossWhole = math.abs(fence.width - width) < 0.001
+					if acrossWhole and math.abs(back(fence) - back(lane)) < 0.001 then
+						nearEnd = true
+					elseif acrossWhole and math.abs(front(fence) - front(lane)) < 0.001 then
+						farEnd = true
+					elseif not acrossWhole then
+						-- Flush with the outer edge, and reaching from one end fence to the other.
+						local outerEdge = if side < 0 then walkLeft else walkRight
+						local flush = math.abs((if side < 0 then left(fence) else right(fence)) - outerEdge) < 0.001
+						expect(flush).toBe(true)
+						expect(fence.length).toBeNear(lane.length - 2 * look.walk.fenceThickness)
+						outerSide = true
+					end
+				end
+			end
+			expect(nearEnd and farEnd and outerSide).toBe(true)
+		end
+		-- High enough that nobody jumps over it.
+		expect(LaneConfig.barrierHeight >= 15).toBe(true)
 	end,
 
 	["the green floor around the throw zone leaves out lane and walkways"] = function(expect)

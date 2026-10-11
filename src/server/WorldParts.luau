@@ -56,4 +56,20 @@ function WorldParts.addBlock(
 	return part
 end
 
+-- An invisible wall standing on this area, from the lane floor up to this height. It stops
+-- players and nothing else: it is not drawn, casts no shadow, and Roblox's camera does not
+-- zoom in for invisible parts.
+function WorldParts.addInvisibleWall(folder: Instance, name: string, area: ThrowZoneLayout.Area, height: number): Part
+	local wall = Instance.new("Part")
+	wall.Name = name
+	wall.Anchored = true
+	wall.Transparency = 1
+	wall.CastShadow = false
+	wall.CanTouch = false
+	wall.Size = Vector3.new(area.width, height, area.length)
+	wall.Position = Vector3.new(area.x, LaneConfig.floorTopY + height / 2, area.z)
+	wall.Parent = folder
+	return wall
+end
+
 return WorldParts

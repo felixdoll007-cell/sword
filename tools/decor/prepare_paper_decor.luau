@@ -1,6 +1,7 @@
--- Prepares the three imported decoration models of the paper zone as templates.
--- Run once in Roblox Studio (Edit mode) after importing the models; it was run through the
--- Studio connection on 2026-10-11. Kept here as a record of what was done to the place.
+-- Prepares the imported decoration models of the paper zone as templates.
+-- Run in Roblox Studio (Edit mode) after importing models; it was run through the Studio
+-- connection on 2026-10-11 (lantern, crane, pinwheel, later the cherry tree). Models that
+-- already are templates are left alone. Kept here as a record of what was done to the place.
 --
 -- What it does, and nothing else:
 --   1. Finds the imported models in the Workspace by the name of the model inside them.
@@ -51,6 +52,18 @@ local MODELS = {
 			BladesPink = Color3.fromRGB(255, 84, 150),
 			BladesWhite = Color3.fromRGB(250, 250, 250),
 			Hub = GOLD,
+		},
+		neon = {},
+	},
+	-- Imported later, for the outer step of the walkways.
+	{
+		inside = "cherry_tree",
+		template = "cherry_tree",
+		colors = {
+			Trunk = Color3.fromRGB(74, 48, 32),
+			BlossomPink = Color3.fromRGB(255, 120, 165),
+			BlossomLight = Color3.fromRGB(255, 196, 214),
+			Mound = Color3.fromRGB(40, 104, 52),
 		},
 		neon = {},
 	},

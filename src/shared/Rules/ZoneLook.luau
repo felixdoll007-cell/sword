@@ -1,6 +1,6 @@
 --!strict
 -- Pure functions for the look of the zones on the main lane: which stretch of the lane belongs
--- to which zone, where its raised walkways lie, where the name of the next zone floats and
+-- to which zone, where its raised walkways and the invisible fence around them lie, where the name of the next zone floats and
 -- which color its walls have. Only looks; where the walls stand and what a throw does is not
 -- decided here.
 --
@@ -28,8 +28,18 @@ export type ZoneStyle = {
 	decor: any?,
 }
 
+export type WalkConfig = {
+	curbWidth: number,
+	curbAbove: number,
+	innerWidth: number,
+	innerHeight: number,
+	outerWidth: number,
+	outerHeight: number,
+	fenceThickness: number,
+}
+
 export type LookConfig = {
-	walk: { width: number, height: number, curbWidth: number, curbAbove: number },
+	walk: WalkConfig,
 	sign: { heightAboveFloor: number, behindZoneEnd: number },
 	zones: { [string]: ZoneStyle },
 }
@@ -44,8 +54,9 @@ export type LaneConfig = LaneLayout.LaneConfig & {
 -- A stretch of the lane floor. material is nil for a plain stretch.
 export type Segment = { from: number, to: number, material: string? }
 
--- One block of a walkway: the walkway itself or the edge between it and the lane.
-export type WalkPart = { kind: "walk" | "curb", area: Area, topY: number, material: string }
+-- One block of a walkway: the edge towards the lane, the inner (lower) step or the outer
+-- (higher) step.
+export type WalkPart = { kind: "curb" | "inner" | "outer", side: number, area: Area, topY: number, material: string }
 
 export type Sign = { x: number, y: number, z: number, text: string, color: { number } }
 
@@ -101,13 +112,21 @@ function ZoneLook.laneArea(laneConfig: LaneConfig, from: number, to: number): Ar
 	}
 end
 
--- Width of one walkway with its edge.
+-- Width of one walkway from the lane's edge to its outer edge: edge, inner step, outer step.
 function ZoneLook.walkWidth(look: LookConfig): number
-	return math.max(look.walk.width, 0) + math.max(look.walk.curbWidth, 0)
+	local walk = look.walk
+	return math.max(walk.curbWidth, 0) + math.max(walk.innerWidth, 0) + math.max(walk.outerWidth, 0)
 end
 
--- The raised walkways left and right of a zone, along its whole length: next to the lane the
--- edge, outside of it the walkway. Empty if the zone has no walkways.
+local function hasWalks(look: LookConfig, material: string?): boolean
+	local zoneStyle = style(look, material)
+	return zoneStyle ~= nil and zoneStyle.floor ~= nil and zoneStyle.walk ~= nil
+end
+
+-- The raised walkways left and right of a zone, along its whole length. From the lane outwards:
+-- the edge, the inner step, the higher outer step. The blocks lie next to each other, none on
+-- top of another. Empty if the zone has no walkways.
+-- side: -1 = left of the lane (smaller X), 1 = right of it.
 function ZoneLook.walks(
 	laneConfig: LaneConfig,
 	wallConfig: Walls.WallConfig,
@@ -115,43 +134,71 @@ function ZoneLook.walks(
 	zone: number
 ): { WalkPart }
 	local material = wallConfig.materials[zone]
-	local zoneStyle = style(look, material)
-	if not zoneStyle or not zoneStyle.floor or not zoneStyle.walk then
+	if not hasWalks(look, material) then
 		return {}
 	end
 	local from, to = ZoneLook.range(laneConfig, wallConfig, zone)
 	local lane = ZoneLook.laneArea(laneConfig, from, to)
-	local curbWidth = math.max(look.walk.curbWidth, 0)
-	local walkWidth = math.max(look.walk.width, 0)
-	local walkTop = laneConfig.floorTopY + look.walk.height
-	local curbTop = walkTop + look.walk.curbAbove
+	local walk = look.walk
+	local floor = laneConfig.floorTopY
+	local strips: { { kind: "curb" | "inner" | "outer", width: number, topY: number } } = {
+		{ kind = "curb", width = math.max(walk.curbWidth, 0), topY = floor + walk.innerHeight + walk.curbAbove },
+		{ kind = "inner", width = math.max(walk.innerWidth, 0), topY = floor + walk.innerHeight },
+		{ kind = "outer", width = math.max(walk.outerWidth, 0), topY = floor + walk.outerHeight },
+	}
 
 	local parts: { WalkPart } = {}
 	for _, side in { -1, 1 } do
-		local laneEdge = lane.x + side * lane.width / 2
-		if curbWidth > 0 then
-			table.insert(parts, {
-				kind = "curb" :: "curb",
-				area = { x = laneEdge + side * curbWidth / 2, z = lane.z, width = curbWidth, length = lane.length },
-				topY = curbTop,
-				material = material,
-			})
-		end
-		if walkWidth > 0 then
-			table.insert(parts, {
-				kind = "walk" :: "walk",
-				area = {
-					x = laneEdge + side * (curbWidth + walkWidth / 2),
-					z = lane.z,
-					width = walkWidth,
-					length = lane.length,
-				},
-				topY = walkTop,
-				material = material,
-			})
+		-- Distance from the lane's edge at which the next strip starts.
+		local offset = 0
+		for _, strip in strips do
+			if strip.width > 0 then
+				table.insert(parts, {
+					kind = strip.kind,
+					side = side,
+					area = {
+						x = lane.x + side * (lane.width / 2 + offset + strip.width / 2),
+						z = lane.z,
+						width = strip.width,
+						length = lane.length,
+					},
+					topY = strip.topY,
+					material = material,
+				})
+			end
+			offset += strip.width
 		end
 	end
 	return parts
+end
+
+-- Invisible walls that keep players off the walkways: across each walkway's start and end, and
+-- along its outer edge. (Towards the lane the lane's own barrier already stands.) They lie
+-- inside the walkway's outline, flush with its outer faces.
+function ZoneLook.fences(laneConfig: LaneConfig, wallConfig: Walls.WallConfig, look: LookConfig, zone: number): { Area }
+	if not hasWalks(look, wallConfig.materials[zone]) then
+		return {}
+	end
+	local from, to = ZoneLook.range(laneConfig, wallConfig, zone)
+	local lane = ZoneLook.laneArea(laneConfig, from, to)
+	local width = ZoneLook.walkWidth(look)
+	local thickness = math.min(math.max(look.walk.fenceThickness, 0), width, lane.length / 2)
+	if width <= 0 or thickness <= 0 then
+		return {}
+	end
+	local nearZ = lane.z + lane.length / 2
+	local farZ = lane.z - lane.length / 2
+
+	local fences: { Area } = {}
+	for _, side in { -1, 1 } do
+		local middleX = lane.x + side * (lane.width / 2 + width / 2)
+		local outerX = lane.x + side * (lane.width / 2 + width - thickness / 2)
+		table.insert(fences, { x = middleX, z = nearZ - thickness / 2, width = width, length = thickness })
+		table.insert(fences, { x = middleX, z = farZ + thickness / 2, width = width, length = thickness })
+		-- Between the two, so the three do not overlap.
+		table.insert(fences, { x = outerX, z = lane.z, width = thickness, length = lane.length - 2 * thickness })
+	end
+	return fences
 end
 
 -- How much room the walkways of the first zone take next to the lane, right in front of the

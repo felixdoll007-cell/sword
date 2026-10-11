@@ -104,7 +104,14 @@ return {
 		local zone = ThrowZoneLayout.zone(LaneConfig)
 		local settings = world.surroundings
 		local pieces = greenPieces()
-		expect(#pieces).toBe(5)
+		-- Left, right, behind, and in front on each side where the green reaches beyond the walkways.
+		local expected = 3
+		for _, room in { settings.left, settings.right } do
+			if room > WALK_WIDTH then
+				expected += 1
+			end
+		end
+		expect(#pieces).toBe(expected)
 
 		-- The lane in front of the zone with its walkways, as far as the green reaches along it.
 		local lane: ThrowZoneLayout.Area = {

@@ -166,20 +166,25 @@ der Schriftzug "THROW ZONE" auf dem Boden und drumherum ein Schachbrett in zwei 
 Schachbrett und Noppen sind ein einziges Kachelbild, das als Textur auf einem großen Teil
 liegt (wenige große Teile statt vieler kleiner). Farben und Größen stehen in `Config/Ui`
 (world). Die Papier-Zone (Wurflinie bis Wand 5) ist das Muster für die Zonen der Bahn: Boden in
-zwei Cremetönen, links und rechts erhöhte Gehwege in Kirschblüten-Rosa mit dunkelroter Kante,
-cremeweiße Wände mit dünnem dunkelrotem Rahmen, und am Ende schwebt der Name der nächsten
-Zone ("WOOD") über der Bahn. Jede weitere Zone braucht nur einen Eintrag mit Farben und
-Namen in `Config/Ui` (world.lane.zones). Eine Zone endet an ihrer letzten Wand; das Stück bis
-zur ersten Wand der nächsten Zone gehört zur nächsten Zone. Hinter Wand 5 und auf den
-Trainingsbahnen ist der Boden noch grau.
+zwei Cremetönen, cremeweiße Wände mit dünnem dunkelrotem Rahmen, und am Ende schwebt der
+Name der nächsten Zone ("WOOD") über der Bahn. Jede weitere Zone braucht nur einen Eintrag
+mit Farben und Namen in `Config/Ui` (world.lane.zones). Eine Zone endet an ihrer letzten Wand;
+das Stück bis zur ersten Wand der nächsten Zone gehört zur nächsten Zone. Hinter Wand 5 und
+auf den Trainingsbahnen ist der Boden noch grau.
 
-Auf den Gehwegen der Papier-Zone steht Deko: Papierlaternen, Origami-Kraniche und
-Papier-Windräder, abwechselnd und mit gleichem Abstand, zur Bahn gedreht. Sie hat keine
-Kollision und stört weder Wurf noch Kamera. Jeder Client baut sie selbst aus Vorlagen und
-bewegt sie leicht: Das Laternenlicht flackert, der Kranich schwebt, das Windrad dreht sich.
-Reihenfolge, Abstand, Stärke und Tempo stehen in `Config/Ui`. Die Vorlagen liegen nur im Ort
-(siehe `assets/decor-templates.NOTES.md`). Regel für alle Böden: Zwei Bodenflächen liegen nie
-übereinander, sondern nebeneinander; sonst flackern sie je nach Kamerawinkel.
+Die Bahn ist die Hauptsache, der Rand ist Kulisse. Links und rechts der Papier-Zone liegen
+breite Gehwege in zwei Stufen (innen etwa 1 Stud, außen etwa 2,5 Studs hoch) in ruhigem
+Sandbeige, zur Bahn hin mit dunkelroter Kante. Man kann sie nicht betreten: Ein unsichtbarer
+Zaun hält Spieler ab, nicht aber die geworfene Waffe oder die Kamera.
+
+Deko steht nur auf der äußeren Stufe und wird von Hand gesetzt (feste Liste in der Config),
+damit sie nicht aufgereiht wirkt: am Anfang der Zone je eine Laterne wie ein Tor, danach pro
+Seite höchstens drei weitere Teile (Laterne, Kranich, Windrad) in unregelmäßigem Abstand,
+dazu zwei bis drei Kirschblütenbäume ganz außen. Höchstens zwölf Teile pro Zone, jedes leicht
+anders gedreht und bis zu 15 % größer oder kleiner. Die Deko hat keine Kollision. Jeder
+Client baut sie selbst aus Vorlagen und bewegt sie leicht: Das Laternenlicht flackert, der
+Kranich schwebt, das Windrad dreht sich, der Baum steht still. Die Vorlagen liegen nur im Ort
+(siehe `assets/decor-templates.NOTES.md`).
 
 ## Balance
 Alle Zahlen stehen im Config-Ordner und werden beim Spielen eingestellt. Ziel: Der Spieler

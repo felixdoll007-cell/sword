@@ -1,27 +1,35 @@
 --!strict
--- Pure functions for the decoration on the walkways of a zone: which model stands where and
--- which way it is turned. Only looks.
+-- Pure functions for the decoration of a zone: which model stands where, which way it is
+-- turned and how big it is. Only looks.
 --
--- Decoration stands in a row on both walkways of a zone, with the same distance between two
--- pieces, in a repeating order of models. Every piece is turned so that its front looks at
--- the lane.
+-- Decoration is scenery on the outer, higher step of a zone's walkways. Every piece is listed
+-- by hand in Config/Ui (so it does not look lined up); this file turns that list into places in
+-- the world and keeps it within limits: pieces stay on the outer step, sizes stay close to the
+-- modelled size, and a zone never has more pieces than allowed.
 
-local ThrowZoneLayout = require("./ThrowZoneLayout")
 local Walls = require("./Walls")
 local ZoneLook = require("./ZoneLook")
 
--- How decoration is spread in one zone.
-export type ZoneDecor = {
-	-- Model names, repeated along the walkway.
-	order: { string },
-	-- Distance from the start of the zone to the first piece, and from the last piece to its end.
-	firstDistance: number,
-	-- Distance between two pieces.
-	spacing: number,
-	-- How far from the lane's edge the pieces stand.
-	distanceFromLane: number,
-	-- The right walkway starts this many places further in the order than the left one.
-	sideShift: number,
+-- One piece as written in the config.
+export type Piece = {
+	model: string,
+	-- "left" or "right" of the lane, seen from the throw zone.
+	side: string,
+	-- Distance from the start of the zone, in studs.
+	along: number,
+	-- Where on the outer step: 0 = its inner edge, 1 = its outer edge.
+	across: number,
+	-- Turned this much away from looking straight at the lane.
+	turnDegrees: number?,
+	-- 1 = as modelled.
+	scale: number?,
+}
+
+export type ZoneDecor = { pieces: { Piece } }
+
+export type Limits = {
+	maxScaleChange: number,
+	maxPiecesPerZone: number,
 }
 
 -- What the game needs to know about one decoration model to turn it.
@@ -42,13 +50,25 @@ export type Placement = {
 	z: number,
 	-- Turn around the upright axis, in degrees (as used by CFrame.Angles).
 	yawDegrees: number,
+	scale: number,
 }
 
+local SIDES: { [string]: number } = { left = -1, right = 1 }
+
 local Decor = {}
+
+local function isNumber(value: any): boolean
+	return typeof(value) == "number" and value == value and math.abs(value) ~= math.huge
+end
 
 -- Direction of a flat vector as an angle that grows when turned with CFrame.Angles(0, angle, 0).
 local function heading(x: number, z: number): number
 	return math.atan2(-z, x)
+end
+
+-- Keeps an angle between -180 and 180 degrees.
+local function wrap(degrees: number): number
+	return (degrees + 180) % 360 - 180
 end
 
 -- How far a model must be turned so that its front looks at the lane from this side of it.
@@ -57,59 +77,74 @@ function Decor.yawDegrees(facing: ModelFacing, side: number): number
 	-- Left of the lane the lane lies towards positive X, right of it towards negative X.
 	-- The throw zone lies towards positive Z from both.
 	local wanted = if side < 0 then -turn else math.pi + turn
-	local degrees = math.deg(wanted - heading(facing.front.x, facing.front.z))
-	-- Keep the result between -180 and 180.
-	return (degrees + 180) % 360 - 180
+	return wrap(math.deg(wanted - heading(facing.front.x, facing.front.z)))
 end
 
--- Distances from the start of a zone at which pieces stand.
-function Decor.distances(decor: ZoneDecor, zoneLength: number): { number }
-	local list = {}
-	if decor.spacing <= 0 or decor.spacing ~= decor.spacing then
-		return list
+-- The size a piece is shown at: what the config asks for, but never further from the modelled
+-- size than allowed.
+function Decor.scale(limits: Limits, wanted: number?): number
+	if not isNumber(wanted) then
+		return 1
 	end
-	local distance = decor.firstDistance
-	-- A tiny tolerance, so a piece exactly at the end is not lost to rounding.
-	while distance <= zoneLength - decor.firstDistance + 1e-6 do
-		table.insert(list, distance)
-		distance += decor.spacing
-	end
-	return list
+	local change = math.max(limits.maxScaleChange, 0)
+	return math.clamp(wanted :: number, 1 - change, 1 + change)
 end
 
--- All pieces of decoration of a zone. Empty if the zone has no walkways or no decoration.
--- facings: how each model is turned; a model that is not listed is left out.
+-- All pieces of decoration of a zone, in the order of the list. Empty if the zone has no
+-- walkways or no decoration.
+-- facings: how each model is turned. Left out are: pieces of a model that is not listed there,
+-- pieces with a broken entry, pieces beyond the end of the zone, and pieces beyond the limit.
 function Decor.placements(
 	laneConfig: ZoneLook.LaneConfig,
 	wallConfig: Walls.WallConfig,
 	look: ZoneLook.LookConfig,
 	decor: ZoneDecor?,
 	facings: { [string]: ModelFacing },
+	limits: Limits,
 	zone: number
 ): { Placement }
 	local placements: { Placement } = {}
-	if not decor or #decor.order == 0 or #ZoneLook.walks(laneConfig, wallConfig, look, zone) == 0 then
+	if not decor then
 		return placements
 	end
+	-- The outer step on each side.
+	local outer: { [number]: ZoneLook.WalkPart } = {}
+	for _, part in ZoneLook.walks(laneConfig, wallConfig, look, zone) do
+		if part.kind == "outer" then
+			outer[part.side] = part
+		end
+	end
 	local from, to = ZoneLook.range(laneConfig, wallConfig, zone)
-	local lane: ThrowZoneLayout.Area = ZoneLook.laneArea(laneConfig, from, to)
-	local walkTop = laneConfig.floorTopY + look.walk.height
 
-	for _, side in { -1, 1 } do
-		local shift = if side > 0 then decor.sideShift else 0
-		for index, distance in Decor.distances(decor, to - from) do
-			local model = decor.order[(index - 1 + shift) % #decor.order + 1]
-			local facing = facings[model]
-			if facing then
-				table.insert(placements, {
-					model = model,
-					side = side,
-					x = lane.x + side * (lane.width / 2 + decor.distanceFromLane),
-					y = walkTop,
-					z = laneConfig.throwLine.z - (from + distance),
-					yawDegrees = Decor.yawDegrees(facing, side),
-				})
-			end
+	for _, piece in decor.pieces do
+		if #placements >= limits.maxPiecesPerZone then
+			break
+		end
+		local side = SIDES[piece.side]
+		local step = if side then outer[side] else nil
+		local facing = facings[piece.model]
+		local valid = step ~= nil
+			and facing ~= nil
+			and isNumber(piece.along)
+			and isNumber(piece.across)
+			and piece.along >= 0
+			and piece.along <= to - from
+		if valid and step and facing then
+			local area = step.area
+			-- The inner edge of the step is the one nearer to the lane.
+			local innerEdge = area.x - side * area.width / 2
+			table.insert(placements, {
+				model = piece.model,
+				side = side,
+				x = innerEdge + side * area.width * math.clamp(piece.across, 0, 1),
+				y = step.topY,
+				z = laneConfig.throwLine.z - (from + piece.along),
+				yawDegrees = wrap(
+					Decor.yawDegrees(facing, side)
+						+ (if isNumber(piece.turnDegrees) then piece.turnDegrees :: number else 0)
+				),
+				scale = Decor.scale(limits, piece.scale),
+			})
 		end
 	end
 	return placements

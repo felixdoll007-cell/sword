@@ -1,9 +1,11 @@
 --!strict
--- The decoration on the walkways of the lane: lanterns, cranes, pinwheels. Built on this
--- client from the templates in ReplicatedStorage.Assets, and moved a little:
+-- The decoration on the walkways of the lane: lanterns, cranes, pinwheels, trees. Scenery on
+-- the outer step. Built on this client from the templates in ReplicatedStorage.Assets, each
+-- piece at its listed place, turned and sized a little differently, and moved a little:
 --   * a lantern has a weak, warm light that flickers slightly
 --   * a crane floats slowly up and down (its base and rod stand still)
 --   * a pinwheel's wheel turns slowly (its stick stands still)
+--   * a tree stands still
 -- Which model stands where is worked out in Rules/Decor; everything adjustable is in Config/Ui
 -- (world.decor and the decor entry of each zone).
 -- Decoration has no collision and cannot be hit by anything, so it never gets in the way of a
@@ -149,6 +151,10 @@ local function buildPiece(placement: Decor.Placement, templates: Instance, folde
 	end
 
 	local model = template:Clone()
+	-- The whole model evenly bigger or smaller; its shape is not changed.
+	if placement.scale ~= 1 then
+		model:ScaleTo(model:GetScale() * placement.scale)
+	end
 	for _, part in model:GetDescendants() do
 		if part:IsA("BasePart") then
 			part.Anchored = true
@@ -217,7 +223,8 @@ function DecorView.start()
 	for zone, material in WallConfig.materials do
 		local zoneStyle = (world.lane.zones :: { [string]: any })[material]
 		local decor = zoneStyle and zoneStyle.decor
-		local placements = Decor.placements(LaneConfig, WallConfig, world.lane, decor, world.decor.models, zone)
+		local placements =
+			Decor.placements(LaneConfig, WallConfig, world.lane, decor, world.decor.models, world.decor, zone)
 		for _, placement in placements do
 			count += 1
 			-- A different number for every piece: its own rhythm.

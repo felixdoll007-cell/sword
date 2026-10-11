@@ -186,6 +186,15 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 - Wichtig: Die Vorlagen liegen nur im Ort, nicht im Repo. Der Ort muss in Studio gespeichert sein. Details in `assets/decor-templates.NOTES.md`.
 
+### Block: Papier-Zone, Rand neu ordnen (Vorgriff auf Version 4)
+- [x] Kirschblütenbaum eingefärbt und als Vorlage `cherry_tree` in `ReplicatedStorage.Assets` abgelegt
+- [x] Gehwege doppelt so breit und in zwei Stufen (innen 1 Stud, außen 2,5 Studs hoch), in zwei Tönen Sandbeige mit Noppen, dunkelrote Kante zur Bahn bleibt
+- [x] Gehwege nicht begehbar: unsichtbarer Zaun an allen offenen Seiten (vorn, hinten, außen); zur Bahn hin steht schon die Sperre der Bahn. Hält nur Spieler auf
+- [x] Deko als feste Liste in der Config, nur auf der äußeren Stufe: zwei Laternen als Tor, pro Seite drei weitere Teile in unregelmäßigem Abstand, drei Bäume ganz außen; elf Teile, jedes anders gedreht und bis zu 15 % größer oder kleiner
+- [x] Leuchten, Schweben und Drehen unverändert, der Baum steht still
+- [ ] Von mir getestet
+- Wichtig: Die Vorlagen liegen nur im Ort. Nach dem Import des Baums muss der Ort in Studio gespeichert werden.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
