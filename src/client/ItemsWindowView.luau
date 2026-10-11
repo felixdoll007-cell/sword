@@ -1,8 +1,9 @@
 --!strict
 -- The items window: what the player owns. Opened from the menu (MenuView). It has tabs on its
--- left; for now there is one, WEAPONS. A further tab is added by naming it in Window.new below
--- and filling its page.
+-- left: WEAPONS (this file) and PETS (client/PetsPage). A further tab is added by naming it in
+-- Window.new below and filling its page.
 --
+-- The WEAPONS tab:
 -- Every weapon is a card with its name and a tile showing the real 3D model and its bonus.
 --   * Owned: pressing the tile equips it. The one in use has the green check mark.
 --   * Not owned: dark with a lock, the price below it and the hint to buy it at the pedestal.
@@ -22,14 +23,17 @@ local NumberFormat = require(Shared.Rules.NumberFormat)
 local UiLayout = require(Shared.Rules.UiLayout)
 local Weapons = require(Shared.Rules.Weapons)
 
+local PetsPage = require(script.Parent.PetsPage)
 local Draw = require(script.Parent.Ui.Draw)
 local OutlinedText = require(script.Parent.Ui.OutlinedText)
 local Tile = require(script.Parent.Ui.Tile)
 local WeaponPreview = require(script.Parent.Ui.WeaponPreview)
 local Window = require(script.Parent.Ui.Window)
 
--- Place of the weapons tab among the window's tabs.
+-- Places of the tabs among the window's tabs, by the name the menu uses for them.
 local WEAPONS_TAB = 1
+local PETS_TAB = 2
+local TABS: { [string]: number } = { weapons = WEAPONS_TAB, pets = PETS_TAB }
 
 type Card = {
 	weapon: Weapons.Weapon,
@@ -164,9 +168,16 @@ local function refresh()
 	end
 end
 
--- Opens the window, or closes it if it is open.
-function ItemsWindowView.toggle()
-	window.toggle()
+-- Opens the window on this tab ("weapons" or "pets"). If it is already open on that tab, it
+-- closes; if it is open on the other tab, it switches.
+function ItemsWindowView.toggle(tabName: string)
+	local tab = TABS[tabName] or WEAPONS_TAB
+	if window.isOpen() and window.selectedTab() == tab then
+		window.close()
+		return
+	end
+	window.selectTab(tab)
+	window.open()
 end
 
 function ItemsWindowView.start()
@@ -177,7 +188,7 @@ function ItemsWindowView.start()
 		icon = menuIcon(settings.menuEntry),
 		maxWidth = settings.maxWidth,
 		maxHeight = settings.maxHeight,
-		tabs = { settings.weaponsTab },
+		tabs = { settings.weaponsTab, settings.petsTab },
 	})
 
 	-- The cards can be scrolled when they do not all fit (phone held upright).
@@ -208,6 +219,9 @@ function ItemsWindowView.start()
 	for order, weapon in WeaponConfig.list do
 		table.insert(cards, makeCard(order, weapon))
 	end
+
+	PetsPage.build(window, window.pages[PETS_TAB])
+	window.onLeave(PetsPage.reset)
 
 	window.onResize(layout)
 	refresh()

@@ -54,6 +54,11 @@ export type Window = {
 	-- Window with tabs: one page per tab, in the order of the tabs. Put each tab's content into
 	-- its page; only the page of the active tab is shown.
 	pages: { Frame },
+	-- Shows the page of this tab (1 = the first). selectedTab tells which one is shown.
+	selectTab: (index: number) -> (),
+	selectedTab: () -> number,
+	-- Called whenever the window closes or another tab is shown.
+	onLeave: (callback: () -> ()) -> (),
 	open: () -> (),
 	close: () -> (),
 	toggle: () -> (),
@@ -199,7 +204,21 @@ function Window.new(props: Props): Window
 
 	local tabs: { Tab } = {}
 	local pages: { Frame } = {}
+	local leaveListeners: { () -> () } = {}
+	local shownTab = 1
+	local function left()
+		for _, listener in leaveListeners do
+			listener()
+		end
+	end
 	local function selectTab(selected: number)
+		if not tabs[selected] then
+			return
+		end
+		if selected ~= shownTab then
+			left()
+		end
+		shownTab = selected
 		for index, tab in tabs do
 			local active = index == selected
 			tab.page.Visible = active
@@ -295,6 +314,7 @@ function Window.new(props: Props): Window
 			return
 		end
 		isOpen = false
+		left()
 		if openWindow == self then
 			openWindow = nil
 			setBackdrop(false)
@@ -333,6 +353,13 @@ function Window.new(props: Props): Window
 	self = {
 		content = content,
 		pages = pages,
+		selectTab = selectTab,
+		selectedTab = function(): number
+			return shownTab
+		end,
+		onLeave = function(callback: () -> ())
+			table.insert(leaveListeners, callback)
+		end,
 		open = open,
 		close = close,
 		toggle = function()

@@ -507,18 +507,37 @@ return {
 		-- After pressing a tile or a button, wait this long before the next press counts.
 		pressWaitSeconds = 0.3,
 		-- The strip at the top with the two counts and the two buttons, as a share of the page.
+		-- In a window narrower than narrowBelowPixels (phone held upright) the strip has two
+		-- rows, counts above buttons, and is twice as high.
 		headerHeight = 0.17,
+		narrowBelowPixels = 460,
 		-- Share of the strip's width each of the two buttons takes, and the room for each count.
 		buttonWidth = 0.22,
 		countWidth = 0.25,
+		-- Heights of counts and buttons as shares of the strip, and the space at its sides.
+		countHeight = 0.5,
+		buttonHeight = 0.76,
+		sidePadding = 0.02,
+		-- "No pets yet": where its middle sits (0 = top of the page) and how much room it has.
+		emptyCenterY = 0.55,
+		emptyWidth = 0.8,
+		emptyHeight = 0.2,
 		-- One card per pet: name and tile. Height of the name as a share of the card's width.
-		minCardWidth = 86,
-		maxCardWidth = 140,
+		-- As many cards side by side as fit without getting narrower than minCardWidth.
+		minCardWidth = 108,
+		maxCardWidth = 150,
 		cardGap = 8,
 		nameHeight = 0.2,
 		scrollBarWidth = 6,
-		-- The question before deleting: a bar over the cards, height as a share of the page.
-		confirmHeight = 0.3,
+		-- The question before deleting: a bar over the lower part of the page. Its height and its
+		-- distance from the page's edge as shares of the page; inside it, shares of the bar.
+		confirmHeight = 0.34,
+		confirmInset = 0.03,
+		confirmPadding = 0.08,
+		confirmTextHeight = 0.34,
+		confirmButtonWidth = 0.3,
+		confirmButtonHeight = 0.42,
+		confirmButtonGap = 0.06,
 	},
 
 	-- At the egg stand: the HATCH button and the row of pets that can hatch.
@@ -547,8 +566,10 @@ return {
 		burstSeconds = 0.15,
 		popSeconds = 0.25,
 		closeSeconds = 0.15,
-		-- The picture: edge length as a share of the screen's shorter side.
+		-- The picture: edge length as a share of the screen's shorter side, and where its middle
+		-- sits (0 = top of the screen). A little above the middle, the texts come below it.
 		pictureShare = 0.46,
+		pictureCenterY = 0.42,
 		-- Darkness of the screen behind it (0 = black, 1 = not darkened).
 		dimTransparency = 0.35,
 		flashColor = { 255, 255, 255 },
@@ -967,9 +988,11 @@ return {
 		eggStand = {
 			pedestalWidth = 5,
 			pedestalHeight = 2,
-			-- The egg tilts this far to each side, once in this many seconds.
+			-- The egg tilts this far to each side, once in this many seconds. These parts of the
+			-- egg's model stand still.
 			wobbleDegrees = 5,
 			wobbleSeconds = 1.3,
+			stillParts = { "Nest" },
 			-- The HATCH button shows when the player is this close. Must not be more than the
 			-- server's useDistance (Config/Pets).
 			promptDistance = 10,

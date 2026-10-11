@@ -81,6 +81,8 @@ return {
 			elseif entry.id == "inventory" then
 				expect(entry.enabled).toBe(true)
 				expect(entry.label).toBe("ITEMS")
+			elseif entry.id == "pets" then
+				expect(entry.enabled).toBe(true)
 			end
 		end
 	end,

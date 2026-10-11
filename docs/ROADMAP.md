@@ -216,6 +216,21 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein.
 
 ## Version 3: Pets, Glück und Glückswurf
+
+### Block: Pets
+- [x] Zahlen geklärt und freigegeben: Boni 5 / 10 / 15 / 30 / 60 % auf den Grundwert, Chancen 50 / 30 / 14 / 5 / 1, Ei ab 150 Coins und je Ei 20 % teurer (die zuerst geplanten +1 bis +20 hätten das Spiel gesprengt)
+- [x] Sechs Modelle (fünf Pets, ein Ei) eingefärbt und als Vorlagen in `ReplicatedStorage.Assets` abgelegt
+- [x] Daten: eigene Pets als einzelne Einträge, bis zu drei ausgerüstet, Platz für 30, gezählte Eier; gespeichert mit dem Rest, alte Spielstände laden ohne Pets
+- [x] Ei-Stand in der Welt: Sockel, wackelndes Ei, Schild mit Name und eigenem Preis, HATCH-Button und Übersicht der fünf Pets mit Chancen, wenn man davorsteht
+- [x] Schlüpfen: Server zieht Coins ab und würfelt; der Client zeigt Ei, Aufplatzen und das Pet mit Name, Seltenheit und Bonus, etwa zwei Sekunden, per Antippen überspringbar; klare Meldung bei vollem Inventar oder zu wenig Coins
+- [x] Wirkung: Summe der ausgerüsteten Boni bei jedem Trainingswurf, auf dem Server berechnet
+- [x] Begleiter: ausgerüstete Pets schweben hinter der Figur, auf jedem Client gezeichnet
+- [x] Oberfläche: Menü-Button PETS öffnet das Items-Fenster auf dem Reiter PETS; Kacheln, Ausrüsten und Ablegen, EQUIP BEST, Löschen mit Rückfrage
+- [x] Sicherheit: alle Pet-Nachrichten auf dem Server geprüft (Typ, Besitz, Anzahl, Nähe zum Stand, Begrenzung pro Sekunde, Pause zwischen zwei Eiern); Tests für Würfeln, Kaufen, Ausrüsten, Löschen, Speichern und falsche Werte
+- [x] Balance-Test: mit Waffen und Pets ist kein Durchlauf im Schnitt kürzer als 2 Minuten
+- [ ] Von mir getestet
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein.
+- Nicht gebaut (kommt später): Glück, Glückswurf, Secret, Tauschen, Verschmelzen, Robux-Käufe.
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

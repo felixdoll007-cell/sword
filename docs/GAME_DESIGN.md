@@ -43,7 +43,7 @@ Klein und sauber gemacht. Drei Bereiche:
 - Die Kamera folgt dem Schwert von hinten.
 
 ### Berechnung
-- Wurfkraft = Stärke × Faktor der Anzeige × Multiplikatoren (Rebirth, Pets) × Glücksfaktor.
+- Wurfkraft = Stärke × Faktor der Anzeige × Multiplikatoren × Glücksfaktor. (Stand jetzt: nur Stärke × Faktor. Pets wirken beim Training, nicht auf den Wurf; Glück kommt später.)
 - Jede Wand hat eine Härte. Durchbricht das Schwert eine Wand, sinkt die verbleibende Wurfkraft um deren Härte.
 - Reicht die verbleibende Kraft nicht für die nächste Wand, endet der Wurf dort.
 - Die Härte steigt von Wand zu Wand stark an, sodass jede neue Wand ein spürbares Ziel ist.
@@ -123,9 +123,30 @@ nächstes Ziel ist.
 - Der Griffwinkel (wie die Waffe in der Hand sitzt) steht pro Waffe in der Config.
 
 ## Pets
-- Kosten Währung.
-- Geben Stärke-Multiplikator und Glück.
-- Kommt nach Version 1.
+- Pets schlüpfen aus Eiern. Am Ei-Stand in der Welt (neben den Shop-Sockeln) kauft man ein Ei
+  für Coins; der Server würfelt, welches Pet schlüpft. Der Client zeigt nur das Ergebnis.
+- Fünf Pets, je eine Seltenheit: Bunny (Common), Fox (Uncommon), Panda (Rare), Dragon (Epic),
+  Phoenix (Legendary). Chancen im Starter Egg: 50 / 30 / 14 / 5 / 1 Prozent.
+- Wirkung: Ausgerüstete Pets geben einen Bonus auf den Grundwert jedes Trainingswurfs:
+  +5 / +10 / +15 / +30 / +60 Prozent. Die Boni der ausgerüsteten Pets werden addiert und zum
+  Grundwert gezählt; danach gelten Bahn, Waffe und Rebirth wie bisher. Drei Legendary ergeben
+  also +180 % und bleiben damit unter der besten Waffe. Auf den Hauptwurf wirken Pets nicht
+  (noch nicht: Glück und Glückswurf kommen später).
+- Bis zu drei Pets sind ausgerüstet, bis zu 30 kann man besitzen. Jedes Pet ist ein eigener
+  Eintrag, auch zwei gleiche. Ist das Inventar voll, gibt es kein Ei.
+- Ei-Preis: 150 Coins für das erste Ei, jedes weitere 20 % teurer (pro Spieler gezählt und
+  gespeichert). Startpreis und Steigerung stehen in der Config; mit Steigerung 1 ist der
+  Preis fest. Grund für die Steigerung: Coins wachsen mit jedem Rebirth stark, bei festem
+  Preis hätte nach 20 Minuten fast jeder ein Legendary.
+- Ausgerüstete Pets schweben hinter der Figur her. Jeder Client zeichnet und bewegt sie
+  selbst; der Server veröffentlicht nur, wer welche Pets besitzt und ausgerüstet hat.
+- Oberfläche: Der Menü-Button Pets öffnet das Items-Fenster auf dem Reiter Pets. Dort stehen
+  die Pets als Kacheln mit 3D-Modell, Name und Rahmen in der Farbe der Seltenheit und dem
+  Bonus. Antippen rüstet aus oder legt ab. Dazu "EQUIP BEST" und Löschen mit Rückfrage.
+- Pets bleiben beim Rebirth erhalten und werden mit dem Rest gespeichert.
+- Der Server prüft alles: Coins, Platz, Besitz, Zahl der ausgerüsteten Pets, Nähe zum
+  Ei-Stand, und dass nicht zu schnell hintereinander geschlüpft wird.
+- Die Vorlagen der Pets und des Eis liegen nur im Ort (siehe `assets/decor-templates.NOTES.md`).
 
 ## Später
 - Spuren und Effekte für das Schwert

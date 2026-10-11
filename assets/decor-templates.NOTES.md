@@ -30,6 +30,28 @@ Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.
 Die Farben wurden einmalig mit `tools/decor/prepare_paper_decor.luau` gesetzt (Form und Größe
 unverändert). Das Skript hat außerdem alle Teile verankert und ihnen die Kollision genommen.
 
+## Vorlagen der Pets (importiert am 11.10.2026)
+
+Pets und das Ei baut jeder Client selbst (`src/client/Ui/PetPreview.luau`): als Bild in der
+Oberfläche, als Begleiter hinter der Figur und als Ei auf dem Ei-Stand. Welches Pet welche
+Vorlage nutzt, steht in `src/shared/Config/Pets.luau`.
+
+| Vorlage | Teile (Mesh-Namen) | Farben |
+|---|---|---|
+| `pet_bunny` | Body, Accent, Nose, Eyes, EyeShine | weiß, rosa, rosa |
+| `pet_fox` | Body, Accent, Nose, Eyes, EyeShine | orange, weiß, dunkelbraun |
+| `pet_panda` | Body, Accent, Nose, Eyes, EyeShine | weiß, schwarz, schwarz |
+| `pet_dragon` | Body, Accent, Nose, Eyes, EyeShine | lila, helles Türkis, gold |
+| `pet_phoenix` | Body, Glow, Nose, Eyes, EyeShine | rot-orange, gelb (Neon), gold |
+| `pet_egg` | Shell, Spots, Nest | cremeweiß, türkis, strohgelb |
+
+Bei allen Pets sind `Eyes` schwarz und `EyeShine` weiß. Das Mesh `Nose` ist je nach Pet etwas
+anderes: beim Fuchs der dunkle Akzent, beim Drachen Hörner und Zacken, beim Phönix der
+Schnabel. Vorderseite ist bei allen -Z, der Drehpunkt liegt in der Körpermitte (beim Ei unten).
+Am Ei wackeln `Shell` und `Spots`, das `Nest` steht still.
+
+Fehlt eine Pet-Vorlage im Ort, zeigt das Spiel an ihrer Stelle eine graue Kugel.
+
 ## Was eine neue Deko-Vorlage braucht
 - Ein `Model` in `ReplicatedStorage.Assets`, dessen Drehpunkt (Pivot) unten in der Mitte der
   Standfläche liegt. Dorthin stellt das Spiel das Modell auf die äußere Stufe des Gehwegs.

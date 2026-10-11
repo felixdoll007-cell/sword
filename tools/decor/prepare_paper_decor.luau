@@ -1,7 +1,7 @@
--- Prepares imported decoration models as templates (paper zone, training lane 1x).
+-- Prepares imported models as templates (paper zone, training lane 1x, pets).
 -- Run in Roblox Studio (Edit mode) after importing models; it was run through the Studio
--- connection on 2026-10-11 (lantern, crane, pinwheel, later the cherry tree, the straw target
--- and the hay bale). Models that already are templates are left alone. Kept here as a record of what was done to the place.
+-- connection on 2026-10-11 (lantern, crane, pinwheel, later the cherry tree, the straw target,
+-- the hay bale, the five pets and the egg). Models that already are templates are left alone. Kept here as a record of what was done to the place.
 --
 -- What it does, and nothing else:
 --   1. Finds the imported models in the Workspace by the name of the model inside them.
@@ -87,6 +87,79 @@ local MODELS = {
 			Hay = Color3.fromRGB(240, 196, 64),
 			HayDark = Color3.fromRGB(204, 156, 40),
 			Rope = Color3.fromRGB(232, 214, 176),
+		},
+		neon = {},
+	},
+	-- Pets and the egg. All pets: Eyes black, EyeShine white. The mesh "Nose" is the nose of the
+	-- bunny and the panda, the dark accent of the fox, horns and spikes of the dragon and the
+	-- beak of the phoenix.
+	{
+		inside = "bunny_pet",
+		template = "pet_bunny",
+		colors = {
+			Body = Color3.fromRGB(250, 250, 250),
+			Accent = Color3.fromRGB(255, 150, 190),
+			Nose = Color3.fromRGB(255, 150, 190),
+			Eyes = Color3.fromRGB(20, 20, 24),
+			EyeShine = Color3.fromRGB(250, 250, 250),
+		},
+		neon = {},
+	},
+	{
+		inside = "fox_pet",
+		template = "pet_fox",
+		colors = {
+			Body = Color3.fromRGB(255, 122, 31),
+			Accent = Color3.fromRGB(250, 250, 250),
+			Nose = Color3.fromRGB(74, 48, 32),
+			Eyes = Color3.fromRGB(20, 20, 24),
+			EyeShine = Color3.fromRGB(250, 250, 250),
+		},
+		neon = {},
+	},
+	{
+		inside = "panda_pet",
+		template = "pet_panda",
+		colors = {
+			Body = Color3.fromRGB(250, 250, 250),
+			Accent = Color3.fromRGB(20, 20, 24),
+			Nose = Color3.fromRGB(20, 20, 24),
+			Eyes = Color3.fromRGB(20, 20, 24),
+			EyeShine = Color3.fromRGB(250, 250, 250),
+		},
+		neon = {},
+	},
+	{
+		inside = "dragon_pet",
+		template = "pet_dragon",
+		colors = {
+			Body = Color3.fromRGB(150, 70, 230),
+			Accent = Color3.fromRGB(120, 235, 225),
+			Nose = GOLD,
+			Eyes = Color3.fromRGB(20, 20, 24),
+			EyeShine = Color3.fromRGB(250, 250, 250),
+		},
+		neon = {},
+	},
+	{
+		inside = "phoenix_pet",
+		template = "pet_phoenix",
+		colors = {
+			Body = Color3.fromRGB(255, 84, 30),
+			Glow = Color3.fromRGB(255, 220, 70),
+			Nose = GOLD,
+			Eyes = Color3.fromRGB(20, 20, 24),
+			EyeShine = Color3.fromRGB(250, 250, 250),
+		},
+		neon = { Glow = true },
+	},
+	{
+		inside = "pet_egg",
+		template = "pet_egg",
+		colors = {
+			Shell = Color3.fromRGB(250, 244, 226),
+			Spots = Color3.fromRGB(40, 200, 200),
+			Nest = Color3.fromRGB(240, 196, 64),
 		},
 		neon = {},
 	},

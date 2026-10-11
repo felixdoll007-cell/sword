@@ -28,7 +28,12 @@ local Window = require(script.Parent.Ui.Window)
 -- What the button with this id opens. An id without an entry here has nothing to open yet.
 local OPENERS: { [string]: () -> () } = {
 	rebirth = RebirthView.toggle,
-	inventory = ItemsWindowView.toggle,
+	inventory = function()
+		ItemsWindowView.toggle("weapons")
+	end,
+	pets = function()
+		ItemsWindowView.toggle("pets")
+	end,
 }
 local REBIRTH_ID = "rebirth"
 
