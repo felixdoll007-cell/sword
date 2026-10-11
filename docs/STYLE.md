@@ -111,10 +111,12 @@ links der Stand, rechts der Status.
   eigenes Bild und sehen immer aus wie im Spiel.
 - Feste Symbole sind eigene, einfache, kräftige Zeichnungen mit schwarzem Rand. Motive aus
   unserer Welt: Flamme oder Faust für Stärke, Münze für Coins.
-- Die sechs Menü-Symbole (Shop, Rebirth, Pets, Trails, Inventory, Gifts) sind fertige Bilder:
+- Die sechs Menü-Symbole (Shop, Rebirth, Pets, Trails, Items, Gifts) sind fertige Bilder:
   freigestellt, 512x512, ohne Text, hochgeladen. Der Shop ist ein Korb. Ihre Nummern stehen in
   `Config/Ui` (menu). Die Beschriftung ist echter Text, nicht Teil des Bildes.
-- Es fehlen noch: Stärke, Coins, Schloss, Haken und Schließen. Solange ein Symbol fehlt, steht
+- Stärke und Coins sind ebenfalls fertige Bilder (Nummern in `Config/Ui`, icons). Rebirths
+  bei den Werten zeigt das Rebirth-Symbol des Menüs in klein.
+- Es fehlen noch: Schloss, Haken und Schließen. Solange ein Symbol fehlt, steht
   ein schlichter Platzhalter in der richtigen Farbe. Sobald es ein Bild gibt, kommt seine
   Nummer in `Config/Ui` (icons) und der Platzhalter verschwindet von selbst.
 

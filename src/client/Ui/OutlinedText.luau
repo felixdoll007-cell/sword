@@ -28,6 +28,8 @@ export type OutlinedText = {
 	frame: Frame,
 	label: TextLabel,
 	setText: (text: string) -> (),
+	-- Stops the text from scaling with its box and gives it this size instead.
+	setTextSize: (size: number) -> (),
 	setColor: (rgb: { number }) -> (),
 	-- 0 = fully visible, 1 = invisible. Text, border and shadow together.
 	setTransparency: (transparency: number) -> (),
@@ -130,6 +132,12 @@ function OutlinedText.new(props: Props): OutlinedText
 		setText = function(text: string)
 			forBoth(function(each: TextLabel)
 				each.Text = text
+			end)
+		end,
+		setTextSize = function(size: number)
+			forBoth(function(each: TextLabel)
+				each.TextScaled = false
+				each.TextSize = size
 			end)
 		end,
 		setColor = function(rgb: { number })

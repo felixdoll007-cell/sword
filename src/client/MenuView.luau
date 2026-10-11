@@ -39,6 +39,7 @@ function MenuView.start()
 	local frame = Draw.box("Menu", Hud.gui())
 
 	local buttons: { MenuButton.MenuButton } = {}
+	local captions: { string } = {}
 	local rebirthButton: MenuButton.MenuButton? = nil
 	for _, entry in Ui.menu.entries do
 		local open = OPENERS[entry.id]
@@ -58,6 +59,7 @@ function MenuView.start()
 			end
 		end)
 		table.insert(buttons, button)
+		table.insert(captions, entry.label)
 		if entry.id == REBIRTH_ID and not locked then
 			rebirthButton = button
 		end
@@ -66,11 +68,13 @@ function MenuView.start()
 	Hud.onLayout(function(layout: UiLayout.Hud)
 		Draw.place(frame, layout.menu)
 		local step = layout.menuCell + layout.gap
+		local captionSize = MenuButton.captionSize(captions, layout.menuCell)
 		for index, button in buttons do
 			local column = (index - 1) % layout.menuColumns
 			local row = (index - 1) // layout.menuColumns
 			button.frame.Position = UDim2.fromOffset(math.round(column * step), math.round(row * step))
 			button.frame.Size = UDim2.fromOffset(math.round(layout.menuCell), math.round(layout.menuCell))
+			button.setCaptionSize(captionSize)
 		end
 	end)
 

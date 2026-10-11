@@ -6,6 +6,7 @@
 -- answer "Coming soon".
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextService = game:GetService("TextService")
 local TweenService = game:GetService("TweenService")
 
 local Ui = require(ReplicatedStorage.Shared.Config.Ui)
@@ -28,12 +29,31 @@ export type MenuButton = {
 	frame: Frame,
 	-- Text at the top of the button, e.g. "62%". "" shows nothing.
 	setTopText: (text: string) -> (),
+	-- Text size of the caption (see MenuButton.captionSize).
+	setCaptionSize: (size: number) -> (),
 	-- The red dot with "!" at the top right.
 	setNotice: (shown: boolean) -> (),
 	onActivated: (callback: () -> ()) -> (),
 }
 
+-- Text size at which the captions are measured.
+local MEASURE_SIZE = 100
+
 local MenuButton = {}
+
+-- The one text size for the captions of all menu buttons: as big as possible, so that the
+-- longest caption still fits into a button of this size with some space to its edge.
+function MenuButton.captionSize(captions: { string }, buttonPixels: number): number
+	local settings = Ui.menuButton
+	local widest = 0
+	for _, caption in captions do
+		local size = TextService:GetTextSize(caption, MEASURE_SIZE, Draw.font(), Vector2.new(math.huge, math.huge))
+		widest = math.max(widest, size.X)
+	end
+	local byHeight = buttonPixels * settings.labelHeight
+	local byWidth = if widest > 0 then MEASURE_SIZE * buttonPixels * settings.textWidth / widest else byHeight
+	return math.max(math.floor(math.min(byWidth, byHeight)), Ui.text.minTextSize)
+end
 
 function MenuButton.new(props: Props): MenuButton
 	local settings = Ui.menuButton
@@ -78,7 +98,8 @@ function MenuButton.new(props: Props): MenuButton
 	local label = OutlinedText.new({ name = "Label", parent = frame, text = props.label })
 	label.frame.AnchorPoint = Vector2.new(0.5, 1)
 	label.frame.Position = UDim2.fromScale(0.5, 1)
-	label.frame.Size = UDim2.fromScale(settings.textWidth, settings.labelHeight)
+	-- The box is as wide as the button; the space to the edge comes from the text size (captionSize).
+	label.frame.Size = UDim2.fromScale(1, settings.labelHeight)
 	label.frame.ZIndex = 5
 
 	local topText = OutlinedText.new({ name = "TopText", parent = frame, text = "" })
@@ -131,6 +152,7 @@ function MenuButton.new(props: Props): MenuButton
 			topText.setText(text)
 			topText.frame.Visible = text ~= ""
 		end,
+		setCaptionSize = label.setTextSize,
 		setNotice = function(shown: boolean)
 			notice.Visible = shown
 		end,

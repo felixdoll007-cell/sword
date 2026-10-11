@@ -145,8 +145,8 @@ dicke Schrift mit Umriss, klare große Buttons. Die genauen Regeln stehen in `do
 Die Oberfläche ist aus wiederverwendbaren Bausteinen gebaut (Text mit Rand, Button,
 Menü-Button, Fenster, Kachel, Fortschrittsbalken). Alle Farben, Größen, Zeiten und Texte
 stehen in `Config/Ui`. Aufbau des Bildschirms:
-- Links: Menü-Raster in zwei Spalten (Shop, Rebirth, Pets, Trails, Inventory, Gifts), darunter
-  Stärke, Coins und Rebirths, je mit Symbol und Zahl in ihrer Farbe. Pets, Trails, Inventory
+- Links: Menü-Raster in zwei Spalten (Shop, Rebirth, Pets, Trails, Items, Gifts), darunter
+  Stärke, Coins und Rebirths, je mit Symbol und Zahl in ihrer Farbe. Pets, Trails, Items
   und Gifts sind abgedunkelt mit Schloss und sagen beim Antippen "Coming soon"; jeder Button
   hat einen Schalter in der Config.
 - Unten mittig: Fortschritt zum nächsten Rebirth, darüber der Wurf-Button (nur in der
@@ -156,8 +156,8 @@ stehen in `Config/Ui`. Aufbau des Bildschirms:
 - Es ist immer nur ein Fenster offen. Dahinter ist die Welt weichgezeichnet und abgedunkelt.
 - Zahlen sind immer abgekürzt und haben nie mehr als vier Zeichen vor der Einheit
   (15.3K, aber 153K).
-- Die Noppen-Textur ist vorbereitet, aber noch aus: Sie braucht eine hochgeladene
-  Kachel-Grafik, deren Nummer in `Config/Ui` (studs) eingetragen wird.
+- Die Noppen-Textur ist vorbereitet, aber vorerst aus: Buttons und Balken sind einfarbig.
+  Sie bräuchte eine hochgeladene Kachel-Grafik, deren Nummer in `Config/Ui` (studs) käme.
 
 ## Balance
 Alle Zahlen stehen im Config-Ordner und werden beim Spielen eingestellt. Ziel: Der Spieler

@@ -146,8 +146,9 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Menü-Raster links mit sechs Buttons; Shop-Fenster mit Waffen-Kacheln (3D-Modell), Kaufen und Ausrüsten über den Server; vier Buttons gesperrt mit "Coming soon" und Schalter in der Config
 - [x] Einblendungen "+..." im selben Schriftstil
 - [x] Zahlen nie länger als vier Zeichen vor der Einheit
-- [ ] Noppen-Textur: Kachel-Grafik erzeugen und hochladen (wartet auf meine Freigabe), Nummer in `Config/Ui`
-- [ ] Symbole für Stärke, Coins, Schloss, Haken und Schließen (bis dahin Platzhalter)
+- Noppen-Textur: vorerst nicht. Buttons und Balken bleiben einfarbig, der Platz für die Nummer in `Config/Ui` bleibt.
+- [x] Nachtrag: Symbole für Stärke und Coins eingetragen, Rebirths zeigt das Rebirth-Symbol in klein; Menü-Button heißt ITEMS; alle Menü-Beschriftungen in derselben Schriftgröße mit Abstand zum Rand
+- [ ] Symbole für Schloss, Haken und Schließen (bis dahin Platzhalter)
 - [ ] Von mir getestet
 - Nicht umgestellt: die Schilder in der Welt (Trainingsbahnen, Shop-Sockel). Sie stehen in STYLE.md, waren aber nicht Teil dieses Blocks.
 

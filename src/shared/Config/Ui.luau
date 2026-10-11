@@ -107,9 +107,10 @@ return {
 	-- Pictures for the fixed symbols. "" = not drawn yet, a plain placeholder in the right color
 	-- is shown instead.
 	icons = {
-		strength = "",
-		coins = "",
-		rebirths = "",
+		strength = "rbxassetid://126070189711301",
+		coins = "rbxassetid://73609672508064",
+		-- The same picture as on the Rebirth menu button, shown small.
+		rebirths = "rbxassetid://106323553177111",
 		lock = "",
 		check = "",
 		close = "",
@@ -141,8 +142,9 @@ return {
 		-- Caption at the bottom and progress text at the top, heights as a share of the button.
 		labelHeight = 0.3,
 		topTextHeight = 0.27,
-		-- Room for these two texts, as a share of the button's width.
-		textWidth = 0.94,
+		-- Room for these two texts, as a share of the button's width. The rest is space to the edge.
+		-- All captions of the menu use the same text size: the one at which the longest fits.
+		textWidth = 0.8,
 		pressScale = 0.93,
 		hoverScale = 1.05,
 		scaleSeconds = 0.07,
@@ -377,7 +379,7 @@ return {
 			{ id = "rebirth", label = "REBIRTH", icon = "rbxassetid://106323553177111", enabled = true },
 			{ id = "pets", label = "PETS", icon = "rbxassetid://138261598867132", enabled = false },
 			{ id = "trails", label = "TRAILS", icon = "rbxassetid://103736409902587", enabled = false },
-			{ id = "inventory", label = "INVENTORY", icon = "rbxassetid://79691833732200", enabled = false },
+			{ id = "inventory", label = "ITEMS", icon = "rbxassetid://79691833732200", enabled = false },
 			{ id = "gifts", label = "GIFTS", icon = "rbxassetid://100679695739473", enabled = false },
 		},
 		comingSoonText = "Coming soon",
