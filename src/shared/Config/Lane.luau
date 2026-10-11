@@ -1,7 +1,8 @@
 --!strict
 -- Size and layout of the throw zone and the main lane. All lengths in studs.
 -- The lane starts at the throw line and runs in the direction of negative Z.
--- Colors are { red, green, blue } from 0 to 255. Version 1 is all grey.
+-- Colors are { red, green, blue } from 0 to 255. The lanes are still grey; the look of the
+-- throw zone and of the floor around it is in Config/Ui (world).
 
 return {
 	-- Middle of the throw line, on the ground.
@@ -35,7 +36,6 @@ return {
 	barrierThickness = 1,
 
 	floorColor = { 120, 120, 120 },
-	throwZoneColor = { 90, 90, 90 },
 	-- One grey per material, from light (Paper) to dark (Bedrock).
 	materialColors = {
 		Paper = { 235, 235, 235 },

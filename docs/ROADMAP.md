@@ -160,6 +160,16 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Menü-Button SHOP ist gesperrt mit Schloss und "Coming soon", über den Schalter in der Config
 - [x] Von mir getestet
 
+### Block: Wurfzone in fertiger Optik (Vorgriff auf Version 4)
+- [x] Boden der Wurfzone in zwei Tönen Glut-Orange, leicht erhöhter dunklerer Rand rundherum (ohne Springen begehbar)
+- [x] Schriftzug "THROW ZONE" auf dem Boden, in der Schrift der Oberfläche
+- [x] Boden um die Wurfzone in zwei Tönen Grün (150 x 100 Studs)
+- [x] Alle Farben und Größen in `Config/Ui` (world); Lage von Rand, Schriftzug und Grün als getestete reine Funktionen
+- [x] Kachelbild für Schachbrett und Noppen erzeugt: `assets/textures/floor-tile.png` (Skript `tools/textures/make_floor_tile.py`)
+- [ ] Kachelbild von mir angesehen und hochgeladen, Nummer in `Config/Ui` (world.floorTile.image). Bis dahin sind die Böden einfarbig.
+- [ ] Von mir getestet
+- Nichts liegt nur im Ort: Alles wird beim Start aus dem Code gebaut, Speichern in Studio ist dafür nicht nötig.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

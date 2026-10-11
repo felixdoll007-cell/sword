@@ -160,6 +160,13 @@ stehen in `Config/Ui`. Aufbau des Bildschirms:
 - Die Noppen-Textur ist vorbereitet, aber vorerst aus: Buttons und Balken sind einfarbig.
   Sie bräuchte eine hochgeladene Kachel-Grafik, deren Nummer in `Config/Ui` (studs) käme.
 
+Die Welt bekommt denselben Stil Stück für Stück. Fertig ist die Wurfzone als Muster:
+Schachbrett-Boden in zwei Tönen Glut-Orange mit Noppen, dunklerer, leicht erhöhter Rand,
+der Schriftzug "THROW ZONE" auf dem Boden und drumherum ein Schachbrett in zwei Tönen Grün.
+Schachbrett und Noppen sind ein einziges Kachelbild, das als Textur auf einem großen Teil
+liegt (wenige große Teile statt vieler kleiner). Farben und Größen stehen in `Config/Ui`
+(world). Die Bahnen selbst sind noch grau.
+
 ## Balance
 Alle Zahlen stehen im Config-Ordner und werden beim Spielen eingestellt. Ziel: Der Spieler
 erreicht in den ersten Minuten schnell mehrere Wände, danach etwa alle paar Minuten ein

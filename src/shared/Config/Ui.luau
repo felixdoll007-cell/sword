@@ -7,6 +7,7 @@
 --   2. Building blocks: button, menu button, tile, progress bar, window, short message
 --   3. Layout: what sits where and how big
 --   4. The single elements: throw button, meter, values, menu, windows, "+..." labels
+--   5. World: floors, the throw zone and what surrounds it
 --
 -- Colors are { red, green, blue } from 0 to 255.
 -- A size written as { share, min, max } is a share of the screen's shorter side, limited to
@@ -486,5 +487,75 @@ return {
 		ambient = { 200, 200, 200 },
 		lightColor = { 255, 255, 255 },
 		lightDirection = { -0.4, -1, -0.3 },
+	},
+
+	------------------------------------------------------------------------------------------
+	-- 5. World
+	------------------------------------------------------------------------------------------
+	-- The look of the world in the new style. First part: the throw zone, the pattern for the
+	-- rest. Where the throw zone is and how big it is stays in Config/Lane.
+	-- Lengths in studs.
+
+	world = {
+		-- The one floor picture of the world: a checkerboard with studs
+		-- (assets/textures/floor-tile.png, made by tools/textures/make_floor_tile.py).
+		-- A floor is one big part in its darker tone with this picture on it, tinted in its
+		-- lighter tone. image = "" means the picture is not uploaded yet: floors are plain.
+		floorTile = {
+			image = "",
+			-- Edge length of one checkerboard field. Floors should be a whole number of fields
+			-- wide and long, so the pattern is not cut off at an edge.
+			fieldStuds = 5,
+			-- The picture holds 2 x 2 fields. Only change this together with the picture.
+			fieldsPerPicture = 2,
+		},
+
+		throwZone = {
+			-- Two tones of ember orange.
+			darkColor = { 236, 106, 22 },
+			lightColor = { 255, 134, 42 },
+
+			-- Slightly raised, darker edge all around the zone. Low enough to walk over.
+			rim = {
+				color = { 178, 72, 10 },
+				width = 1.2,
+				-- How far it stands above the floor.
+				height = 0.3,
+			},
+
+			-- Writing on the floor, in the font of the interface: white with a thick black border.
+			label = {
+				text = "THROW\nZONE",
+				color = { 255, 255, 255 },
+				-- Room for the writing on the floor: across the zone and along it.
+				widthStuds = 24,
+				heightStuds = 13,
+				-- Where its middle sits between the throw line (0) and the back edge (1).
+				positionShare = 0.5,
+				-- How much of that room the writing fills (0 to 1).
+				fill = 0.94,
+				-- Black border around every letter, as a share of the text height.
+				strokeShare = 0.1,
+				-- How finely the writing is drawn. Roblox cannot draw text bigger than 100 pixels,
+				-- so a higher value does not make it sharper.
+				pixelsPerStud = 16,
+				-- The writing lies on an invisible plate this far above the floor.
+				aboveFloor = 0.03,
+				plateThickness = 0.05,
+			},
+		},
+
+		-- The floor around the throw zone: two tones of calm green. It reaches this far beyond
+		-- the zone on each side (front = towards the lane). Lanes, pads and pedestals lie on it.
+		surroundings = {
+			darkColor = { 74, 148, 70 },
+			lightColor = { 90, 166, 82 },
+			left = 60,
+			right = 60,
+			front = 40,
+			back = 40,
+			-- Its top lies this far below the lane floors, so they stay visible on top of it.
+			belowFloor = 0.05,
+		},
 	},
 }

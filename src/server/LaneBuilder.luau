@@ -13,6 +13,8 @@ local WallConfig = require(Shared.Config.Walls)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Training = require(Shared.Rules.Training)
 
+local ThrowZoneLook = require(script.Parent.ThrowZoneLook)
+
 local LaneBuilder = {}
 
 local function addPart(
@@ -105,9 +107,11 @@ local function buildMainLane()
 		"ThrowZone",
 		Vector3.new(LaneConfig.laneWidth, LaneConfig.floorThickness, LaneConfig.throwZoneLength),
 		Vector3.new(x, floorCenterY(), z + LaneConfig.throwZoneLength / 2),
-		LaneConfig.throwZoneColor
+		LaneConfig.floorColor
 	) :: SpawnLocation
 	throwZone.Duration = 0 -- no force field after spawning
+	-- Colors, edge, writing and the floor around it.
+	ThrowZoneLook.build(throwZone, folder)
 
 	folder.Parent = Workspace
 end
