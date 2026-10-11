@@ -165,7 +165,13 @@ Schachbrett-Boden in zwei Tönen Glut-Orange mit Noppen, dunklerer, leicht erhö
 der Schriftzug "THROW ZONE" auf dem Boden und drumherum ein Schachbrett in zwei Tönen Grün.
 Schachbrett und Noppen sind ein einziges Kachelbild, das als Textur auf einem großen Teil
 liegt (wenige große Teile statt vieler kleiner). Farben und Größen stehen in `Config/Ui`
-(world). Die Bahnen selbst sind noch grau. Regel für alle Böden: Zwei Bodenflächen liegen nie
+(world). Die Papier-Zone (Wurflinie bis Wand 5) ist das Muster für die Zonen der Bahn: Boden in
+zwei Cremetönen, links und rechts erhöhte Gehwege in Kirschblüten-Rosa mit dunkelroter Kante,
+cremeweiße Wände mit dünnem dunkelrotem Rahmen, und am Ende schwebt der Name der nächsten
+Zone ("WOOD") über der Bahn. Jede weitere Zone braucht nur einen Eintrag mit Farben und
+Namen in `Config/Ui` (world.lane.zones). Eine Zone endet an ihrer letzten Wand; das Stück bis
+zur ersten Wand der nächsten Zone gehört zur nächsten Zone. Hinter Wand 5 und auf den
+Trainingsbahnen ist der Boden noch grau. Regel für alle Böden: Zwei Bodenflächen liegen nie
 übereinander, sondern nebeneinander; sonst flackern sie je nach Kamerawinkel.
 
 ## Balance

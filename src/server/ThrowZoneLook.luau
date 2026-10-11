@@ -20,46 +20,18 @@ local TextService = game:GetService("TextService")
 local Shared = ReplicatedStorage.Shared
 local LaneConfig = require(Shared.Config.Lane)
 local Ui = require(Shared.Config.Ui)
+local WallConfig = require(Shared.Config.Walls)
 local ThrowZoneLayout = require(Shared.Rules.ThrowZoneLayout)
+local ZoneLook = require(Shared.Rules.ZoneLook)
+
+local WorldParts = require(script.Parent.WorldParts)
 
 -- Text size at which the writing is measured. Also the biggest text size Roblox can draw.
 local MEASURE_SIZE = 100
 
 local ThrowZoneLook = {}
 
-local function color(rgb: { number }): Color3
-	return Color3.fromRGB(rgb[1], rgb[2], rgb[3])
-end
-
--- Lays the floor picture on the top of a part, tinted with the lighter tone.
-local function addFloorTile(part: BasePart, lightColor: { number })
-	local tile = Ui.world.floorTile
-	if tile.image == "" then
-		return
-	end
-	local texture = Instance.new("Texture")
-	texture.Name = "FloorTile"
-	texture.Face = Enum.NormalId.Top
-	texture.Texture = tile.image
-	texture.Color3 = color(lightColor)
-	texture.StudsPerTileU = tile.fieldStuds * tile.fieldsPerPicture
-	texture.StudsPerTileV = tile.fieldStuds * tile.fieldsPerPicture
-	texture.Parent = part
-end
-
-local function addBlock(folder: Instance, name: string, area: ThrowZoneLayout.Area, topY: number, rgb: { number }): Part
-	local thickness = LaneConfig.floorThickness
-	local part = Instance.new("Part")
-	part.Name = name
-	part.Anchored = true
-	part.TopSurface = Enum.SurfaceType.Smooth
-	part.BottomSurface = Enum.SurfaceType.Smooth
-	part.Size = Vector3.new(area.width, thickness, area.length)
-	part.Position = Vector3.new(area.x, topY - thickness / 2, area.z)
-	part.Color = color(rgb)
-	part.Parent = folder
-	return part
-end
+local color = WorldParts.color
 
 local function makeLine(name: string, text: string, textSize: number, rgb: { number }, parent: Instance): TextLabel
 	local label = Instance.new("TextLabel")
@@ -138,18 +110,27 @@ function ThrowZoneLook.build(zoneFloor: BasePart, folder: Instance)
 	local zone = world.throwZone
 
 	zoneFloor.Color = color(zone.darkColor)
-	addFloorTile(zoneFloor, zone.lightColor)
+	WorldParts.addFloorTile(zoneFloor, zone.lightColor)
 
 	for index, strip in ThrowZoneLayout.rim(LaneConfig, zone.rim) do
-		addBlock(folder, `ThrowZoneRim{index}`, strip, LaneConfig.floorTopY + zone.rim.height, zone.rim.color)
+		WorldParts.addBlock(
+			folder,
+			`ThrowZoneRim{index}`,
+			strip,
+			LaneConfig.floorTopY + zone.rim.height,
+			zone.rim.color
+		)
 	end
 
 	addLabel(folder)
 
+	-- The green leaves out the walkways that run along the first zone of the lane.
 	local green = world.surroundings
-	for index, piece in ThrowZoneLayout.surroundings(LaneConfig, green) do
-		local ground = addBlock(folder, `ThrowZoneSurroundings{index}`, piece, LaneConfig.floorTopY, green.darkColor)
-		addFloorTile(ground, green.lightColor)
+	local walkWidth = ZoneLook.walkWidthAtThrowZone(LaneConfig, WallConfig, world.lane)
+	for index, piece in ThrowZoneLayout.surroundings(LaneConfig, green, walkWidth) do
+		local ground =
+			WorldParts.addBlock(folder, `ThrowZoneSurroundings{index}`, piece, LaneConfig.floorTopY, green.darkColor)
+		WorldParts.addFloorTile(ground, green.lightColor)
 	end
 end
 

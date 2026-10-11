@@ -545,9 +545,75 @@ return {
 			},
 		},
 
+		-- The main lane. Every zone can have its own look; the paper zone is the first and the
+		-- pattern for the others. A zone is named after its material in Config/Walls.
+		lane = {
+			-- Raised walkways left and right of a zone with a look, along its whole length.
+			-- Next to the lane runs their edge, outside of it the walkway itself.
+			walk = {
+				-- Width of the walkway without its edge. Edge and walkway together should be a
+				-- whole number of floor pictures wide (10 studs), see surroundings below.
+				width = 9,
+				-- How far the walkway stands above the lane floor.
+				height = 1,
+				-- The edge towards the lane: its width, and how far it stands above the walkway.
+				curbWidth = 1,
+				curbAbove = 0.2,
+			},
+
+			-- The name of the next zone, floating at the end of a zone, turned towards the camera.
+			sign = {
+				-- Height of its middle above the lane floor. High enough to be seen over the
+				-- first walls from the throw zone.
+				heightAboveFloor = 44,
+				-- How far behind the last wall of the zone it floats.
+				behindZoneEnd = 0,
+				-- Room for the name, in studs.
+				widthStuds = 44,
+				heightStuds = 13,
+				-- Further away than this it is not drawn.
+				maxDistance = 600,
+			},
+
+			-- Thin frame on walls of zones that have one, drawn on the side the thrower sees.
+			wallFrame = {
+				widthStuds = 0.6,
+				-- How finely it is drawn.
+				pixelsPerStud = 10,
+			},
+
+			-- The look of each zone. A new zone needs only an entry here:
+			--   name, nameColor: shown at the end of the zone before it.
+			--   floor: two tones of the lane floor. Without it the zone stays plain grey and has
+			--     no walkways and no name floating at its end.
+			--   walk: two tones of the walkways and the color of their edge.
+			--   wall: color of the walls (and of their pieces) and of the thin frame on them.
+			zones = {
+				Paper = {
+					name = "PAPER",
+					nameColor = { 250, 244, 226 },
+					-- Two tones of cream.
+					floor = { darkColor = { 236, 224, 194 }, lightColor = { 248, 238, 212 } },
+					-- Two tones of cherry blossom pink, dark red edge.
+					walk = {
+						darkColor = { 244, 160, 180 },
+						lightColor = { 255, 186, 200 },
+						curbColor = { 140, 28, 40 },
+					},
+					-- Cream white with a dark red frame, like a paper wall.
+					wall = { color = { 250, 245, 230 }, frameColor = { 140, 28, 40 } },
+				},
+				-- No look yet; only its name, announced at the end of the paper zone.
+				Wood = {
+					name = "WOOD",
+					nameColor = { 178, 114, 58 },
+				},
+			},
+		},
+
 		-- The floor around the throw zone: two tones of calm green. It reaches this far beyond
-		-- the zone on each side (front = along the lane). It is laid in pieces next to the zone
-		-- and the lane, at the same height, never under or over another floor.
+		-- the zone on each side (front = along the lane). It is laid in pieces next to the zone,
+		-- the lane and the lane's walkways, at the same height, never under or over another floor.
 		-- Keep each value a whole number of pictures (fieldStuds x fieldsPerPicture = 10 studs),
 		-- so the checkerboard continues from one piece to the next.
 		-- left stops short of the first training lane, which keeps its old look.

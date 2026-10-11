@@ -8,9 +8,11 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local LaneConfig = require(Shared.Config.Lane)
 local ThrowVisuals = require(Shared.Config.ThrowVisuals)
+local Ui = require(Shared.Config.Ui)
 local WallConfig = require(Shared.Config.Walls)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Walls = require(Shared.Rules.Walls)
+local ZoneLook = require(Shared.Rules.ZoneLook)
 
 local FOLDER_NAME = "MyEffects"
 
@@ -90,7 +92,7 @@ function WallEffects.spawnPieces(index: number)
 		center,
 		LaneConfig.laneWidth,
 		LaneConfig.wallHeight,
-		LaneConfig.materialColors[wall.material],
+		ZoneLook.wallColor(LaneConfig, Ui.world.lane, wall.material),
 		ThrowVisuals.piecesPerWall,
 		ThrowVisuals.pieceSize
 	)

@@ -71,17 +71,25 @@ function ThrowZoneLayout.label(config: ZoneConfig, label: LabelConfig): Area
 end
 
 -- The green floor around the zone, as pieces that lie next to the other floors and never under
--- or over one: a piece left of the zone and the lane, a piece right of them, and a piece behind
--- the zone. In front of the zone runs the lane, so nothing is laid there.
+-- or over one:
+--   * a piece left and a piece right of the zone, reaching back behind it
+--   * a piece behind the zone
+--   * a piece front left and front right, beside the lane. In front of the zone runs the lane,
+--     and next to the lane may run walkways, so these two pieces start walkWidth away from it.
 -- left, right, front and back say how far the green reaches beyond the zone on each side.
-function ThrowZoneLayout.surroundings(config: ZoneConfig, surroundings: SurroundingsConfig): { Area }
+function ThrowZoneLayout.surroundings(
+	config: ZoneConfig,
+	surroundings: SurroundingsConfig,
+	walkWidth: number?
+): { Area }
 	local zone = ThrowZoneLayout.zone(config)
 	local left, right = math.max(surroundings.left, 0), math.max(surroundings.right, 0)
 	local front, back = math.max(surroundings.front, 0), math.max(surroundings.back, 0)
+	local inset = math.max(walkWidth or 0, 0)
 	local zoneLeft, zoneRight = zone.x - zone.width / 2, zone.x + zone.width / 2
-	local zoneBack = zone.z + zone.length / 2
-	local sideLength = zone.length + front + back
-	local sideZ = zone.z + (back - front) / 2
+	local zoneFront, zoneBack = zone.z - zone.length / 2, zone.z + zone.length / 2
+	local sideLength = zone.length + back
+	local sideZ = zone.z + back / 2
 
 	local pieces: { Area } = {}
 	if left > 0 then
@@ -92,6 +100,22 @@ function ThrowZoneLayout.surroundings(config: ZoneConfig, surroundings: Surround
 	end
 	if back > 0 then
 		table.insert(pieces, { x = zone.x, z = zoneBack + back / 2, width = zone.width, length = back })
+	end
+	if front > 0 and left > inset then
+		table.insert(pieces, {
+			x = zoneLeft - inset - (left - inset) / 2,
+			z = zoneFront - front / 2,
+			width = left - inset,
+			length = front,
+		})
+	end
+	if front > 0 and right > inset then
+		table.insert(pieces, {
+			x = zoneRight + inset + (right - inset) / 2,
+			z = zoneFront - front / 2,
+			width = right - inset,
+			length = front,
+		})
 	end
 	return pieces
 end

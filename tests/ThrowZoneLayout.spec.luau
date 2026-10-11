@@ -1,9 +1,17 @@
 local ThrowZoneLayout = require("../src/shared/Rules/ThrowZoneLayout")
 local LaneLayout = require("../src/shared/Rules/LaneLayout")
+local ZoneLook = require("../src/shared/Rules/ZoneLook")
 local LaneConfig = require("../src/shared/Config/Lane")
+local WallConfig = require("../src/shared/Config/Walls")
 local Ui = require("../src/shared/Config/Ui")
 
 local world = Ui.world
+-- Room the walkways of the first zone take next to the lane.
+local WALK_WIDTH = ZoneLook.walkWidthAtThrowZone(LaneConfig, WallConfig, world.lane)
+
+local function greenPieces(): { ThrowZoneLayout.Area }
+	return ThrowZoneLayout.surroundings(LaneConfig, world.surroundings, WALK_WIDTH)
+end
 
 local function left(area: ThrowZoneLayout.Area): number
 	return area.x - area.width / 2
@@ -95,14 +103,14 @@ return {
 	["the green floor lies around the zone and never under or over another floor"] = function(expect)
 		local zone = ThrowZoneLayout.zone(LaneConfig)
 		local settings = world.surroundings
-		local pieces = ThrowZoneLayout.surroundings(LaneConfig, settings)
-		expect(#pieces).toBe(3)
+		local pieces = greenPieces()
+		expect(#pieces).toBe(5)
 
-		-- The lane in front of the zone, as far as the green reaches along it.
+		-- The lane in front of the zone with its walkways, as far as the green reaches along it.
 		local lane: ThrowZoneLayout.Area = {
 			x = zone.x,
 			z = front(zone) - settings.front / 2,
-			width = LaneConfig.laneWidth,
+			width = LaneConfig.laneWidth + 2 * WALK_WIDTH,
 			length = settings.front,
 		}
 		local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
@@ -121,7 +129,7 @@ return {
 		expect(maxX).toBeNear(right(zone) + settings.right)
 		expect(minZ).toBeNear(front(zone) - settings.front)
 		expect(maxZ).toBeNear(back(zone) + settings.back)
-		-- No gaps: everything inside that outline is green, except the zone and the lane.
+		-- No gaps: everything inside that outline is green, except the zone, the lane and its walkways.
 		expect(area).toBeNear((maxX - minX) * (maxZ - minZ) - zone.width * zone.length - lane.width * lane.length)
 		-- It stays on the ground of the map.
 		expect(math.max(math.abs(minX), math.abs(maxX)) <= LaneConfig.groundHalfSize).toBe(true)
@@ -131,7 +139,7 @@ return {
 	["the green floor keeps away from the training lanes and their pads"] = function(expect)
 		local TrainingConfig = require("../src/shared/Config/Training")
 		local Training = require("../src/shared/Rules/Training")
-		local pieces = ThrowZoneLayout.surroundings(LaneConfig, world.surroundings)
+		local pieces = greenPieces()
 		for laneIndex = 1, Training.laneCount(TrainingConfig) do
 			local pad = Training.lanePad(TrainingConfig, laneIndex) :: any
 			-- Pad and lane in one rectangle, with the invisible barriers along the sides.
@@ -154,6 +162,12 @@ return {
 		local onlyBack = ThrowZoneLayout.surroundings(LaneConfig, { left = 0, right = 0, front = 30, back = 10 })
 		expect(#onlyBack).toBe(1)
 		expect(onlyBack[1].length).toBe(10)
+		-- Without walkways the front pieces touch the lane; with wide ones they vanish.
+		local room = { left = 20, right = 20, front = 30, back = 10 }
+		expect(#ThrowZoneLayout.surroundings(LaneConfig, room)).toBe(5)
+		expect(#ThrowZoneLayout.surroundings(LaneConfig, room, 20)).toBe(3)
+		local touching = ThrowZoneLayout.surroundings(LaneConfig, room, 0)
+		expect(right(touching[4])).toBeNear(LaneConfig.throwLine.x - LaneConfig.laneWidth / 2)
 	end,
 
 	["the checkerboard continues across the green pieces and is not cut off on the zone"] = function(expect)
@@ -163,7 +177,7 @@ return {
 		expect(zone.length % picture).toBe(0)
 		-- Every piece is a whole number of pictures wide and long, and all pieces start on the
 		-- same grid. Then the pattern lines up whichever corner Roblox starts the picture at.
-		local pieces = ThrowZoneLayout.surroundings(LaneConfig, world.surroundings)
+		local pieces = greenPieces()
 		local gridX, gridZ = left(pieces[1]) % picture, front(pieces[1]) % picture
 		for _, piece in pieces do
 			expect(piece.width % picture).toBe(0)

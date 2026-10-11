@@ -171,6 +171,14 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 - Nichts liegt nur im Ort: Alles wird beim Start aus dem Code gebaut, Speichern in Studio ist dafür nicht nötig.
 
+### Block: Papier-Zone in fertiger Optik (Vorgriff auf Version 4)
+- [x] Bahnboden von der Wurflinie bis Wand 5 in zwei Cremetönen mit der Noppen-Kachel; dahinter grau wie bisher (der Bahnboden besteht jetzt aus Abschnitten hintereinander, nie übereinander)
+- [x] Gehwege links und rechts entlang der Papier-Zone: 1 Stud höher, zwei Töne Kirschblüten-Rosa mit Noppen, dunkelrote Kante zur Bahn; das Grün um die Wurfzone spart sie aus
+- [x] Papier-Wände cremeweiß mit dünnem dunkelrotem Rahmen (als Bild auf der Wand, kein zusätzliches Teil); Bruchstücke in derselben Farbe
+- [x] "WOOD" schwebt am Ende der Papier-Zone über der Bahn, in der Schrift der Oberfläche, zur Kamera gedreht
+- [x] Alle Farben und Maße in `Config/Ui` (world.lane); eine weitere Zone braucht nur einen Eintrag mit Farben und Namen
+- [ ] Von mir getestet
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

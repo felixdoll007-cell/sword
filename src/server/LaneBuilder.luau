@@ -13,6 +13,7 @@ local WallConfig = require(Shared.Config.Walls)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Training = require(Shared.Rules.Training)
 
+local LaneLook = require(script.Parent.LaneLook)
 local ThrowZoneLook = require(script.Parent.ThrowZoneLook)
 
 local LaneBuilder = {}
@@ -54,22 +55,25 @@ local function addInvisibleBarrier(folder: Folder, name: string, size: Vector3, 
 end
 
 -- A lane floor that starts at startZ and runs towards negative Z, fenced on the front and both sides.
+-- color: nil if the floor is built somewhere else and only the fence is wanted.
 local function addFencedLane(
 	folder: Folder,
 	x: number,
 	startZ: number,
 	width: number,
 	length: number,
-	color: { number }
+	color: { number }?
 )
-	addPart(
-		folder,
-		Instance.new("Part"),
-		"Floor",
-		Vector3.new(width, LaneConfig.floorThickness, length),
-		Vector3.new(x, floorCenterY(), startZ - length / 2),
-		color
-	)
+	if color then
+		addPart(
+			folder,
+			Instance.new("Part"),
+			"Floor",
+			Vector3.new(width, LaneConfig.floorThickness, length),
+			Vector3.new(x, floorCenterY(), startZ - length / 2),
+			color
+		)
+	end
 
 	local thickness = LaneConfig.barrierThickness
 	local height = LaneConfig.barrierHeight
@@ -91,14 +95,9 @@ local function buildMainLane()
 
 	local x = LaneConfig.throwLine.x
 	local z = LaneConfig.throwLine.z
-	addFencedLane(
-		folder,
-		x,
-		z,
-		LaneConfig.laneWidth,
-		LaneLayout.laneLength(LaneConfig, WallConfig),
-		LaneConfig.floorColor
-	)
+	-- The floor comes in stretches, one per zone look, with walkways along them (LaneLook).
+	addFencedLane(folder, x, z, LaneConfig.laneWidth, LaneLayout.laneLength(LaneConfig, WallConfig), nil)
+	LaneLook.build(folder)
 
 	-- The throw zone lies behind the throw line. It is also where players spawn.
 	local throwZone = addPart(
