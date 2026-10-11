@@ -107,8 +107,8 @@ return {
 	-- Pictures for the fixed symbols. "" = not drawn yet, a plain placeholder in the right color
 	-- is shown instead.
 	icons = {
-		strength = "rbxassetid://126070189711301",
-		coins = "rbxassetid://73609672508064",
+		strength = "rbxassetid://77200114063167",
+		coins = "rbxassetid://76434159593287",
 		-- The same picture as on the Rebirth menu button, shown small.
 		rebirths = "rbxassetid://106323553177111",
 		lock = "",
@@ -279,6 +279,10 @@ return {
 		},
 
 		stats = {
+			-- The one value for the size of the symbols and numbers at the bottom left:
+			-- 1 = basic size, 1.25 = a quarter bigger. Change only this to make them bigger or smaller.
+			sizeFactor = 1.25,
+			-- Basic height of one row, before sizeFactor.
 			rowHeight = { share = 0.065, min = 20, max = 36 },
 			rowGap = 2,
 		},

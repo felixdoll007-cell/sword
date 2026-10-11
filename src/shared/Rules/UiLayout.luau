@@ -24,7 +24,7 @@ export type LayoutConfig = {
 	meter: { heightFactor: number, aspectRatio: number, minWidth: number, maxWidth: number, gapFactor: number },
 	factorLabel: { heightFactor: number, widthFactor: number },
 	menu: { cell: Scaled, columns: number, minCell: number },
-	stats: { rowHeight: Scaled, rowGap: number },
+	stats: { sizeFactor: number, rowHeight: Scaled, rowGap: number },
 	window: {
 		widthShare: number,
 		heightShare: number,
@@ -100,7 +100,7 @@ function UiLayout.hud(
 	local columns = math.max(config.menu.columns, 1)
 	local rows = math.ceil(math.max(menuCount, 0) / columns)
 	local cell = UiLayout.scaled(config.menu.cell, short)
-	local rowHeight = UiLayout.scaled(config.stats.rowHeight, short)
+	local rowHeight = UiLayout.scaled(config.stats.rowHeight, short) * math.max(config.stats.sizeFactor, 0)
 	local rowGap = config.stats.rowGap
 	local statsHeight = statCount * rowHeight + math.max(statCount - 1, 0) * rowGap
 

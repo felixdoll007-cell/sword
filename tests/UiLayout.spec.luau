@@ -167,6 +167,16 @@ return {
 		end
 	end,
 
+	["the size factor of the values makes their rows bigger, and the layout still holds"] = function(expect)
+		local bigger = table.clone(layout)
+		bigger.stats = table.clone(layout.stats)
+		bigger.stats.sizeFactor = layout.stats.sizeFactor * 2
+		local normal = UiLayout.hud(layout, 1920, 1022, MENU_COUNT, STAT_COUNT)
+		local doubled = UiLayout.hud(bigger, 1920, 1022, MENU_COUNT, STAT_COUNT)
+		expect(doubled.statsRowHeight).toBeNear(normal.statsRowHeight * 2)
+		expect(doubled.stats.y + doubled.stats.height <= 1022).toBe(true)
+	end,
+
 	["a broken or empty screen size does not crash"] = function(expect)
 		for _, size in { { 0, 0 }, { 0 / 0, 0 / 0 }, { -100, 500 }, { math.huge, 400 }, { 1, 1 } } do
 			local result = UiLayout.hud(layout, size[1], size[2], MENU_COUNT, STAT_COUNT)
