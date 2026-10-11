@@ -1,6 +1,7 @@
 local SaveData = require("../src/shared/Rules/SaveData")
 local SaveConfig = require("../src/shared/Config/Save")
 local WeaponConfig = require("../src/shared/Config/Weapons")
+local PetConfig = require("../src/shared/Config/Pets")
 
 local template = SaveData.template(SaveConfig, 10, WeaponConfig)
 
@@ -19,7 +20,8 @@ return {
 			SaveConfig,
 			{ version = 1, strength = 500, currency = 42.5, bestWall = 7, lastLeftAt = 99 },
 			template,
-			WeaponConfig
+			WeaponConfig,
+			PetConfig
 		)
 		expect(data.rebirths).toBe(0)
 		expect(data.strength).toBe(500)
@@ -28,10 +30,10 @@ return {
 	end,
 
 	["rebirths are kept, broken or fractional values are cleaned"] = function(expect)
-		expect(SaveData.repair(SaveConfig, { rebirths = 4 }, template, WeaponConfig).rebirths).toBe(4)
-		expect(SaveData.repair(SaveConfig, { rebirths = 2.7 }, template, WeaponConfig).rebirths).toBe(2)
-		expect(SaveData.repair(SaveConfig, { rebirths = -1 }, template, WeaponConfig).rebirths).toBe(0)
-		expect(SaveData.repair(SaveConfig, { rebirths = "many" }, template, WeaponConfig).rebirths).toBe(0)
+		expect(SaveData.repair(SaveConfig, { rebirths = 4 }, template, WeaponConfig, PetConfig).rebirths).toBe(4)
+		expect(SaveData.repair(SaveConfig, { rebirths = 2.7 }, template, WeaponConfig, PetConfig).rebirths).toBe(2)
+		expect(SaveData.repair(SaveConfig, { rebirths = -1 }, template, WeaponConfig, PetConfig).rebirths).toBe(0)
+		expect(SaveData.repair(SaveConfig, { rebirths = "many" }, template, WeaponConfig, PetConfig).rebirths).toBe(0)
 	end,
 
 	["a new save owns and uses only the start weapon"] = function(expect)
@@ -45,7 +47,8 @@ return {
 			SaveConfig,
 			{ version = 1, strength = 500, currency = 42.5, bestWall = 7, lastLeftAt = 99, rebirths = 3 },
 			template,
-			WeaponConfig
+			WeaponConfig,
+			PetConfig
 		)
 		expect(#data.ownedWeapons).toBe(1)
 		expect(data.ownedWeapons[1]).toBe(WeaponConfig.startWeapon)
@@ -60,13 +63,19 @@ return {
 			SaveConfig,
 			{ ownedWeapons = { "wooden_sword", "battle_axe", "laser_gun" }, equippedWeapon = "battle_axe" },
 			template,
-			WeaponConfig
+			WeaponConfig,
+			PetConfig
 		)
 		expect(#data.ownedWeapons).toBe(2)
 		expect(data.equippedWeapon).toBe("battle_axe")
 
-		local broken =
-			SaveData.repair(SaveConfig, { ownedWeapons = "all", equippedWeapon = "void_blade" }, template, WeaponConfig)
+		local broken = SaveData.repair(
+			SaveConfig,
+			{ ownedWeapons = "all", equippedWeapon = "void_blade" },
+			template,
+			WeaponConfig,
+			PetConfig
+		)
 		expect(#broken.ownedWeapons).toBe(1)
 		expect(broken.equippedWeapon).toBe(WeaponConfig.startWeapon)
 	end,
@@ -91,7 +100,8 @@ return {
 			SaveConfig,
 			{ version = 1, strength = 500, currency = 42.5, bestWall = 7, lastLeftAt = 99 },
 			template,
-			WeaponConfig
+			WeaponConfig,
+			PetConfig
 		)
 		expect(data.strength).toBe(500)
 		expect(data.currency).toBe(42.5)
@@ -100,7 +110,7 @@ return {
 	end,
 
 	["missing fields are filled from the template"] = function(expect)
-		local data = SaveData.repair(SaveConfig, { strength = 500 }, template, WeaponConfig)
+		local data = SaveData.repair(SaveConfig, { strength = 500 }, template, WeaponConfig, PetConfig)
 		expect(data.strength).toBe(500)
 		expect(data.currency).toBe(0)
 		expect(data.bestWall).toBe(0)
@@ -112,7 +122,8 @@ return {
 			SaveConfig,
 			{ strength = "lots", currency = 0 / 0, bestWall = -3, lastLeftAt = math.huge },
 			template,
-			WeaponConfig
+			WeaponConfig,
+			PetConfig
 		)
 		expect(data.strength).toBe(10)
 		expect(data.currency).toBe(0)
@@ -121,14 +132,73 @@ return {
 	end,
 
 	["very large numbers are kept"] = function(expect)
-		local data = SaveData.repair(SaveConfig, { strength = 1e300, currency = 1e30 }, template, WeaponConfig)
+		local data =
+			SaveData.repair(SaveConfig, { strength = 1e300, currency = 1e30 }, template, WeaponConfig, PetConfig)
 		expect(data.strength).toBe(1e300)
 		expect(data.currency).toBe(1e30)
 	end,
 
 	["repair does not change the loaded table"] = function(expect)
 		local loaded = { strength = "broken" }
-		SaveData.repair(SaveConfig, loaded, template, WeaponConfig)
+		SaveData.repair(SaveConfig, loaded, template, WeaponConfig, PetConfig)
 		expect(loaded.strength).toBe("broken")
+	end,
+
+	["a new save has no pets"] = function(expect)
+		expect(#template.pets).toBe(0)
+		expect(#template.equippedPets).toBe(0)
+		expect(template.eggsHatched).toBe(0)
+	end,
+
+	["a save from before pets loads without pets and keeps everything else"] = function(expect)
+		local data = SaveData.repair(SaveConfig, {
+			version = 1,
+			strength = 500,
+			currency = 42.5,
+			rebirths = 3,
+			ownedWeapons = { "wooden_sword", "iron_dagger" },
+		}, template, WeaponConfig, PetConfig)
+		expect(#data.pets).toBe(0)
+		expect(#data.equippedPets).toBe(0)
+		expect(data.eggsHatched).toBe(0)
+		expect(data.strength).toBe(500)
+		expect(data.currency).toBe(42.5)
+		expect(data.rebirths).toBe(3)
+		expect(#data.ownedWeapons).toBe(2)
+	end,
+
+	["saved pets are kept, each as its own entry"] = function(expect)
+		local data = SaveData.repair(SaveConfig, {
+			pets = { { uid = 1, id = "bunny" }, { uid = 2, id = "bunny" }, { uid = 5, id = "phoenix" } },
+			equippedPets = { 5, 1 },
+			eggsHatched = 5,
+		}, template, WeaponConfig, PetConfig)
+		expect(#data.pets).toBe(3)
+		expect(data.pets[2].id).toBe("bunny")
+		expect(data.pets[3].uid).toBe(5)
+		expect(#data.equippedPets).toBe(2)
+		expect(data.equippedPets[1]).toBe(5)
+		expect(data.eggsHatched).toBe(5)
+	end,
+
+	["broken pet data is cleaned and never breaks loading"] = function(expect)
+		local data = SaveData.repair(SaveConfig, {
+			pets = {
+				{ uid = 1, id = "bunny" },
+				{ uid = 1, id = "fox" },
+				{ uid = 2, id = "unicorn" },
+				"x",
+				{ uid = -3, id = "fox" },
+			},
+			equippedPets = { 1, 1, 2, 99, "a" },
+			eggsHatched = "many",
+		}, template, WeaponConfig, PetConfig)
+		expect(#data.pets).toBe(1)
+		expect(#data.equippedPets).toBe(1)
+		-- The counter never falls below the biggest uid in use.
+		expect(data.eggsHatched).toBe(1)
+		local empty = SaveData.repair(SaveConfig, { pets = "all", equippedPets = 7 }, template, WeaponConfig, PetConfig)
+		expect(#empty.pets).toBe(0)
+		expect(#empty.equippedPets).toBe(0)
 	end,
 }

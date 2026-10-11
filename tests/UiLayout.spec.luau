@@ -4,6 +4,8 @@ local Ui = require("../src/shared/Config/Ui")
 local layout = Ui.layout
 local MENU_COUNT = #Ui.menu.entries
 local STAT_COUNT = 3
+-- Pets shown in the row at the egg stand.
+local HATCH_COUNT = 5
 -- A button smaller than this is hard to hit with a thumb.
 local THUMB_PIXELS = 44
 
@@ -23,7 +25,7 @@ local SCREENS = {
 }
 
 local function hud(screen)
-	return UiLayout.hud(layout, screen.width, screen.height, MENU_COUNT, STAT_COUNT)
+	return UiLayout.hud(layout, screen.width, screen.height, MENU_COUNT, STAT_COUNT, HATCH_COUNT)
 end
 
 local function overlap(a: UiLayout.Rect, b: UiLayout.Rect): boolean
@@ -96,6 +98,28 @@ return {
 			expect(overlap(result.factorLabel, result.stats)).toBe(false)
 			expect(overlap(result.factorLabel, result.throwButton)).toBe(false)
 		end
+	end,
+
+	["at the egg stand the row of pets sits above the button and clear of the left column"] = function(expect)
+		for _, screen in SCREENS do
+			local result = hud(screen)
+			local row = result.hatchInfo
+			expect(inside(row, screen)).toBe(true)
+			-- One square tile per pet, centered, right above the button.
+			expect(row.height).toBeNear(result.hatchTile)
+			expect(row.width).toBeNear(HATCH_COUNT * result.hatchTile + (HATCH_COUNT - 1) * result.gap)
+			expect(row.x + row.width / 2).toBeNear(screen.width / 2)
+			expect(row.y + row.height <= result.throwButton.y + 0.001).toBe(true)
+			expect(overlap(row, result.menu)).toBe(false)
+			expect(overlap(row, result.stats)).toBe(false)
+			expect(overlap(row, result.bar)).toBe(false)
+			-- Big enough to recognize a pet.
+			if result.hatchTile < 30 then
+				error(`the pet tiles are only {result.hatchTile} pixels on {screen.name}`)
+			end
+		end
+		-- Without pets to show there is no row.
+		expect(UiLayout.hud(layout, 844, 332, MENU_COUNT, STAT_COUNT).hatchInfo.width).toBe(0)
 	end,
 
 	["menu buttons are squares big enough for a thumb, in two columns"] = function(expect)

@@ -16,10 +16,12 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
 local RebirthConfig = require(Shared.Config.Rebirth)
+local PetConfig = require(Shared.Config.Pets)
 local SaveConfig = require(Shared.Config.Save)
 local StrengthConfig = require(Shared.Config.Strength)
 local TestSettings = require(Shared.Config.TestSettings)
 local WeaponConfig = require(Shared.Config.Weapons)
+local Pets = require(Shared.Rules.Pets)
 local Rebirth = require(Shared.Rules.Rebirth)
 local Rewards = require(Shared.Rules.Rewards)
 local SaveData = require(Shared.Rules.SaveData)
@@ -51,6 +53,9 @@ local function publish(player: Player)
 		player:SetAttribute(Remotes.Attributes.Rebirths, values.rebirths)
 		player:SetAttribute(Remotes.Attributes.EquippedWeapon, values.equippedWeapon)
 		player:SetAttribute(Remotes.Attributes.OwnedWeapons, Weapons.encodeOwned(values.ownedWeapons))
+		player:SetAttribute(Remotes.Attributes.Pets, Pets.encodeOwned(values.pets))
+		player:SetAttribute(Remotes.Attributes.EquippedPets, Pets.encodeEquipped(values.equippedPets))
+		player:SetAttribute(Remotes.Attributes.EggsHatched, values.eggsHatched)
 	end
 end
 
@@ -87,6 +92,82 @@ end
 function PlayerStats.trainingBonus(player: Player): number?
 	local values = data(player)
 	return if values then Weapons.trainingBonus(WeaponConfig, values.equippedWeapon) else nil
+end
+
+local function petHoldings(values: SaveData.Data): Pets.Holdings
+	return { pets = values.pets, equipped = values.equippedPets, eggsHatched = values.eggsHatched }
+end
+
+local function storePets(values: SaveData.Data, holdings: Pets.Holdings)
+	values.pets = holdings.pets
+	values.equippedPets = holdings.equipped
+	values.eggsHatched = holdings.eggsHatched
+end
+
+-- What a training throw is multiplied by because of the equipped pets. nil if not loaded.
+function PlayerStats.petMultiplier(player: Player): number?
+	local values = data(player)
+	return if values then Pets.trainingMultiplier(PetConfig, petHoldings(values)) else nil
+end
+
+-- The player buys an egg: coins and room are checked here with the server's own values, the
+-- price is taken, the pet is added. random: a number from 0 to 1 that decides the pet.
+-- Returns what happened and the pet (if one hatched), or nil if the player's data is not loaded.
+function PlayerStats.hatchEgg(player: Player, random: number): Pets.HatchResult?
+	local values = data(player)
+	if not values then
+		return nil
+	end
+	local result = Pets.hatch(PetConfig, petHoldings(values), values.currency, random)
+	if result.outcome == "hatched" then
+		storePets(values, result.holdings)
+		values.currency = result.currency
+		publish(player)
+	end
+	return result
+end
+
+-- Equips a pet of the player, or takes it off if it is equipped. Ownership and the number of
+-- equipped pets are checked here. Returns what happened, or nil if not loaded.
+function PlayerStats.togglePet(player: Player, uid: number): Pets.ChangeOutcome?
+	local values = data(player)
+	if not values then
+		return nil
+	end
+	local result = Pets.toggleEquip(PetConfig, petHoldings(values), uid)
+	if result.outcome == "equipped" or result.outcome == "unequipped" then
+		storePets(values, result.holdings)
+		publish(player)
+	end
+	return result.outcome
+end
+
+-- Equips the player's best pets. Returns what happened, or nil if not loaded.
+function PlayerStats.equipBestPets(player: Player): Pets.ChangeOutcome?
+	local values = data(player)
+	if not values then
+		return nil
+	end
+	local result = Pets.equipBest(PetConfig, petHoldings(values))
+	if result.outcome == "equipped" then
+		storePets(values, result.holdings)
+		publish(player)
+	end
+	return result.outcome
+end
+
+-- Deletes a pet of the player for good. Returns what happened, or nil if not loaded.
+function PlayerStats.deletePet(player: Player, uid: number): Pets.ChangeOutcome?
+	local values = data(player)
+	if not values then
+		return nil
+	end
+	local result = Pets.delete(petHoldings(values), uid)
+	if result.outcome == "deleted" then
+		storePets(values, result.holdings)
+		publish(player)
+	end
+	return result.outcome
 end
 
 -- The player uses the shop pedestal of a weapon: buys it if not owned and affordable, equips it
@@ -180,7 +261,7 @@ local function onPlayerAdded(player: Player)
 	profile:Reconcile()
 	-- Repair broken or missing values and convert old versions. Copy into the same table,
 	-- because ProfileStore saves exactly this table.
-	local repaired = SaveData.repair(SaveConfig, profile.Data, template, WeaponConfig)
+	local repaired = SaveData.repair(SaveConfig, profile.Data, template, WeaponConfig, PetConfig)
 	for field, value in repaired :: any do
 		profile.Data[field] = value
 	end

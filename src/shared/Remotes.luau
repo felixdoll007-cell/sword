@@ -10,11 +10,19 @@
 --   WeaponEquipRequested(weaponId: string)  "I want to equip this weapon" (items window). Only the
 --                                    id; the server equips it only if the player owns it.
 --                                    Nothing can be bought with this message.
+--   EggHatchRequested()              "I want to hatch an egg at the egg stand", no values. The server
+--                                    checks coins, room and that the player stands at the stand,
+--                                    and rolls the pet.
+--   PetEquipRequested(uid: number)   "equip this pet of mine, or take it off if it is equipped"
+--   PetEquipBestRequested()          "equip my best pets", no values
+--   PetDeleteRequested(uid: number)  "delete this pet of mine for good"
 -- Server -> Client (only to the player who throws)
 --   MeterStarted(startTime: number, startPhase: number)
 --   ThrowStarted(throwPower: number, factor: number, perWall: { { currency, strength, zoneBonus } })
 --                                    reward of each broken wall, so the client can show it during the flight
 --   TrainingThrow(gained: number, lane: number)  a training throw happened on this lane, strength was added
+--   EggHatched(petId: string)        this player's egg hatched into this pet (already paid and
+--                                    added by the server); only for showing it
 -- Server -> Client (to players NEAR the one who throws, never to the thrower)
 --   OtherPlayerThrew(thrower: Player, kind: "Training" | "Main", lane: number?)
 --                                    only for showing it; sent by the server from its own training
@@ -34,6 +42,10 @@
 --   Rebirths: number
 --   EquippedWeapon: string           id of the weapon in use (others need it to draw the right weapon)
 --   OwnedWeapons: string             ids of the owned weapons, separated by commas
+--   Pets: string                     the owned pets as "uid:id" pairs, separated by commas
+--   EquippedPets: string             uids of the equipped pets, separated by commas (others need
+--                                    this and Pets to draw the pets that follow a player)
+--   EggsHatched: number              eggs hatched so far (decides the price of the next egg)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -48,6 +60,11 @@ local EVENT_NAMES = {
 	"TrainingLeft",
 	"RebirthRequested",
 	"WeaponEquipRequested",
+	"EggHatchRequested",
+	"PetEquipRequested",
+	"PetEquipBestRequested",
+	"PetDeleteRequested",
+	"EggHatched",
 	"OtherPlayerThrew",
 }
 
@@ -74,6 +91,11 @@ return {
 	TrainingLeft = folder:WaitForChild("TrainingLeft") :: RemoteEvent,
 	RebirthRequested = folder:WaitForChild("RebirthRequested") :: RemoteEvent,
 	WeaponEquipRequested = folder:WaitForChild("WeaponEquipRequested") :: RemoteEvent,
+	EggHatchRequested = folder:WaitForChild("EggHatchRequested") :: RemoteEvent,
+	PetEquipRequested = folder:WaitForChild("PetEquipRequested") :: RemoteEvent,
+	PetEquipBestRequested = folder:WaitForChild("PetEquipBestRequested") :: RemoteEvent,
+	PetDeleteRequested = folder:WaitForChild("PetDeleteRequested") :: RemoteEvent,
+	EggHatched = folder:WaitForChild("EggHatched") :: RemoteEvent,
 	OtherPlayerThrew = folder:WaitForChild("OtherPlayerThrew") :: RemoteEvent,
 
 	-- Values for the "kind" of OtherPlayerThrew.
@@ -88,5 +110,8 @@ return {
 		Rebirths = "Rebirths",
 		EquippedWeapon = "EquippedWeapon",
 		OwnedWeapons = "OwnedWeapons",
+		Pets = "Pets",
+		EquippedPets = "EquippedPets",
+		EggsHatched = "EggsHatched",
 	},
 }

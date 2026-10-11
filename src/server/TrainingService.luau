@@ -85,9 +85,11 @@ local function checkPlayers()
 		)
 		state.nextThrowAt = nextAt
 		if throws and lane then
-			-- Base gain times the lane's multiplier and the bonus of the equipped weapon;
+			-- The bonuses of the equipped pets are added to the base gain. The result is
+			-- multiplied by the lane's multiplier and the bonus of the equipped weapon;
 			-- gainStrength adds the rebirth multiplier on top.
 			local base = StrengthConfig.trainingStrengthPerThrow
+				* (PlayerStats.petMultiplier(player) or 1)
 				* TrainingConfig.lanes[lane].multiplier
 				* (PlayerStats.trainingBonus(player) or 1)
 			local gained = PlayerStats.gainStrength(player, base)

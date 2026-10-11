@@ -23,6 +23,7 @@ export type LayoutConfig = {
 	throwButton: { height: Scaled, aspectRatio: number },
 	meter: { heightFactor: number, aspectRatio: number, minWidth: number, maxWidth: number, gapFactor: number },
 	factorLabel: { heightFactor: number, widthFactor: number },
+	hatchInfo: { heightFactor: number },
 	menu: { cell: Scaled, columns: number, minCell: number },
 	stats: { sizeFactor: number, rowHeight: Scaled, rowGap: number },
 	window: {
@@ -44,6 +45,10 @@ export type Hud = {
 	throwButton: Rect,
 	meter: Rect,
 	factorLabel: Rect,
+	-- The row of pets above the HATCH button (which takes the THROW button's place): the whole
+	-- row, and the size of one square tile in it.
+	hatchInfo: Rect,
+	hatchTile: number,
 	-- The menu grid: the whole area, and the size of one square button in it.
 	menu: Rect,
 	menuCell: number,
@@ -91,12 +96,14 @@ end
 
 -- Where everything of the always visible interface sits.
 -- menuCount: number of menu buttons. statCount: number of values shown below them.
+-- hatchCount: number of pets shown in the row at the egg stand (0 or nil = no row).
 function UiLayout.hud(
 	config: LayoutConfig,
 	screenWidth: number,
 	screenHeight: number,
 	menuCount: number,
-	statCount: number
+	statCount: number,
+	hatchCount: number?
 ): Hud
 	local width, height = safe(screenWidth), safe(screenHeight)
 	local short = math.min(width, height)
@@ -162,6 +169,24 @@ function UiLayout.hud(
 	local narrow = portrait or math.min(throwButton.x, factorLabel.x) < columnRight + gap
 	local roomBottom = if narrow then factorLabel.y - gap else height - margin
 	local room = math.max(roomBottom - top, 0)
+
+	-- Above the button: the row of pets at the egg stand, one square tile per pet, centered.
+	-- The tiles shrink until the row fits: beside the left column on a wide screen; on a narrow
+	-- screen the row is only as high as the "x1.4" label, so it stays below the column.
+	local tiles = math.max(math.floor(hatchCount or 0), 0)
+	local hatchTile = if narrow then factorHeight else buttonHeight * config.hatchInfo.heightFactor
+	local hatchRoom = if narrow then width - 2 * margin else 2 * (width / 2 - columnRight - gap)
+	if tiles > 0 then
+		hatchTile = math.max(math.min(hatchTile, (hatchRoom - (tiles - 1) * gap) / tiles), 0)
+	end
+	local hatchWidth = tiles * hatchTile + math.max(tiles - 1, 0) * gap
+	local hatchInfo: Rect = {
+		x = (width - hatchWidth) / 2,
+		y = throwButton.y - gap - hatchTile,
+		width = hatchWidth,
+		height = hatchTile,
+	}
+
 	local betweenMenuAndStats = gap * 2
 	local function columnHeight(): number
 		return rows * cell + math.max(rows - 1, 0) * gap + betweenMenuAndStats + statsHeight
@@ -190,6 +215,8 @@ function UiLayout.hud(
 		throwButton = throwButton,
 		meter = meter,
 		factorLabel = factorLabel,
+		hatchInfo = hatchInfo,
+		hatchTile = hatchTile,
 		menu = menu,
 		menuCell = cell,
 		menuColumns = columns,

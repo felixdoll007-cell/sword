@@ -6,6 +6,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
+local PetConfig = require(Shared.Config.Pets)
 local Ui = require(Shared.Config.Ui)
 local UiLayout = require(Shared.Rules.UiLayout)
 
@@ -27,7 +28,7 @@ local function update()
 		return
 	end
 	local size = gui.AbsoluteSize
-	local layout = UiLayout.hud(Ui.layout, size.X, size.Y, #Ui.menu.entries, STAT_COUNT)
+	local layout = UiLayout.hud(Ui.layout, size.X, size.Y, #Ui.menu.entries, STAT_COUNT, #PetConfig.egg.chances)
 	current = layout
 	for _, listener in listeners do
 		listener(layout)

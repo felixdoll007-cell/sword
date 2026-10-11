@@ -2,6 +2,7 @@
 -- Pure functions for saved player data: what a new save looks like, how old or broken
 -- saves are repaired, and which store is used where.
 
+local Pets = require("./Pets")
 local TestMode = require("./TestMode")
 local Weapons = require("./Weapons")
 
@@ -12,9 +13,9 @@ export type SaveConfig = {
 	dataVersion: number,
 }
 
--- Everything that is saved per player. Fields are only added when the feature exists
--- (pets come in a later version). A new field with a default value needs no new data version:
--- old saves simply get the default when they are loaded.
+-- Everything that is saved per player. Fields are only added when the feature exists.
+-- A new field with a default value needs no new data version: old saves simply get the
+-- default when they are loaded.
 export type Data = {
 	version: number,
 	strength: number,
@@ -29,6 +30,11 @@ export type Data = {
 	-- older saves load with only the start weapon.
 	ownedWeapons: { string },
 	equippedWeapon: string,
+	-- The pets the player owns (each its own entry), the uids of the equipped ones, and how
+	-- many eggs were hatched so far. Added with pets; older saves load without pets.
+	pets: { Pets.OwnedPet },
+	equippedPets: { number },
+	eggsHatched: number,
 }
 
 local SaveData = {}
@@ -43,6 +49,9 @@ function SaveData.template(config: SaveConfig, startStrength: number, weaponConf
 		rebirths = 0,
 		ownedWeapons = { weaponConfig.startWeapon },
 		equippedWeapon = weaponConfig.startWeapon,
+		pets = {},
+		equippedPets = {},
+		eggsHatched = 0,
 	}
 end
 
@@ -72,7 +81,8 @@ function SaveData.repair(
 	config: SaveConfig,
 	loaded: { [string]: unknown },
 	template: Data,
-	weaponConfig: Weapons.WeaponConfig
+	weaponConfig: Weapons.WeaponConfig,
+	petConfig: Pets.PetConfig
 ): Data
 	local function number(field: string): number
 		local value = loaded[field]
@@ -87,6 +97,8 @@ function SaveData.repair(
 
 	-- Only known weapons, the start weapon always owned, the equipped one must be owned.
 	local weapons = Weapons.sanitize(weaponConfig, loaded.ownedWeapons, loaded.equippedWeapon)
+	-- Only known pets, equipped ones must be owned, never more than allowed.
+	local pets = Pets.sanitize(petConfig, loaded.pets, loaded.equippedPets, loaded.eggsHatched)
 
 	return {
 		version = config.dataVersion,
@@ -98,6 +110,9 @@ function SaveData.repair(
 		rebirths = math.floor(number("rebirths")),
 		ownedWeapons = weapons.owned,
 		equippedWeapon = weapons.equipped,
+		pets = pets.pets,
+		equippedPets = pets.equipped,
+		eggsHatched = pets.eggsHatched,
 	}
 end
 

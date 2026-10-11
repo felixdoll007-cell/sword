@@ -284,6 +284,12 @@ return {
 			widthFactor = 1.5,
 		},
 
+		-- At the egg stand the HATCH button takes the place of the THROW button. Above it: a row
+		-- of small tiles, one per pet that can hatch. Height of a tile relative to the button.
+		hatchInfo = {
+			heightFactor = 1.25,
+		},
+
 		menu = {
 			cell = { share = 0.17, min = 52, max = 92 },
 			columns = 2,
@@ -398,7 +404,7 @@ return {
 			-- The shop is planned for purchases with Robux and stays locked until then.
 			{ id = "shop", label = "SHOP", icon = "rbxassetid://78881260504747", enabled = false },
 			{ id = "rebirth", label = "REBIRTH", icon = "rbxassetid://106323553177111", enabled = true },
-			{ id = "pets", label = "PETS", icon = "rbxassetid://138261598867132", enabled = false },
+			{ id = "pets", label = "PETS", icon = "rbxassetid://138261598867132", enabled = true },
 			{ id = "trails", label = "TRAILS", icon = "rbxassetid://103736409902587", enabled = false },
 			{ id = "inventory", label = "ITEMS", icon = "rbxassetid://79691833732200", enabled = true },
 			{ id = "gifts", label = "GIFTS", icon = "rbxassetid://100679695739473", enabled = false },
@@ -453,7 +459,9 @@ return {
 		maxWidth = 900,
 		maxHeight = 520,
 		title = "ITEMS",
+		-- The tabs on the left of the window, from top to bottom.
 		weaponsTab = "WEAPONS",
+		petsTab = "PETS",
 		-- %s: bonus in percent, shown on the tile.
 		valueText = "+%s%%",
 		-- Below the tile of an owned weapon.
@@ -474,6 +482,95 @@ return {
 		hintHeight = 0.13,
 		-- Width of the scroll bar on the right, in pixels.
 		scrollBarWidth = 6,
+	},
+
+	-- The PETS tab of the items window: every pet as a tile with its 3D model, name and bonus.
+	-- Pressing a tile equips the pet or takes it off.
+	petsPage = {
+		-- %s: how many, of how many.
+		equippedText = "EQUIPPED %s/%s",
+		ownedText = "PETS %s/%s",
+		equipBestText = "EQUIP BEST",
+		deleteText = "DELETE",
+		-- While choosing a pet to delete.
+		cancelText = "CANCEL",
+		deleteHintText = "Tap the pet you want to delete",
+		-- The question before a pet is deleted. %s: name, bonus.
+		confirmText = "Delete %s (%s)?",
+		confirmYesText = "DELETE",
+		confirmNoText = "KEEP",
+		emptyText = "No pets yet. Hatch an egg at the egg stand!",
+		-- When a further pet does not fit. %s: how many fit.
+		limitText = "Only %s pets at once",
+		-- %s: bonus in percent, shown on the tile.
+		valueText = "+%s%%",
+		-- After pressing a tile or a button, wait this long before the next press counts.
+		pressWaitSeconds = 0.3,
+		-- The strip at the top with the two counts and the two buttons, as a share of the page.
+		headerHeight = 0.17,
+		-- Share of the strip's width each of the two buttons takes, and the room for each count.
+		buttonWidth = 0.22,
+		countWidth = 0.25,
+		-- One card per pet: name and tile. Height of the name as a share of the card's width.
+		minCardWidth = 86,
+		maxCardWidth = 140,
+		cardGap = 8,
+		nameHeight = 0.2,
+		scrollBarWidth = 6,
+		-- The question before deleting: a bar over the cards, height as a share of the page.
+		confirmHeight = 0.3,
+	},
+
+	-- At the egg stand: the HATCH button and the row of pets that can hatch.
+	eggPrompt = {
+		hatchText = "HATCH",
+		-- %s: chance in percent.
+		chanceText = "%s%%",
+		notEnoughText = "Not enough Coins",
+		fullText = "Pet inventory full",
+		-- After a press, wait this long before the next press counts.
+		pressWaitSeconds = 1,
+		gapPixels = 6,
+	},
+
+	-- What is shown when an egg hatches: the egg in the middle of the screen wobbles, bursts,
+	-- and the pet appears with its name, its rarity and its bonus. A press skips ahead.
+	hatch = {
+		-- How long the egg wobbles, and how long the pet is shown afterwards.
+		eggSeconds = 1,
+		petSeconds = 1.2,
+		-- The egg tilts this far to each side, this many times per second.
+		wobbleDegrees = 12,
+		wobblesPerSecond = 5,
+		-- The burst: the egg grows to this scale while it fades; the pet pops in.
+		burstScale = 1.5,
+		burstSeconds = 0.15,
+		popSeconds = 0.25,
+		closeSeconds = 0.15,
+		-- The picture: edge length as a share of the screen's shorter side.
+		pictureShare = 0.46,
+		-- Darkness of the screen behind it (0 = black, 1 = not darkened).
+		dimTransparency = 0.35,
+		flashColor = { 255, 255, 255 },
+		-- Texts below the pet: heights as shares of the picture's edge length.
+		nameHeight = 0.2,
+		rarityHeight = 0.13,
+		bonusHeight = 0.15,
+		-- %s: bonus in percent.
+		bonusText = "+%s%% STRENGTH",
+	},
+
+	-- A pet (or the egg) as a 3D model in the interface: seen from the front, a little from the
+	-- side and from above.
+	petPreview = {
+		fieldOfView = 30,
+		-- From where the camera looks, in the model's own space (its front is negative Z).
+		from = { x = 0.5, y = 0.3, z = -1 },
+		-- How big the model is in its tile. 1 fits whatever its shape.
+		fill = 1.05,
+		ambient = { 205, 205, 205 },
+		lightColor = { 255, 255, 255 },
+		lightDirection = { -0.4, -1, 0.5 },
 	},
 
 	-- The weapon in a tile: the real 3D model, seen from above at a slight angle, tip to the top right.
@@ -863,6 +960,45 @@ return {
 				equippedText = "EQUIPPED",
 				lockedText = "LOCKED",
 			},
+		},
+
+		-- The egg stand: a pedestal in the look of the shop pedestals, the egg on it, a sign above.
+		-- Where it stands is in Config/Pets.
+		eggStand = {
+			pedestalWidth = 5,
+			pedestalHeight = 2,
+			-- The egg tilts this far to each side, once in this many seconds.
+			wobbleDegrees = 5,
+			wobbleSeconds = 1.3,
+			-- The HATCH button shows when the player is this close. Must not be more than the
+			-- server's useDistance (Config/Pets).
+			promptDistance = 10,
+			-- The sign above it: the egg's name and a pill with the coin symbol and the price.
+			sign = {
+				widthStuds = 13,
+				heightStuds = 4.6,
+				heightAboveFloor = 10,
+				nameHeight = 0.46,
+				pillHeight = 0.42,
+			},
+		},
+
+		-- Equipped pets float side by side behind their player. Moved on each client.
+		petFollow = {
+			-- How far behind the player, and how far apart from each other.
+			behind = 4.5,
+			spacing = 3.4,
+			-- Height of a pet's middle above the middle of the player's body.
+			height = 0.3,
+			-- They bob up and down this far, once in this many seconds.
+			bobHeight = 0.35,
+			bobSeconds = 1.7,
+			-- How quickly they catch up with their place (bigger = tighter).
+			followSpeed = 7,
+			-- Pets of players further away from the camera than this are not drawn.
+			maxDistance = 140,
+			-- Further away from their place than this (teleport, respawn) they jump instead of flying.
+			jumpDistance = 60,
 		},
 
 		-- The shop pedestals: dark blue-grey with studs.
