@@ -509,9 +509,9 @@ return {
 				-- How high the sun climbs: 0 = straight overhead at noon, more = flatter.
 				latitude = 28,
 				-- Strength of the sunlight (Roblox default: 2 to 3).
-				brightness = 2.7,
+				brightness = 2.0,
 				-- Overall exposure: 0 = normal, above = everything brighter, below = darker.
-				exposure = 0.1,
+				exposure = 0,
 				-- Light inside shadows and on sides turned away from the sun. Brighter = softer.
 				shadowLight = { 138, 134, 142 },
 				skyLight = { 158, 162, 176 },
@@ -527,7 +527,7 @@ return {
 				-- Haze: the distance fades softly into the sky, no hard end of the world.
 				haze = {
 					-- How thick the air is, 0 to 1. More = things fade nearer. 0 = no haze.
-					density = 0.33,
+					density = 0.2,
 					-- 0 to 1: how the haze is spread between ground and sky. Lower = more of it low down.
 					offset = 0.2,
 					-- Extra bright veil at the horizon, 0 to 10.
@@ -556,8 +556,8 @@ return {
 
 				-- Color tuning: strong but not garish. 0 = unchanged.
 				color = {
-					saturation = 0.12,
-					contrast = 0.04,
+					saturation = 0.25,
+					contrast = 0.1,
 					brightness = 0.01,
 					tint = { 255, 251, 244 },
 				},
