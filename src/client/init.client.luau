@@ -1,5 +1,6 @@
 --!strict
 local DebugTools = require(script.DebugTools)
+local DecorView = require(script.DecorView)
 local HoldPoseView = require(script.HoldPoseView)
 local ItemsWindowView = require(script.ItemsWindowView)
 local LaneView = require(script.LaneView)
@@ -17,6 +18,7 @@ local Hud = require(script.Ui.Hud)
 
 LaneView.build()
 ZoneSignView.build()
+DecorView.start()
 ThrowAnimation.preload()
 HoldPoseView.start()
 TrainingView.start()

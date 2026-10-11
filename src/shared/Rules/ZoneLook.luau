@@ -24,6 +24,8 @@ export type ZoneStyle = {
 	floor: Tones?,
 	walk: { darkColor: { number }, lightColor: { number }, curbColor: { number } }?,
 	wall: { color: { number }, frameColor: { number } }?,
+	-- Decoration on the walkways, see Rules/Decor.
+	decor: any?,
 }
 
 export type LookConfig = {

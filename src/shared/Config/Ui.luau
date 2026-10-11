@@ -7,7 +7,7 @@
 --   2. Building blocks: button, menu button, tile, progress bar, window, short message
 --   3. Layout: what sits where and how big
 --   4. The single elements: throw button, meter, values, menu, windows, "+..." labels
---   5. World: floors, the throw zone and what surrounds it
+--   5. World: floors, the throw zone and what surrounds it, the zones of the lane, decoration
 --
 -- Colors are { red, green, blue } from 0 to 255.
 -- A size written as { share, min, max } is a share of the screen's shorter side, limited to
@@ -602,11 +602,83 @@ return {
 					},
 					-- Cream white with a dark red frame, like a paper wall.
 					wall = { color = { 250, 245, 230 }, frameColor = { 140, 28, 40 } },
+					-- Decoration on both walkways, in a row along the zone.
+					decor = {
+						-- Which models, in this order, again and again (names from decor.models below).
+						order = { "paper_lantern", "origami_crane", "paper_pinwheel" },
+						-- From the start of the zone to the first piece, and the same room at its end.
+						firstDistance = 10,
+						-- Distance between two pieces.
+						spacing = 15,
+						-- How far from the lane's edge they stand (the walkway is 1 to 10 studs from it).
+						distanceFromLane = 5.5,
+						-- The right walkway starts this many places further in the order, so two
+						-- different pieces face each other across the lane.
+						sideShift = 1,
+					},
 				},
 				-- No look yet; only its name, announced at the end of the paper zone.
 				Wood = {
 					name = "WOOD",
 					nameColor = { 178, 114, 58 },
+				},
+			},
+		},
+
+		-- Decoration models. They are built on each client from templates in ReplicatedStorage
+		-- (the templates live only in the place, see docs). Which zone uses which models is in
+		-- the zone's decor entry above.
+		--   template: name of the model in the template folder.
+		--   front: which direction of the model is its front, in the model's own space. The
+		--     front is turned towards the lane.
+		--   turnTowardsThrowZoneDegrees: 0 = looks straight at the lane, 90 = looks at the throw zone.
+		--   light, float, spin: its small movement. Leave one out and the model stands still.
+		decor = {
+			templateFolder = "Assets",
+			-- Each piece starts its movement this much later than the one before (share of a
+			-- whole round), so pieces of the same kind do not move in step.
+			rhythmStep = 0.37,
+
+			models = {
+				paper_lantern = {
+					template = "paper_lantern",
+					front = { x = -1, z = 0 },
+					turnTowardsThrowZoneDegrees = 0,
+					-- Weak warm light inside this part, without shadows.
+					light = {
+						part = "Glow",
+						color = { 255, 190, 110 },
+						brightness = 0.9,
+						-- How far the light reaches, in studs.
+						range = 12,
+						-- How much the brightness wavers (0 = steady, 0.12 = up to 12 %), and how fast.
+						flickerStrength = 0.12,
+						flickerSpeed = 2.5,
+					},
+				},
+				origami_crane = {
+					template = "origami_crane",
+					front = { x = -1, z = 0 },
+					turnTowardsThrowZoneDegrees = 0,
+					-- Floats up and down: this far from its middle height, one up and down in this
+					-- many seconds. The named parts stand still.
+					float = {
+						stillParts = { "Base", "Rod" },
+						heightStuds = 0.25,
+						seconds = 4,
+					},
+				},
+				paper_pinwheel = {
+					template = "paper_pinwheel",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					-- The named parts turn around the middle of the axis part; one turn in this
+					-- many seconds.
+					spin = {
+						axisPart = "Hub",
+						parts = { "BladesPink", "BladesWhite", "Hub" },
+						secondsPerTurn = 6,
+					},
 				},
 			},
 		},

@@ -171,7 +171,14 @@ cremeweiße Wände mit dünnem dunkelrotem Rahmen, und am Ende schwebt der Name 
 Zone ("WOOD") über der Bahn. Jede weitere Zone braucht nur einen Eintrag mit Farben und
 Namen in `Config/Ui` (world.lane.zones). Eine Zone endet an ihrer letzten Wand; das Stück bis
 zur ersten Wand der nächsten Zone gehört zur nächsten Zone. Hinter Wand 5 und auf den
-Trainingsbahnen ist der Boden noch grau. Regel für alle Böden: Zwei Bodenflächen liegen nie
+Trainingsbahnen ist der Boden noch grau.
+
+Auf den Gehwegen der Papier-Zone steht Deko: Papierlaternen, Origami-Kraniche und
+Papier-Windräder, abwechselnd und mit gleichem Abstand, zur Bahn gedreht. Sie hat keine
+Kollision und stört weder Wurf noch Kamera. Jeder Client baut sie selbst aus Vorlagen und
+bewegt sie leicht: Das Laternenlicht flackert, der Kranich schwebt, das Windrad dreht sich.
+Reihenfolge, Abstand, Stärke und Tempo stehen in `Config/Ui`. Die Vorlagen liegen nur im Ort
+(siehe `assets/decor-templates.NOTES.md`). Regel für alle Böden: Zwei Bodenflächen liegen nie
 übereinander, sondern nebeneinander; sonst flackern sie je nach Kamerawinkel.
 
 ## Balance

@@ -179,6 +179,13 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Alle Farben und Maße in `Config/Ui` (world.lane); eine weitere Zone braucht nur einen Eintrag mit Farben und Namen
 - [ ] Von mir getestet
 
+### Block: Deko für die Papier-Zone (Vorgriff auf Version 4)
+- [x] Drei importierte Modelle nach Mesh-Namen eingefärbt und als Vorlagen in `ReplicatedStorage.Assets` abgelegt: `paper_lantern`, `origami_crane`, `paper_pinwheel` (Form und Größe unverändert)
+- [x] Auf beiden Gehwegen der Papier-Zone verteilt: abwechselnd, gleicher Abstand, zur Bahn gedreht, ohne Kollision; Abstand und Reihenfolge in der Config
+- [x] Kleine Bewegungen nur auf dem Client: Laternenlicht flackert leicht, Kranich schwebt, Windrad dreht sich; Stärke und Tempo in der Config
+- [ ] Von mir getestet
+- Wichtig: Die Vorlagen liegen nur im Ort, nicht im Repo. Der Ort muss in Studio gespeichert sein. Details in `assets/decor-templates.NOTES.md`.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
