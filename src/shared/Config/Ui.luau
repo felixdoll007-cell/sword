@@ -502,7 +502,7 @@ return {
 		-- A floor is one big part in its darker tone with this picture on it, tinted in its
 		-- lighter tone. image = "" means the picture is not uploaded yet: floors are plain.
 		floorTile = {
-			image = "",
+			image = "rbxassetid://107582760541822",
 			-- Edge length of one checkerboard field. Floors should be a whole number of fields
 			-- wide and long, so the pattern is not cut off at an edge.
 			fieldStuds = 5,

@@ -166,7 +166,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Boden um die Wurfzone in zwei Tönen Grün (150 x 100 Studs)
 - [x] Alle Farben und Größen in `Config/Ui` (world); Lage von Rand, Schriftzug und Grün als getestete reine Funktionen
 - [x] Kachelbild für Schachbrett und Noppen erzeugt: `assets/textures/floor-tile.png` (Skript `tools/textures/make_floor_tile.py`)
-- [ ] Kachelbild von mir angesehen und hochgeladen, Nummer in `Config/Ui` (world.floorTile.image). Bis dahin sind die Böden einfarbig.
+- [x] Kachelbild von mir angesehen und hochgeladen, Nummer in `Config/Ui` (world.floorTile.image)
 - [ ] Von mir getestet
 - Nichts liegt nur im Ort: Alles wird beim Start aus dem Code gebaut, Speichern in Studio ist dafür nicht nötig.
 
