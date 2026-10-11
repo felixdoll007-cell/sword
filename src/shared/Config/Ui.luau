@@ -926,16 +926,16 @@ return {
 			themes = {
 				-- Lane 1x: straw, yellow.
 				straw = {
-					-- a) Frame: light wood beige with studs.
-					frame = { darkColor = { 206, 172, 124 }, lightColor = { 224, 194, 148 }, fieldStuds = 1 },
-					-- b) Floor: two tones of straw yellow with studs.
-					floor = { darkColor = { 232, 190, 62 }, lightColor = { 246, 208, 88 }, fieldStuds = 2 },
-					-- c) Throw strip: light sand, a little lower. Its edge: light stones of different
+					-- a) Frame: wood brown with studs.
+					frame = { darkColor = { 150, 108, 66 }, lightColor = { 170, 126, 80 }, fieldStuds = 1 },
+					-- b) Floor: two tones of strong, rich straw yellow with studs.
+					floor = { darkColor = { 214, 160, 20 }, lightColor = { 232, 178, 34 }, fieldStuds = 2 },
+					-- c) Throw strip: warm light brown like trodden earth, a little lower. Its edge: light stones of different
 					-- widths on both sides, from the pad towards the target. share = how much of the
 					-- strip's length a stone takes (compared with the others of its side), width = how
 					-- far it reaches into the strip.
 					strip = {
-						color = { 226, 208, 170 },
+						color = { 186, 142, 98 },
 						stoneColor = { 246, 238, 216 },
 						stones = {
 							left = {

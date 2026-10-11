@@ -210,6 +210,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Schilder aller vier Trainingsbahnen schwebend und zur Kamera gedreht: Pille mit Rebirth-Symbol und Zahl, UNLOCKED oder LOCKED, Wirkung in Weiß
 - [x] Schilder der fünf Shop-Sockel im selben Stil; Sockel dunkles Blaugrau mit Noppen
 - [x] Farben und Maße in `Config/Ui` (world.training, world.signs, world.shop); eine weitere Bahn braucht eine Zeile in `laneThemes` und ein Thema
+- [x] Farbkorrektur: Boden satteres, dunkleres Strohgelb, Wurfstreifen warmes helles Braun statt Sand, Rahmen dunkleres Holzbraun
 - [ ] Von mir getestet
 - Abweichung: Bei der Bahn 1x folgt die unsichtbare Sperre jetzt dem Umriss des neuen Feldes statt dem alten schmalen Boden. Einrasten, Wurfweg, Treffer und Stärke sind unverändert.
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein.
