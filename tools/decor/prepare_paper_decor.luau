@@ -1,7 +1,7 @@
--- Prepares the imported decoration models of the paper zone as templates.
+-- Prepares imported decoration models as templates (paper zone, training lane 1x).
 -- Run in Roblox Studio (Edit mode) after importing models; it was run through the Studio
--- connection on 2026-10-11 (lantern, crane, pinwheel, later the cherry tree). Models that
--- already are templates are left alone. Kept here as a record of what was done to the place.
+-- connection on 2026-10-11 (lantern, crane, pinwheel, later the cherry tree, the straw target
+-- and the hay bale). Models that already are templates are left alone. Kept here as a record of what was done to the place.
 --
 -- What it does, and nothing else:
 --   1. Finds the imported models in the Workspace by the name of the model inside them.
@@ -64,6 +64,29 @@ local MODELS = {
 			BlossomPink = Color3.fromRGB(255, 120, 165),
 			BlossomLight = Color3.fromRGB(255, 196, 214),
 			Mound = Color3.fromRGB(40, 104, 52),
+		},
+		neon = {},
+	},
+	-- Training lane 1x (straw).
+	{
+		inside = "straw_target",
+		template = "straw_target",
+		colors = {
+			Straw = Color3.fromRGB(240, 196, 64),
+			RingsRed = Color3.fromRGB(214, 40, 40),
+			RingsWhite = Color3.fromRGB(250, 250, 250),
+			Stand = Color3.fromRGB(74, 48, 32),
+			Rope = Color3.fromRGB(232, 214, 176),
+		},
+		neon = {},
+	},
+	{
+		inside = "hay_bale",
+		template = "hay_bale",
+		colors = {
+			Hay = Color3.fromRGB(240, 196, 64),
+			HayDark = Color3.fromRGB(204, 156, 40),
+			Rope = Color3.fromRGB(232, 214, 176),
 		},
 		neon = {},
 	},

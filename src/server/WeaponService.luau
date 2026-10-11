@@ -17,6 +17,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Remotes)
 local LaneConfig = require(Shared.Config.Lane)
+local Ui = require(Shared.Config.Ui)
 local WeaponConfig = require(Shared.Config.Weapons)
 local RateLimit = require(Shared.Rules.RateLimit)
 local Visibility = require(Shared.Rules.Visibility)
@@ -24,6 +25,7 @@ local Weapons = require(Shared.Rules.Weapons)
 
 local PlayerStats = require(script.Parent.PlayerStats)
 local ThrowService = require(script.Parent.ThrowService)
+local WorldParts = require(script.Parent.WorldParts)
 
 -- Names the client looks for (client/ShopView).
 local FOLDER_NAME = "WeaponShop"
@@ -119,7 +121,14 @@ local function buildPedestal(folder: Folder, weaponIndex: number)
 	pedestal.Anchored = true
 	pedestal.Size = Vector3.new(shop.pedestalWidth, shop.pedestalHeight, shop.pedestalWidth)
 	pedestal.Position = Vector3.new(position.x, LaneConfig.floorTopY + shop.pedestalHeight / 2, position.z)
-	pedestal.Color = Color3.fromRGB(shop.pedestalColor[1], shop.pedestalColor[2], shop.pedestalColor[3])
+	-- Dark blue-grey with studs on every side that can be seen.
+	local look = Ui.world.shop.pedestal
+	pedestal.Color = WorldParts.color(look.darkColor)
+	for _, face in
+		{ Enum.NormalId.Top, Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }
+	do
+		WorldParts.addFloorTile(pedestal, look.lightColor, look.fieldStuds, face)
+	end
 	pedestal.TopSurface = Enum.SurfaceType.Smooth
 	pedestal.BottomSurface = Enum.SurfaceType.Smooth
 

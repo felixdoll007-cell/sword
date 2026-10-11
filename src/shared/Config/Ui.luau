@@ -8,7 +8,7 @@
 --   3. Layout: what sits where and how big
 --   4. The single elements: throw button, meter, values, menu, windows, "+..." labels
 --   5. World: sky and light, the ground, floors, the throw zone and what surrounds it, the
---      zones of the lane, decoration
+--      zones of the lane, signs, shop pedestals, training lanes, decoration
 --
 -- Colors are { red, green, blue } from 0 to 255.
 -- A size written as { share, min, max } is a share of the screen's shorter side, limited to
@@ -801,6 +801,195 @@ return {
 				Wood = {
 					name = "WOOD",
 					nameColor = { 178, 114, 58 },
+				},
+			},
+		},
+
+		-- Signs in the world: floating, always turned to the camera, no board behind them. Built
+		-- on each client, because what they say depends on the player looking at them.
+		signs = {
+			-- Further away than this a sign is not drawn.
+			maxDistance = 260,
+
+			-- The dark pill with a symbol and a number (what something needs or costs).
+			pill = {
+				color = { 17, 22, 32 },
+				-- Width as a share of the sign's width.
+				widthShare = 0.62,
+				-- Black border, as a share of the pill's height.
+				borderShare = 0.07,
+				-- Symbol and text: heights as a share of the pill's height.
+				iconShare = 0.8,
+				textShare = 0.72,
+				-- Space at both ends, as a share of the pill's width.
+				padShare = 0.07,
+			},
+
+			-- Above every training lane: what it needs, whether it is open, what it gives.
+			training = {
+				widthStuds = 16,
+				heightStuds = 8.5,
+				-- Height of its middle above the lane floor, and how far in front of the pad it floats.
+				heightAboveFloor = 13,
+				forward = 4,
+				-- Heights of its three rows as shares of the sign: pill, status, effect.
+				pillHeight = 0.24,
+				statusHeight = 0.2,
+				effectHeight = 0.44,
+				-- %s: the lane's multiplier.
+				effectText = "%sx STRENGTH",
+				unlockedText = "UNLOCKED",
+				lockedText = "LOCKED",
+				-- In the pill of a lane that needs no rebirths.
+				freeText = "FREE",
+			},
+
+			-- Above every shop pedestal: name, bonus, price, and whether this player has it.
+			shop = {
+				widthStuds = 13,
+				heightStuds = 8,
+				-- Height of its middle above the lane floor. Above the tip of the longest weapon.
+				heightAboveFloor = 14.5,
+				-- Heights of its four rows as shares of the sign: name, bonus, pill, status.
+				nameHeight = 0.24,
+				bonusHeight = 0.19,
+				pillHeight = 0.22,
+				statusHeight = 0.2,
+				-- %s: the bonus in percent: 1.25 becomes "+25% STRENGTH".
+				bonusText = "+%s%% STRENGTH",
+				-- In the pill of the weapon that costs nothing.
+				freeText = "FREE",
+				ownedText = "OWNED",
+				equippedText = "EQUIPPED",
+				lockedText = "LOCKED",
+			},
+		},
+
+		-- The shop pedestals: dark blue-grey with studs.
+		shop = {
+			pedestal = {
+				darkColor = { 38, 48, 66 },
+				lightColor = { 54, 66, 90 },
+				-- Edge length of one checkerboard field on the pedestal.
+				fieldStuds = 2,
+			},
+		},
+
+		-- Training lanes in their finished look. A lane without a theme stays plain grey and
+		-- only gets the new sign.
+		training = {
+			-- Which lane has which theme: lane number = theme name. Lane 1 is the one next to
+			-- the throw zone. A further lane needs a line here and its theme below.
+			laneThemes = {
+				[1] = "straw",
+			},
+
+			-- Sizes of a themed field, the same for every theme. Heights are above the lane floor.
+			field = {
+				-- Whole width, frame included. The middle column is as wide as the pad (Config/Training).
+				width = 20,
+				-- How far the field reaches behind the target line, frame included.
+				behindTarget = 8,
+				-- a) The frame all around.
+				frameWidth = 2,
+				frameHeight = 0.5,
+				-- b) The themed floor left and right of the middle. The stones of the strip's edge
+				-- are as high.
+				floorHeight = 0.3,
+				-- d) The start pad.
+				padHeight = 0.3,
+				-- c) The stones of the strip's edge leave at least this much of the strip free in
+				-- the middle, where the weapon flies.
+				minFreeWidth = 3.5,
+				-- Invisible walls keep players out of everything in front of the pad.
+				fenceThickness = 1,
+				-- Tufts of litter are this thick (flat, but clearly above the floor they lie on).
+				tuftHeight = 0.25,
+			},
+
+			-- White marks on the start pad: a bracket in each corner and an arrow in throw direction.
+			padMark = {
+				color = { 255, 255, 255 },
+				-- Thickness of the lines, length of a bracket's arms and distance of the brackets
+				-- from the pad's edge, as shares of the pad's shorter side.
+				lineShare = 0.07,
+				cornerShare = 0.22,
+				insetShare = 0.1,
+				-- Length of the arrow as a share of the pad's length, and length of each of the two
+				-- bars of its head as a share of the pad's shorter side.
+				arrowShare = 0.46,
+				arrowHeadShare = 0.24,
+				pixelsPerStud = 20,
+				aboveFloor = 0.03,
+			},
+
+			themes = {
+				-- Lane 1x: straw, yellow.
+				straw = {
+					-- a) Frame: light wood beige with studs.
+					frame = { darkColor = { 206, 172, 124 }, lightColor = { 224, 194, 148 }, fieldStuds = 1 },
+					-- b) Floor: two tones of straw yellow with studs.
+					floor = { darkColor = { 232, 190, 62 }, lightColor = { 246, 208, 88 }, fieldStuds = 2 },
+					-- c) Throw strip: light sand, a little lower. Its edge: light stones of different
+					-- widths on both sides, from the pad towards the target. share = how much of the
+					-- strip's length a stone takes (compared with the others of its side), width = how
+					-- far it reaches into the strip.
+					strip = {
+						color = { 226, 208, 170 },
+						stoneColor = { 246, 238, 216 },
+						stones = {
+							left = {
+								{ share = 3, width = 1.6 },
+								{ share = 2, width = 0.7 },
+								{ share = 3, width = 2.1 },
+								{ share = 2, width = 1.1 },
+								{ share = 2, width = 1.8 },
+							},
+							right = {
+								{ share = 2, width = 0.8 },
+								{ share = 3, width = 2 },
+								{ share = 2, width = 1.2 },
+								{ share = 3, width = 0.6 },
+								{ share = 2, width = 1.5 },
+							},
+						},
+					},
+					-- d) Start pad: strong orange with studs.
+					pad = { darkColor = { 236, 106, 22 }, lightColor = { 255, 134, 42 }, fieldStuds = 2 },
+					-- Pieces that fly off when the weapon hits the target.
+					pieceColor = { 240, 196, 64 },
+
+					-- The target at the end of the strip, looking at the player. Its front face lies
+					-- where the weapon's flight ends.
+					target = {
+						model = "straw_target",
+						-- The rings are on this side of the model, this far in front of its standing point.
+						front = { x = 0, z = -1 },
+						faceDistance = 3,
+						-- Raises (or, below 0, sinks) the target. The weapon flies 3 studs above the floor.
+						lift = 0,
+					},
+
+					-- Props on the themed floor. right: sideways from the middle of the lane (negative
+					-- = left). forward: distance from the front edge of the pad towards the target.
+					-- lift: height above the floor, for a prop that lies on another one.
+					props = {
+						{ model = "hay_bale", right = -6, forward = 7, turnDegrees = 96 },
+						{ model = "hay_bale", right = -6.1, forward = 18, turnDegrees = 82 },
+						{ model = "hay_bale", right = -5.9, forward = 17.4, turnDegrees = 104, lift = 2.56 },
+						{ model = "hay_bale", right = 6, forward = 12, turnDegrees = 85 },
+					},
+
+					-- Flat tufts of straw as litter, simple blocks.
+					tuftColor = { 250, 220, 110 },
+					tufts = {
+						{ right = 5.6, forward = 2.5, turnDegrees = 30, length = 1.5, width = 0.5 },
+						{ right = -5.4, forward = 12.5, turnDegrees = -55, length = 1.3, width = 0.45 },
+						{ right = 6.4, forward = 20.5, turnDegrees = 70, length = 1.6, width = 0.5 },
+						{ right = 1.1, forward = 9, turnDegrees = -20, length = 1.2, width = 0.4 },
+						{ right = -0.9, forward = 19, turnDegrees = 48, length = 1.4, width = 0.45 },
+						{ right = 5.2, forward = 26, turnDegrees = -35, length = 1.3, width = 0.5 },
+					},
 				},
 			},
 		},

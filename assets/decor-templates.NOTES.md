@@ -18,6 +18,15 @@ ihre Bewegungen stehen unter `world.decor` in derselben Datei.
 | `paper_pinwheel` | Stick, BladesPink, BladesWhite, Hub | -Z (Rad) | `BladesPink`, `BladesWhite` und `Hub` drehen sich um die Mitte von `Hub` |
 | `cherry_tree` | Trunk, BlossomPink, BlossomLight, Mound | egal (rund) | keine, steht still |
 
+## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
+
+Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.
+
+| Vorlage | Teile (Mesh-Namen) | Vorderseite | Wo |
+|---|---|---|---|
+| `straw_target` | Straw, RingsRed, RingsWhite, Stand, Rope | -Z (Ringe), 3 Studs vor dem Standpunkt | am Ende des Wurfstreifens, zum Spieler gedreht |
+| `hay_bale` | Hay, HayDark, Rope | egal | auf dem Themen-Boden, Liste `props` im Thema |
+
 Die Farben wurden einmalig mit `tools/decor/prepare_paper_decor.luau` gesetzt (Form und Größe
 unverändert). Das Skript hat außerdem alle Teile verankert und ihnen die Kollision genommen.
 

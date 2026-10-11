@@ -1,6 +1,10 @@
 --!strict
--- Everything about the training lanes that only this client sees: the walls, the sign above each
--- lane (multiplier, requirement, or LOCKED for this player) and the small training throw animation.
+-- Everything about the training lanes that only this client sees: the walls, the sign floating
+-- above each lane (what it needs, UNLOCKED or LOCKED for this player, what it gives) and the
+-- small training throw animation.
+-- On a lane with a theme (Config/Ui, world.training) a target stands where the wall is. The wall
+-- is still there, because the throw is timed against it, but it is invisible; pieces in the
+-- theme's color fly off when the weapon arrives.
 -- The server decides when a training throw happens and on which lane; this script only shows it.
 
 local Players = game:GetService("Players")
@@ -14,26 +18,29 @@ local AnimationConfig = require(Shared.Config.Animations)
 local LaneConfig = require(Shared.Config.Lane)
 local NumberFormatConfig = require(Shared.Config.NumberFormat)
 local TrainingConfig = require(Shared.Config.Training)
+local Ui = require(Shared.Config.Ui)
 local NumberFormat = require(Shared.Rules.NumberFormat)
 local Training = require(Shared.Rules.Training)
+local TrainingLook = require(Shared.Rules.TrainingLook)
 
 local HandWeaponView = require(script.Parent.HandWeaponView)
 local SwordView = require(script.Parent.SwordView)
 local ThrowAnimation = require(script.Parent.ThrowAnimation)
 local WallEffects = require(script.Parent.WallEffects)
+local WorldSign = require(script.Parent.Ui.WorldSign)
 
 local FOLDER_NAME = "MyTrainingLanes"
+-- The rows of a sign, from top to bottom.
+local PILL_ROW = 1
+local STATUS_ROW = 2
 
 type WallState = {
 	part: BasePart,
+	-- 1 on a themed lane (the target stands there instead), 0 on a plain lane.
+	standingTransparency: number,
+	pieceColor: { number },
 	-- Counts how many throws are waiting to put the wall back, so overlapping throws do not fight.
 	downCount: number,
-}
-
-type Sign = {
-	multiplierLine: TextLabel,
-	requirementLine: TextLabel,
-	lockedLine: TextLabel,
 }
 
 local TrainingView = {}
@@ -41,7 +48,7 @@ local TrainingView = {}
 local player = Players.LocalPlayer
 -- walls[lane][wallNumber], wall 1 is the nearest.
 local walls: { { WallState } } = {}
-local signs: { Sign } = {}
+local signs: { WorldSign.WorldSign } = {}
 
 local function color(rgb: { number }): Color3
 	return Color3.fromRGB(rgb[1], rgb[2], rgb[3])
@@ -70,8 +77,16 @@ local function makePart(name: string, size: Vector3, position: Vector3, rgb: { n
 	return part
 end
 
+-- The theme of a lane, or nil if the lane is plain.
+local function themeOf(laneIndex: number): any?
+	local training = Ui.world.training
+	local name = (training.laneThemes :: { [number]: string })[laneIndex]
+	return if name then (training.themes :: { [string]: any })[name] else nil
+end
+
 local function buildWalls(laneIndex: number, pad: Training.Pad, folder: Folder)
 	walls[laneIndex] = {}
+	local theme = themeOf(laneIndex)
 	for wallNumber = 1, TrainingConfig.lanes[laneIndex].walls do
 		local part = makePart(
 			`Lane{laneIndex}Wall{wallNumber}`,
@@ -80,93 +95,90 @@ local function buildWalls(laneIndex: number, pad: Training.Pad, folder: Folder)
 			TrainingConfig.wallColor,
 			folder
 		)
-		walls[laneIndex][wallNumber] = { part = part, downCount = 0 }
+		-- On a themed lane the wall is never seen and blocks nothing.
+		if theme then
+			part.Transparency = 1
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CastShadow = false
+		end
+		walls[laneIndex][wallNumber] = {
+			part = part,
+			downCount = 0,
+			standingTransparency = if theme then 1 else 0,
+			pieceColor = if theme then theme.pieceColor else TrainingConfig.wallColor,
+		}
 	end
 end
 
-local function makeSignLine(heightShare: number, yShare: number, parent: Instance): TextLabel
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, heightShare)
-	label.Position = UDim2.fromScale(0, yShare)
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.GothamBlack
-	label.TextScaled = true
-	label.TextColor3 = color(TrainingConfig.sign.textColor)
-	label.Parent = parent
-	return label
-end
-
--- A board above the start of the lane, readable from the pad side.
-local function buildSign(laneIndex: number, pad: Training.Pad, folder: Folder)
-	local settings = TrainingConfig.sign
-	local board = makePart(
-		`Lane{laneIndex}Sign`,
-		Vector3.new(pad.width, settings.boardHeight, settings.boardThickness),
-		Vector3.new(pad.x, LaneConfig.floorTopY + settings.heightAboveFloor + settings.boardHeight / 2, padFrontZ(pad)),
-		settings.boardColor,
-		folder
-	)
-	board.CanCollide = false
-	board.CanQuery = false
-
-	local gui = Instance.new("SurfaceGui")
-	-- The lane runs towards negative Z, players come from positive Z: that is the board's back face.
-	gui.Face = Enum.NormalId.Back
-	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-	gui.LightInfluence = 0
-	gui.Parent = board
-
-	local heights = settings.lineHeights
-	signs[laneIndex] = {
-		multiplierLine = makeSignLine(heights[1], 0, gui),
-		requirementLine = makeSignLine(heights[2], heights[1], gui),
-		lockedLine = makeSignLine(heights[3], heights[1] + heights[2], gui),
-	}
+-- The sign floating above a lane: a pill with the rebirth symbol and the number needed,
+-- UNLOCKED or LOCKED, and what the lane gives.
+local function buildSign(laneIndex: number, folder: Folder)
+	local settings = Ui.world.signs.training
+	local lane = TrainingConfig.lanes[laneIndex]
+	local place =
+		TrainingLook.sign(TrainingConfig, laneIndex, LaneConfig.floorTopY, settings.heightAboveFloor, settings.forward)
+	signs[laneIndex] = WorldSign.new({
+		name = `Lane{laneIndex}Sign`,
+		parent = folder,
+		position = Vector3.new(place.x, place.y, place.z),
+		widthStuds = settings.widthStuds,
+		heightStuds = settings.heightStuds,
+		rows = {
+			{ kind = "pill", height = settings.pillHeight, icon = "rebirths", text = "", color = Ui.colors.rebirths },
+			{ kind = "text", height = settings.statusHeight, text = "" },
+			{
+				kind = "text",
+				height = settings.effectHeight,
+				text = string.format(settings.effectText, NumberFormat.abbreviate(NumberFormatConfig, lane.multiplier)),
+			},
+		},
+	})
 end
 
 -- Sign texts depend on the rebirths of this player.
 local function refreshSigns()
-	local settings = TrainingConfig.sign
+	local settings = Ui.world.signs.training
 	local value = player:GetAttribute(Remotes.Attributes.Rebirths)
 	local rebirths = if typeof(value) == "number" then value else 0
 
 	for laneIndex, sign in signs do
-		local lane = TrainingConfig.lanes[laneIndex]
+		local unlock = TrainingConfig.lanes[laneIndex].unlock
 		local unlocked = Training.isUnlocked(TrainingConfig, laneIndex, { rebirths = rebirths })
-		local multiplier = NumberFormat.abbreviate(NumberFormatConfig, lane.multiplier)
-		-- Each unlock kind has its own text. Unknown kinds show no requirement.
-		local requirement = ""
-		local unlock = lane.unlock
-		if unlock.kind == "Rebirths" and unlock.rebirths then
-			requirement = if unlock.rebirths > 0
-				then string.format(settings.rebirthsRequirementText, tostring(unlock.rebirths))
-				else settings.freeText
+
+		-- Each unlock kind has its own pill. Unknown kinds show an empty one.
+		local needed = if unlock.kind == "Rebirths" then unlock.rebirths else nil
+		if needed and needed > 0 then
+			sign.setText(PILL_ROW, tostring(needed))
+			sign.setIconShown(PILL_ROW, true)
+		else
+			sign.setText(PILL_ROW, if needed then settings.freeText else "")
+			sign.setIconShown(PILL_ROW, false)
 		end
 
-		sign.multiplierLine.Text = string.format(settings.multiplierText, multiplier)
-		sign.requirementLine.Text = requirement
-		sign.lockedLine.Text = if unlocked then "" else settings.lockedText
-		sign.lockedLine.TextColor3 = color(settings.lockedTextColor)
+		sign.setText(STATUS_ROW, if unlocked then settings.unlockedText else settings.lockedText)
+		sign.setColor(STATUS_ROW, if unlocked then Ui.colors.confirm else Ui.colors.danger)
 	end
 end
 
 local function breakWall(wall: WallState)
 	wall.downCount += 1
+	local wasSolid = wall.standingTransparency < 1
 	wall.part.Transparency = 1
 	wall.part.CanCollide = false
 	WallEffects.spawnPiecesAt(
 		wall.part.Position,
 		wall.part.Size.X,
 		wall.part.Size.Y,
-		TrainingConfig.wallColor,
+		wall.pieceColor,
 		TrainingConfig.piecesPerWall,
 		TrainingConfig.pieceSize
 	)
 	task.delay(TrainingConfig.wallBackSeconds, function()
 		wall.downCount -= 1
 		if wall.downCount == 0 then
-			wall.part.Transparency = 0
-			wall.part.CanCollide = true
+			wall.part.Transparency = wall.standingTransparency
+			wall.part.CanCollide = wasSolid
 		end
 	end)
 end
@@ -224,7 +236,7 @@ function TrainingView.start()
 	for laneIndex = 1, Training.laneCount(TrainingConfig) do
 		local pad = Training.lanePad(TrainingConfig, laneIndex) :: Training.Pad
 		buildWalls(laneIndex, pad, folder)
-		buildSign(laneIndex, pad, folder)
+		buildSign(laneIndex, folder)
 	end
 	folder.Parent = Workspace
 

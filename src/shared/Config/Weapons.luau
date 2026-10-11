@@ -90,7 +90,6 @@ return {
 		spacing = 11,
 		pedestalWidth = 4,
 		pedestalHeight = 3,
-		pedestalColor = { 95, 95, 95 },
 		-- The weapon stands upright above the pedestal, this far above its top.
 		weaponGap = 0.6,
 
@@ -99,28 +98,8 @@ return {
 		-- The button shows when the player is this close. Must not be more than useDistance.
 		promptDistance = 10,
 
-		-- Sign above each pedestal. Built on the client, because OWNED / EQUIPPED / LOCKED depends
-		-- on the player looking at it.
-		signHeightAboveFloor = 11.5,
-		signWidth = 9,
-		signBoardHeight = 6.5,
-		signBoardThickness = 0.4,
-		signBoardColor = { 40, 40, 40 },
-		signTextColor = { 255, 255, 255 },
-		-- Four lines from top to bottom: name, bonus, price, state. Share of the board height for each.
-		signLineHeights = { 0.26, 0.24, 0.22, 0.28 },
-
-		-- %s is replaced by the bonus in percent: 1.25 becomes "+25% Strength".
-		bonusText = "+%s%% Strength",
-		-- %s is replaced by the price.
-		priceText = "%s Coins",
-		freeText = "FREE",
-		ownedText = "OWNED",
-		equippedText = "EQUIPPED",
-		lockedText = "LOCKED",
-		ownedColor = { 255, 255, 255 },
-		equippedColor = { 110, 220, 120 },
-		lockedColor = { 230, 90, 90 },
+		-- The sign above each pedestal and the pedestals' colors are in Config/Ui
+		-- (world.signs.shop and world.shop).
 
 		-- Texts on the button at the pedestal.
 		buyActionText = "Buy",

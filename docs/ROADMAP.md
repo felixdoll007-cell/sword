@@ -203,6 +203,17 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 - Bewusst die günstige Beleuchtungsart behalten (weich, am Handy flüssig). Schärfere Schatten wären eine Einstellung in `default.project.json`.
 
+### Block: Trainingsbahn 1x in fertiger Optik, alle Schilder im neuen Stil (Vorgriff auf Version 4)
+- [x] Strohballen und Zielscheibe eingefärbt und als Vorlagen `hay_bale` und `straw_target` in `ReplicatedStorage.Assets` abgelegt
+- [x] Trainingsbahn 1x (Thema Stroh) in vier Schichten: Rahmen in Holzbeige, Boden in zwei Strohgelb-Tönen mit vier Strohballen und sechs Strohbüscheln, tiefer liegender Wurfstreifen in Sand mit gestuftem Steinrand (zehn Steine) und Zielscheibe am Ende, orange Startplatte mit vier Eck-Winkeln und Pfeil
+- [x] Die bisherige Wand der Bahn 1x bleibt unsichtbar an ihrer Stelle; Bruchstücke sind strohgelb
+- [x] Schilder aller vier Trainingsbahnen schwebend und zur Kamera gedreht: Pille mit Rebirth-Symbol und Zahl, UNLOCKED oder LOCKED, Wirkung in Weiß
+- [x] Schilder der fünf Shop-Sockel im selben Stil; Sockel dunkles Blaugrau mit Noppen
+- [x] Farben und Maße in `Config/Ui` (world.training, world.signs, world.shop); eine weitere Bahn braucht eine Zeile in `laneThemes` und ein Thema
+- [ ] Von mir getestet
+- Abweichung: Bei der Bahn 1x folgt die unsichtbare Sperre jetzt dem Umriss des neuen Feldes statt dem alten schmalen Boden. Einrasten, Wurfweg, Treffer und Stärke sind unverändert.
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

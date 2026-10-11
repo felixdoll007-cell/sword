@@ -16,6 +16,7 @@ local Training = require(Shared.Rules.Training)
 local GroundLook = require(script.Parent.GroundLook)
 local LaneLook = require(script.Parent.LaneLook)
 local ThrowZoneLook = require(script.Parent.ThrowZoneLook)
+local TrainingLook = require(script.Parent.TrainingLook)
 
 local LaneBuilder = {}
 
@@ -122,17 +123,22 @@ local function buildTrainingLanes()
 		local folder = Instance.new("Folder")
 		folder.Name = `TrainingLane{laneIndex}`
 
-		local padFrontZ = pad.z - pad.length / 2
-		addFencedLane(folder, pad.x, padFrontZ, pad.width, TrainingConfig.laneLength, TrainingConfig.laneColor)
+		if TrainingLook.themeOf(laneIndex) then
+			-- A lane with a theme: floor, pad, fence, target and props in its own look.
+			TrainingLook.build(folder, laneIndex)
+		else
+			local padFrontZ = pad.z - pad.length / 2
+			addFencedLane(folder, pad.x, padFrontZ, pad.width, TrainingConfig.laneLength, TrainingConfig.laneColor)
 
-		addPart(
-			folder,
-			Instance.new("Part"),
-			"TrainingPad",
-			Vector3.new(pad.width, LaneConfig.floorThickness, pad.length),
-			Vector3.new(pad.x, floorCenterY(), pad.z),
-			TrainingConfig.padColor
-		)
+			addPart(
+				folder,
+				Instance.new("Part"),
+				"TrainingPad",
+				Vector3.new(pad.width, LaneConfig.floorThickness, pad.length),
+				Vector3.new(pad.x, floorCenterY(), pad.z),
+				TrainingConfig.padColor
+			)
+		end
 
 		folder.Parent = Workspace
 	end

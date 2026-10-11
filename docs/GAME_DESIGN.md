@@ -101,7 +101,7 @@ nächstes Ziel ist.
 - Jede Waffe kostet Coins und gibt einen Bonus auf die Stärke pro Trainingswurf (zusätzlich zu Bahn und Rebirth). Der Hauptwurf wird nicht verstärkt.
 - Zahlen: Preise 0 / 500 / 8.000 / 120.000 / 800.000 Coins, Bonus +0 % / +25 % / +50 % / +100 % / +200 %.
 - Waffen sind eine echte Beschleunigung: Nach einem Waffenkauf darf der nächste Durchlauf kürzer sein als der davor. Die Rebirth-Schwellen bleiben unverändert und rechnen ohne Waffen.
-- Der Shop steht in der Welt, rechts neben der Wurfzone (nicht neben der Bahn, dort liegen die Gehwege): fünf Sockel nebeneinander, auf jedem die Waffe, darüber ein Schild mit Name, Bonus ("+25% Strength"), Preis und OWNED, EQUIPPED oder LOCKED.
+- Der Shop steht in der Welt, rechts neben der Wurfzone (nicht neben der Bahn, dort liegen die Gehwege): fünf Sockel nebeneinander, auf jedem die Waffe, darüber ein schwebendes Schild mit Name, Bonus ("+25% STRENGTH"), Preis und OWNED, EQUIPPED oder LOCKED.
 - Am Sockel kauft man und rüstet aus, per Touch bedienbar. Ein Kauf rüstet die Waffe sofort aus. Zwischen gekauften Waffen wechselt man frei.
 - Waffen kauft man ausschließlich an den Sockeln. Der Menü-Button Shop ist für spätere Käufe mit Robux gedacht und bis dahin gesperrt.
 - Das Items-Fenster (Menü-Button Items, Reiter Weapons) zeigt jede Waffe als Kachel mit dem echten 3D-Modell und Bonus. Gekaufte Waffen rüstet man dort von überall durch Antippen aus, die ausgerüstete hat den grünen Haken. Nicht gekaufte sind abgedunkelt mit Schloss, Preis und dem Hinweis "Buy at the pedestal". Im Fenster gibt es weitere Reiter, sobald es mehr gibt (Pets).
@@ -192,6 +192,20 @@ startet mit einem hellen, warmen Nachmittag; der Dunst am Horizont lässt die Fe
 auslaufen. Jeder Client setzt die Stimmung selbst, damit spätere Zonen eine eigene bekommen
 können. Der Himmel ist das eingebaute Roblox-Himmelsbild. Der Boden der ganzen Welt ist ein
 ruhiges, einfarbiges Grün, das weit über alles hinausreicht und klar unter allen Böden liegt.
+
+Trainingsbahnen bekommen je ein Thema. Fertig ist die Bahn 1x (Stroh, Gelb) als Muster, in vier
+Schichten von außen nach innen: ein leicht erhöhter Rahmen, der Themen-Boden mit Requisiten
+(Strohballen, Streu), der tiefer liegende Wurfstreifen mit gestuftem Steinrand und der
+Zielscheibe am Ende, und die erhöhte Startplatte mit Eck-Winkeln und Pfeil. Die Zielscheibe
+steht dort, wo für die Logik die Wand der Bahn steht; die Wand selbst ist unsichtbar. Alles vor
+der Startplatte ist durch eine unsichtbare Sperre abgetrennt. Die Bahnen 4x, 10x und 20x sind
+noch grau.
+
+Schilder in der Welt schweben ohne Tafel und drehen sich zur Kamera, in der Schrift der
+Oberfläche. Trainingsbahn: dunkle Pille mit Rebirth-Symbol und nötiger Zahl, darunter UNLOCKED
+(grün) oder LOCKED (rot), darunter die Wirkung ("4x STRENGTH"). Shop-Sockel: Name, Bonus in
+hellem Grün, Pille mit Coin-Symbol und Preis (oder FREE), darunter OWNED oder EQUIPPED (grün)
+oder LOCKED (rot). Die Sockel sind dunkles Blaugrau mit Noppen.
 
 ## Balance
 Alle Zahlen stehen im Config-Ordner und werden beim Spielen eingestellt. Ziel: Der Spieler

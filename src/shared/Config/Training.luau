@@ -40,27 +40,8 @@ return {
 	wallThickness = 1.5,
 	wallColor = { 235, 235, 235 },
 
-	-- Sign above each lane with its multiplier and what it needs. Built on the client,
-	-- because "LOCKED" depends on the rebirths of the player looking at it.
-	sign = {
-		-- Bottom edge above the floor, size of the board.
-		heightAboveFloor = 12,
-		boardHeight = 7,
-		boardThickness = 0.4,
-		boardColor = { 40, 40, 40 },
-		textColor = { 255, 255, 255 },
-		lockedTextColor = { 230, 90, 90 },
-		-- %s is replaced by the lane's multiplier.
-		multiplierText = "x%s",
-		-- For lanes unlocked by rebirths: %s is replaced by the rebirths needed.
-		-- For a lane that needs none: freeText.
-		rebirthsRequirementText = "%s Rebirths",
-		freeText = "FREE",
-		lockedText = "LOCKED",
-		-- Three lines from top to bottom: multiplier, requirement, LOCKED (empty when unlocked).
-		-- Share of the board height for each line.
-		lineHeights = { 0.44, 0.28, 0.28 },
-	},
+	-- The sign above each lane and the finished look of themed lanes are in Config/Ui
+	-- (world.signs.training and world.training).
 
 	-- Server: how often it looks who is standing on a pad.
 	checkSeconds = 0.1,
