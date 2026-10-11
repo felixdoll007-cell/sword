@@ -195,6 +195,14 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 - Wichtig: Die Vorlagen liegen nur im Ort. Nach dem Import des Baums muss der Ort in Studio gespeichert werden.
 
+### Block: Himmel, Licht und Boden außen herum (Vorgriff auf Version 4)
+- [x] Licht als "Stimmung" in der Config (`world.moods`), beim Start vom Client gesetzt: heller Nachmittag, warme Sonne, aufgehellte Schatten, leichter Schein um leuchtende Teile, Farben etwas kräftiger
+- [x] Himmel mit eingebauten Mitteln: Roblox-Himmelsbild, heller Dunst am Horizont
+- [x] Boden außen herum: ruhiges Grün ohne Muster bis weit hinter alles (vier große Platten), 0,3 Studs unter allen Böden; keine graue Grundplatte mehr
+- [x] Shop-Sockel stehen jetzt neben der Wurfzone (z = 6 statt -6): Der erste ragte seit dem Verbreitern der Gehwege 1 Stud in den Gehweg
+- [ ] Von mir getestet
+- Bewusst die günstige Beleuchtungsart behalten (weich, am Handy flüssig). Schärfere Schatten wären eine Einstellung in `default.project.json`.
+
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten

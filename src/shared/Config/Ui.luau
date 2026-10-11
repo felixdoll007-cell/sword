@@ -7,7 +7,8 @@
 --   2. Building blocks: button, menu button, tile, progress bar, window, short message
 --   3. Layout: what sits where and how big
 --   4. The single elements: throw button, meter, values, menu, windows, "+..." labels
---   5. World: floors, the throw zone and what surrounds it, the zones of the lane, decoration
+--   5. World: sky and light, the ground, floors, the throw zone and what surrounds it, the
+--      zones of the lane, decoration
 --
 -- Colors are { red, green, blue } from 0 to 255.
 -- A size written as { share, min, max } is a share of the screen's shorter side, limited to
@@ -497,6 +498,89 @@ return {
 	-- Lengths in studs.
 
 	world = {
+		-- Sky and light. A mood is one complete set of values; the game starts with startMood.
+		-- A later zone can get its own mood by adding one here.
+		startMood = "afternoon",
+		moods = {
+			-- Bright, friendly afternoon: warm sun, soft shadows, lit-up shadow sides.
+			afternoon = {
+				-- Time of day, 0 to 24. 14.5 = half past two. Later = lower sun, longer shadows.
+				clockTime = 14.5,
+				-- How high the sun climbs: 0 = straight overhead at noon, more = flatter.
+				latitude = 28,
+				-- Strength of the sunlight (Roblox default: 2 to 3).
+				brightness = 2.7,
+				-- Overall exposure: 0 = normal, above = everything brighter, below = darker.
+				exposure = 0.1,
+				-- Light inside shadows and on sides turned away from the sun. Brighter = softer.
+				shadowLight = { 138, 134, 142 },
+				skyLight = { 158, 162, 176 },
+				-- Tint of surfaces in the sun (warm) and of those turned away from it.
+				sunTint = { 255, 236, 200 },
+				shadeTint = { 196, 208, 235 },
+				-- How soft the edges of shadows are, 0 to 1 (only with sharper lighting technology).
+				shadowSoftness = 0.6,
+				-- How much the sky itself lights and tints things, 0 to 1.
+				environmentLight = 0.55,
+				environmentShine = 0.3,
+
+				-- Haze: the distance fades softly into the sky, no hard end of the world.
+				haze = {
+					-- How thick the air is, 0 to 1. More = things fade nearer. 0 = no haze.
+					density = 0.33,
+					-- 0 to 1: how the haze is spread between ground and sky. Lower = more of it low down.
+					offset = 0.2,
+					-- Extra bright veil at the horizon, 0 to 10.
+					horizon = 1.8,
+					-- Bright shine around the sun, 0 to 10.
+					glare = 0.2,
+					-- Color of the haze, and its color towards the sun.
+					color = { 206, 226, 250 },
+					sunsetColor = { 255, 244, 228 },
+				},
+
+				-- Roblox's own sky picture is used (no upload). Size of sun and moon, number of stars.
+				sky = {
+					sunSize = 14,
+					moonSize = 9,
+					stars = 0,
+				},
+
+				-- Slight glow around bright parts (lanterns, neon).
+				glow = {
+					intensity = 0.45,
+					size = 22,
+					-- Only parts brighter than this glow. Lower = more things glow.
+					threshold = 1.5,
+				},
+
+				-- Color tuning: strong but not garish. 0 = unchanged.
+				color = {
+					saturation = 0.12,
+					contrast = 0.04,
+					brightness = 0.01,
+					tint = { 255, 251, 244 },
+				},
+			},
+		},
+
+		-- The ground of the whole map: plain calm green, matching the green at the throw zone,
+		-- without a pattern. It reaches far beyond everything, so with the haze no end of the
+		-- world is seen. Laid from a few very big tiles next to each other.
+		ground = {
+			color = { 80, 154, 74 },
+			-- Height of its surface. Clearly below all floors (they lie at 0.1), so no floor
+			-- lies on top of it at almost the same height.
+			topY = -0.2,
+			thickness = 20,
+			-- A part can be at most 2048 studs wide. The ground is tilesPerSide tiles wide and long.
+			tileStuds = 2048,
+			tilesPerSide = 2,
+			-- Middle of the ground: the middle of the lane.
+			centerX = 0,
+			centerZ = -420,
+		},
+
 		-- The one floor picture of the world: a checkerboard with studs
 		-- (assets/textures/floor-tile.png, made by tools/textures/make_floor_tile.py).
 		-- A floor is one big part in its darker tone with this picture on it, tinted in its
@@ -800,7 +884,8 @@ return {
 			darkColor = { 74, 148, 70 },
 			lightColor = { 90, 166, 82 },
 			left = 20,
-			right = 60,
+			-- Wide enough that all shop pedestals stand on it.
+			right = 70,
 			front = 40,
 			back = 40,
 		},

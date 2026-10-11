@@ -85,7 +85,8 @@ return {
 	-- The shop: one pedestal per weapon in a row, to the right of the throw zone.
 	shop = {
 		-- Center of the first pedestal on the ground. Each further one lies `spacing` to the right.
-		firstPedestal = { x = 36, z = -6 },
+		-- The row stands beside the throw zone (z above 0), clear of the walkways along the lane.
+		firstPedestal = { x = 36, z = 6 },
 		spacing = 11,
 		pedestalWidth = 4,
 		pedestalHeight = 3,

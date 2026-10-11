@@ -1,5 +1,5 @@
 --!strict
--- Builds what every player sees: throw zone, main lane floor, training pads and training lane floors,
+-- Builds what every player sees: the ground, throw zone, main lane floor, training pads and training lane floors,
 -- plus invisible barriers so nobody walks onto a lane.
 -- The walls are NOT built here. Each client builds its own (see client/LaneView, client/TrainingView).
 
@@ -13,6 +13,7 @@ local WallConfig = require(Shared.Config.Walls)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Training = require(Shared.Rules.Training)
 
+local GroundLook = require(script.Parent.GroundLook)
 local LaneLook = require(script.Parent.LaneLook)
 local ThrowZoneLook = require(script.Parent.ThrowZoneLook)
 
@@ -138,6 +139,7 @@ local function buildTrainingLanes()
 end
 
 function LaneBuilder.build()
+	GroundLook.build()
 	buildMainLane()
 	buildTrainingLanes()
 end

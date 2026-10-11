@@ -8,8 +8,8 @@ return {
 	-- Middle of the throw line, on the ground.
 	throwLine = { x = 0, z = 0 },
 
-	-- The ground reaches this far from the middle of the map in every direction.
-	-- Must match the Baseplate in default.project.json (its size is twice this).
+	-- Everything players walk on (throw zone, training lanes, shop) must lie within this distance
+	-- of the middle of the map. The green ground itself reaches much further (Config/Ui, world.ground).
 	groundHalfSize = 256,
 
 	floorTopY = 0.1,
