@@ -194,7 +194,7 @@ return {
 
 	["windows fit the screen and fill a phone held upright almost completely"] = function(expect)
 		for _, screen in SCREENS do
-			for _, settings in { Ui.rebirthWindow, Ui.shopWindow } do
+			for _, settings in { Ui.rebirthWindow, Ui.itemsWindow } do
 				local window =
 					UiLayout.window(layout, screen.width, screen.height, settings.maxWidth, settings.maxHeight)
 				-- Half the title sticks out at the top.
@@ -205,11 +205,32 @@ return {
 				expect(window.width > 0 and window.height > 0).toBe(true)
 			end
 		end
-		local phone = UiLayout.window(layout, 390, 786, Ui.shopWindow.maxWidth, Ui.shopWindow.maxHeight)
+		local phone = UiLayout.window(layout, 390, 786, Ui.itemsWindow.maxWidth, Ui.itemsWindow.maxHeight)
 		expect(phone.width >= 390 * 0.9).toBe(true)
 		local broken = UiLayout.window(layout, 0 / 0, -5, 500, 400)
 		expect(broken.width).toBe(0)
 		expect(broken.height).toBe(0)
+	end,
+
+	["a window with tabs leaves room for them and sits in the middle together with them"] = function(expect)
+		for _, screen in SCREENS do
+			local settings = Ui.itemsWindow
+			local plain = UiLayout.window(layout, screen.width, screen.height, settings.maxWidth, settings.maxHeight)
+			local tabbed =
+				UiLayout.window(layout, screen.width, screen.height, settings.maxWidth, settings.maxHeight, true)
+			expect(plain.tabWidth).toBe(0)
+			expect(plain.offsetX).toBe(0)
+			expect(tabbed.tabWidth > 0).toBe(true)
+			expect(tabbed.tabHeight > 0).toBe(true)
+			expect(tabbed.width <= plain.width).toBe(true)
+			-- Left end of the tabs and right end of the window, measured from the screen's left edge.
+			local left = screen.width / 2 + tabbed.offsetX - tabbed.width / 2 - tabbed.tabWidth
+			local right = screen.width / 2 + tabbed.offsetX + tabbed.width / 2
+			expect(left >= 0).toBe(true)
+			expect(right <= screen.width).toBe(true)
+			expect(left).toBeNear(screen.width - right)
+			expect(tabbed.width > tabbed.tabWidth).toBe(true)
+		end
 	end,
 
 	["cards fill the width in as many columns as fit"] = function(expect)

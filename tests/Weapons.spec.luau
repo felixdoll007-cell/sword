@@ -160,6 +160,27 @@ return {
 		end
 	end,
 
+	["equipping from the items window only works for owned weapons and never buys"] = function(expect)
+		local holdings = { owned = { "wooden_sword", "iron_dagger" }, equipped = "wooden_sword" }
+		local equipped = Weapons.equip(WeaponConfig, holdings, "iron_dagger")
+		expect(equipped.outcome).toBe("equipped")
+		expect(equipped.holdings.equipped).toBe("iron_dagger")
+		expect(#equipped.holdings.owned).toBe(2)
+
+		expect(Weapons.equip(WeaponConfig, holdings, "wooden_sword").outcome).toBe("alreadyEquipped")
+		local notOwned = Weapons.equip(WeaponConfig, holdings, "battle_axe")
+		expect(notOwned.outcome).toBe("notOwned")
+		expect(notOwned.holdings.equipped).toBe("wooden_sword")
+		expect(#notOwned.holdings.owned).toBe(2)
+		expect(Weapons.equip(WeaponConfig, holdings, "laser_gun").outcome).toBe("unknownWeapon")
+		expect(Weapons.equip(WeaponConfig, holdings, nil).outcome).toBe("unknownWeapon")
+		expect(Weapons.equip(WeaponConfig, holdings, 3).outcome).toBe("unknownWeapon")
+
+		-- The input is not changed.
+		expect(holdings.equipped).toBe("wooden_sword")
+		expect(#holdings.owned).toBe(2)
+	end,
+
 	["every weapon has a rarity that has a color, and ids fit the length limit"] = function(expect)
 		local Ui = require("../src/shared/Config/Ui")
 		for _, weapon in WeaponConfig.list do

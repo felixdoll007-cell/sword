@@ -27,6 +27,8 @@ export type Tile = {
 	content: Frame,
 	setValue: (text: string) -> (),
 	setState: (state: State) -> (),
+	-- Called when the tile is pressed (touch, mouse or gamepad).
+	onActivated: (callback: () -> ()) -> (),
 }
 
 local Tile = {}
@@ -67,11 +69,23 @@ function Tile.new(name: string, rarityColor: { number }, parent: Instance?): Til
 	local check = makeBadge("check")
 	local lock = makeBadge("lock")
 
+	-- Invisible layer over the whole tile that takes the presses.
+	local press = Instance.new("TextButton")
+	press.Name = "Press"
+	press.Text = ""
+	press.BackgroundTransparency = 1
+	press.Size = UDim2.fromScale(1, 1)
+	press.ZIndex = 6
+	press.Parent = frame
+
 	frame.Parent = parent
 	return {
 		frame = frame,
 		content = content,
 		setValue = value.setText,
+		onActivated = function(callback: () -> ())
+			press.Activated:Connect(callback)
+		end,
 		setState = function(state: State)
 			check.Visible = state.equipped
 			lock.Visible = state.locked and not state.equipped

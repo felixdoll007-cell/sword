@@ -41,6 +41,14 @@ export type UseResult = {
 	currency: number,
 }
 
+-- What a wish to equip a weapon led to.
+export type EquipOutcome = "equipped" | "alreadyEquipped" | "notOwned" | "unknownWeapon"
+
+export type EquipResult = {
+	outcome: EquipOutcome,
+	holdings: Holdings,
+}
+
 -- What a weapon is for a player in the shop.
 export type ShopState = "equipped" | "owned" | "canBuy" | "tooExpensive" | "unknown"
 
@@ -136,6 +144,23 @@ function Weapons.use(config: WeaponConfig, holdings: Holdings, currency: number,
 	table.insert(owned, weapon.id)
 	local cleaned = Weapons.sanitize(config, owned, weapon.id)
 	return { outcome = "bought", holdings = cleaned, currency = currency - weapon.price }
+end
+
+-- A player wants to equip a weapon without being at its pedestal (items window). That only
+-- works for a weapon the player owns; nothing is ever bought this way.
+-- Returns what happened and the new holdings. The input is not changed.
+function Weapons.equip(config: WeaponConfig, holdings: Holdings, id: unknown): EquipResult
+	local weapon = Weapons.get(config, id)
+	if not weapon then
+		return { outcome = "unknownWeapon", holdings = holdings }
+	end
+	if not Weapons.isOwned(holdings, weapon.id) then
+		return { outcome = "notOwned", holdings = holdings }
+	end
+	if holdings.equipped == weapon.id then
+		return { outcome = "alreadyEquipped", holdings = holdings }
+	end
+	return { outcome = "equipped", holdings = { owned = table.clone(holdings.owned), equipped = weapon.id } }
 end
 
 -- What the shop shows for this weapon: in use, owned, affordable or too expensive.

@@ -31,6 +31,8 @@ export type LayoutConfig = {
 		portraitWidthShare: number,
 		portraitHeightShare: number,
 		title: Scaled,
+		tabWidthFactor: number,
+		tabHeightFactor: number,
 	},
 }
 
@@ -56,6 +58,12 @@ export type Window = {
 	width: number,
 	height: number,
 	titleHeight: number,
+	-- Size of one tab on the left of the window. The width is 0 for a window without tabs.
+	tabWidth: number,
+	tabHeight: number,
+	-- How far the window sits right of the screen's middle, so that window and tabs together
+	-- are in the middle.
+	offsetX: number,
 }
 
 export type Grid = {
@@ -192,12 +200,14 @@ function UiLayout.hud(
 end
 
 -- Size of a window. maxWidth and maxHeight are the window's own pixel limits.
+-- hasTabs: the window has tabs on its left, outside of it; they need room on the screen too.
 function UiLayout.window(
 	config: LayoutConfig,
 	screenWidth: number,
 	screenHeight: number,
 	maxWidth: number,
-	maxHeight: number
+	maxHeight: number,
+	hasTabs: boolean?
 ): Window
 	local width, height = safe(screenWidth), safe(screenHeight)
 	local portrait = UiLayout.isPortrait(width, height)
@@ -205,11 +215,15 @@ function UiLayout.window(
 	local titleHeight = UiLayout.scaled(window.title, math.min(width, height))
 	local widthShare = if portrait then window.portraitWidthShare else window.widthShare
 	local heightShare = if portrait then window.portraitHeightShare else window.heightShare
+	local tabWidth = if hasTabs then titleHeight * window.tabWidthFactor else 0
 	return {
-		width = math.min(width * widthShare, maxWidth),
+		width = math.max(math.min((width - tabWidth) * widthShare, maxWidth), 0),
 		-- The title sticks out over the top edge: leave room for it.
 		height = math.max(math.min(height * heightShare - titleHeight / 2, maxHeight), 0),
 		titleHeight = titleHeight,
+		tabWidth = tabWidth,
+		tabHeight = titleHeight * window.tabHeightFactor,
+		offsetX = tabWidth / 2,
 	}
 end
 

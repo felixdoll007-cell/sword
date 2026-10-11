@@ -1,9 +1,14 @@
 --!strict
--- The shop window: every weapon as a card with its name, a tile showing the real 3D model and
--- its bonus, and a button to buy or equip it. Opened from the menu (MenuView).
--- Buying and equipping work like at the pedestals in the world: the button only tells the
--- server "I pressed the button of this weapon"; price, ownership and coins are checked there.
--- What a card shows follows the values the server publishes (attributes on the Player).
+-- The items window: what the player owns. Opened from the menu (MenuView). It has tabs on its
+-- left; for now there is one, WEAPONS. A further tab is added by naming it in Window.new below
+-- and filling its page.
+--
+-- Every weapon is a card with its name and a tile showing the real 3D model and its bonus.
+--   * Owned: pressing the tile equips it. The one in use has the green check mark.
+--   * Not owned: dark with a lock, the price below it and the hint to buy it at the pedestal.
+-- Nothing can be bought here; weapons are only bought at the pedestals in the world.
+-- Pressing a tile only tells the server "I want to equip this weapon"; whether the player owns
+-- it is checked there. What a card shows follows the values the server publishes.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,22 +22,28 @@ local NumberFormat = require(Shared.Rules.NumberFormat)
 local UiLayout = require(Shared.Rules.UiLayout)
 local Weapons = require(Shared.Rules.Weapons)
 
-local Button = require(script.Parent.Ui.Button)
 local Draw = require(script.Parent.Ui.Draw)
 local OutlinedText = require(script.Parent.Ui.OutlinedText)
 local Tile = require(script.Parent.Ui.Tile)
 local WeaponPreview = require(script.Parent.Ui.WeaponPreview)
 local Window = require(script.Parent.Ui.Window)
 
+-- Place of the weapons tab among the window's tabs.
+local WEAPONS_TAB = 1
+
 type Card = {
 	weapon: Weapons.Weapon,
 	frame: Frame,
 	name: OutlinedText.OutlinedText,
 	tile: Tile.Tile,
-	button: Button.Button,
+	-- Below the tile: EQUIPPED, the invitation to equip, or the price.
+	status: OutlinedText.OutlinedText,
+	-- Below that, small: where the weapon can be bought.
+	hint: OutlinedText.OutlinedText,
+	state: Weapons.ShopState,
 }
 
-local ShopWindowView = {}
+local ItemsWindowView = {}
 
 local player = Players.LocalPlayer
 
@@ -57,104 +68,116 @@ local function menuIcon(id: string): string?
 	return nil
 end
 
-local function onPressed(weapon: Weapons.Weapon)
-	if os.clock() < pressBlockedUntil then
+local function onPressed(card: Card)
+	-- Only an owned weapon that is not in use can be equipped.
+	if card.state ~= "owned" or os.clock() < pressBlockedUntil then
 		return
 	end
-	pressBlockedUntil = os.clock() + Ui.shopWindow.pressWaitSeconds
-	-- Only the wish. The server decides whether this buys, equips or does nothing.
-	Remotes.WeaponUseRequested:FireServer(weapon.id)
+	pressBlockedUntil = os.clock() + Ui.itemsWindow.pressWaitSeconds
+	-- Only the wish. The server checks that the player owns the weapon.
+	Remotes.WeaponEquipRequested:FireServer(card.weapon.id)
 end
 
 local function makeCard(order: number, weapon: Weapons.Weapon): Card
+	local settings = Ui.itemsWindow
 	local frame = Draw.box(weapon.id, scroll)
 	frame.LayoutOrder = order
 
 	local name = OutlinedText.new({ name = "Name", parent = frame, text = weapon.name, color = rarityColor(weapon) })
 	local tile = Tile.new("Tile", rarityColor(weapon), frame)
 	WeaponPreview.new(weapon.id, tile.content)
-	tile.setValue(string.format(Ui.shopWindow.valueText, tostring(Weapons.bonusPercent(weapon))))
+	tile.setValue(string.format(settings.valueText, tostring(Weapons.bonusPercent(weapon))))
+	local status = OutlinedText.new({ name = "Status", parent = frame })
+	local hint = OutlinedText.new({ name = "Hint", parent = frame, text = settings.pedestalHint })
 
-	local button = Button.new({ name = "Button", parent = frame, text = "", color = Ui.colors.confirm })
-	button.onActivated(function()
-		onPressed(weapon)
+	local card: Card =
+		{ weapon = weapon, frame = frame, name = name, tile = tile, status = status, hint = hint, state = "unknown" }
+	tile.onActivated(function()
+		onPressed(card)
 	end)
-	return { weapon = weapon, frame = frame, name = name, tile = tile, button = button }
+	return card
 end
 
 -- Sizes of the cards for the room the window has right now.
 local function layout()
-	local settings = Ui.shopWindow
+	local settings = Ui.itemsWindow
 	local gap = settings.cardGap
 	local room = window.contentSize()
 	local available = room.X - 2 * gap - settings.scrollBarWidth
-	-- A card is its name, the square tile and the button, with a gap between them. On a low
-	-- screen the cards get narrower, so that a whole card fits into the window's height.
-	local heightPerWidth = settings.nameHeight + 1 + settings.buttonHeight
+	-- A card is its name, the square tile and two lines of text, with a gap around the tile. On
+	-- a low screen the cards get narrower, so that a whole card fits into the window's height.
+	local heightPerWidth = settings.nameHeight + 1 + settings.statusHeight + settings.hintHeight
 	local widestThatFits = (room.Y - 4 * gap) / heightPerWidth
 	local widest = math.max(math.min(settings.maxCardWidth, widestThatFits), settings.minCardWidth)
 	local fit = UiLayout.grid(available, #cards, settings.minCardWidth, widest, gap)
 	local width = math.floor(fit.cellWidth)
 	local nameHeight = math.round(width * settings.nameHeight)
-	local buttonHeight = math.round(width * settings.buttonHeight)
+	local statusHeight = math.round(width * settings.statusHeight)
+	local hintHeight = math.round(width * settings.hintHeight)
 
 	grid.CellPadding = UDim2.fromOffset(gap, gap)
-	grid.CellSize = UDim2.fromOffset(width, nameHeight + gap + width + gap + buttonHeight)
+	grid.CellSize = UDim2.fromOffset(width, nameHeight + gap + width + gap + statusHeight + hintHeight)
 	for _, card in cards do
-		card.name.frame.Position = UDim2.fromOffset(0, 0)
+		local y = 0
+		card.name.frame.Position = UDim2.fromOffset(0, y)
 		card.name.frame.Size = UDim2.fromOffset(width, nameHeight)
-		card.tile.frame.Position = UDim2.fromOffset(0, nameHeight + gap)
+		y += nameHeight + gap
+		card.tile.frame.Position = UDim2.fromOffset(0, y)
 		card.tile.frame.Size = UDim2.fromOffset(width, width)
-		card.button.frame.Position = UDim2.fromOffset(0, nameHeight + gap + width + gap)
-		card.button.frame.Size = UDim2.fromOffset(width, buttonHeight)
+		y += width + gap
+		card.status.frame.Position = UDim2.fromOffset(0, y)
+		card.status.frame.Size = UDim2.fromOffset(width, statusHeight)
+		y += statusHeight
+		card.hint.frame.Position = UDim2.fromOffset(0, y)
+		card.hint.frame.Size = UDim2.fromOffset(width, hintHeight)
 	end
 end
 
--- What every card shows depends on what this player owns, uses and can afford.
+-- What every card shows depends on what this player owns and uses.
 local function refresh()
-	local settings = Ui.shopWindow
+	local settings = Ui.itemsWindow
 	local owned = Weapons.decodeOwned(player:GetAttribute(Remotes.Attributes.OwnedWeapons))
 	local equippedValue = player:GetAttribute(Remotes.Attributes.EquippedWeapon)
 	local equipped = if typeof(equippedValue) == "string" then equippedValue else ""
-	local coinsValue = player:GetAttribute(Remotes.Attributes.Currency)
-	local coins = if typeof(coinsValue) == "number" then coinsValue else 0
 
 	for _, card in cards do
 		local weapon = card.weapon
-		local state = Weapons.shopState(WeaponConfig, { owned = owned, equipped = equipped }, coins, weapon.id)
-		local price = if weapon.price > 0
-			then string.format(settings.buyText, NumberFormat.abbreviate(NumberFormatConfig, weapon.price))
-			else settings.freeText
+		-- Coins do not matter here: nothing is bought in this window.
+		local state = Weapons.shopState(WeaponConfig, { owned = owned, equipped = equipped }, 0, weapon.id)
+		local isOwned = state == "equipped" or state == "owned"
+		card.state = state
 
-		card.tile.setState({
-			equipped = state == "equipped",
-			locked = state == "canBuy" or state == "tooExpensive",
-			dimmed = state == "tooExpensive",
-		})
+		card.tile.setState({ equipped = state == "equipped", locked = not isOwned, dimmed = not isOwned })
+		card.hint.frame.Visible = not isOwned
 		if state == "equipped" then
-			card.button.setText(settings.equippedText)
+			card.status.setText(settings.equippedText)
+			card.status.setColor(Ui.colors.confirm)
 		elseif state == "owned" then
-			card.button.setText(settings.equipText)
+			card.status.setText(settings.equipText)
+			card.status.setColor(Ui.text.color)
 		else
-			card.button.setText(price)
+			card.status.setText(
+				string.format(settings.priceText, NumberFormat.abbreviate(NumberFormatConfig, weapon.price))
+			)
+			card.status.setColor(Ui.colors.coins)
 		end
-		card.button.setEnabled(state == "owned" or state == "canBuy")
 	end
 end
 
 -- Opens the window, or closes it if it is open.
-function ShopWindowView.toggle()
+function ItemsWindowView.toggle()
 	window.toggle()
 end
 
-function ShopWindowView.start()
-	local settings = Ui.shopWindow
+function ItemsWindowView.start()
+	local settings = Ui.itemsWindow
 	window = Window.new({
-		name = "ShopWindow",
+		name = "ItemsWindow",
 		title = settings.title,
 		icon = menuIcon(settings.menuEntry),
 		maxWidth = settings.maxWidth,
 		maxHeight = settings.maxHeight,
+		tabs = { settings.weaponsTab },
 	})
 
 	-- The cards can be scrolled when they do not all fit (phone held upright).
@@ -167,7 +190,7 @@ function ShopWindowView.start()
 	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	scroll.ScrollingDirection = Enum.ScrollingDirection.Y
 	scroll.ScrollBarThickness = settings.scrollBarWidth
-	scroll.Parent = window.content
+	scroll.Parent = window.pages[WEAPONS_TAB]
 
 	-- Room around the cards, so the check mark on a tile's corner is not cut off.
 	local padding = Instance.new("UIPadding")
@@ -188,11 +211,9 @@ function ShopWindowView.start()
 
 	window.onResize(layout)
 	refresh()
-	for _, attribute in
-		{ Remotes.Attributes.OwnedWeapons, Remotes.Attributes.EquippedWeapon, Remotes.Attributes.Currency }
-	do
+	for _, attribute in { Remotes.Attributes.OwnedWeapons, Remotes.Attributes.EquippedWeapon } do
 		player:GetAttributeChangedSignal(attribute):Connect(refresh)
 	end
 end
 
-return ShopWindowView
+return ItemsWindowView

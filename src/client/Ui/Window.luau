@@ -3,6 +3,9 @@
 -- title sticks out over the top edge, a big symbol over the top left corner and the round red
 -- close button over the top right corner. What the window shows goes into a darker inner area.
 --
+-- A window with several areas has tabs on its left, outside the window; the active tab is lighter.
+-- Each tab has its own page inside the inner area.
+--
 -- Only one window is open at a time: opening one closes the other. While a window is open the
 -- world behind it is blurred and darkened; a press next to the window closes it.
 -- Opening pops from small to big, closing is quick.
@@ -13,6 +16,7 @@ local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage.Shared
 local Ui = require(Shared.Config.Ui)
+local ColorMath = require(Shared.Rules.ColorMath)
 local UiLayout = require(Shared.Rules.UiLayout)
 
 local Button = require(script.Parent.Button)
@@ -34,11 +38,22 @@ export type Props = {
 	-- The window never gets bigger than this, in pixels.
 	maxWidth: number,
 	maxHeight: number,
+	-- Captions of the tabs on the left, from top to bottom. nil = a window without tabs.
+	tabs: { string }?,
+}
+
+type Tab = {
+	button: TextButton,
+	caption: OutlinedText.OutlinedText,
+	page: Frame,
 }
 
 export type Window = {
-	-- The inner area. Put the window's content in here.
+	-- The inner area. Put the window's content in here (window without tabs).
 	content: Frame,
+	-- Window with tabs: one page per tab, in the order of the tabs. Put each tab's content into
+	-- its page; only the page of the active tab is shown.
+	pages: { Frame },
 	open: () -> (),
 	close: () -> (),
 	toggle: () -> (),
@@ -133,22 +148,28 @@ function Window.new(props: Props): Window
 	local settings = Ui.window
 	local screen = getGui()
 
+	-- Holds the window and its tabs, so they pop open and close together.
+	local holder = Draw.box(props.name, screen)
+	holder.AnchorPoint = Vector2.new(0.5, 0.5)
+	holder.Visible = false
+
+	local scale = Instance.new("UIScale")
+	scale.Parent = holder
+
 	-- Catches presses on the window itself, so they do not reach the dark layer and close it.
 	local frame = Instance.new("TextButton")
-	frame.Name = props.name
+	frame.Name = "Surface"
 	frame.Text = ""
 	frame.AutoButtonColor = false
 	frame.BorderSizePixel = 0
-	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.BackgroundColor3 = Draw.color(Ui.colors.windowOuter)
 	frame.BackgroundTransparency = settings.outerTransparency
-	frame.Visible = false
-	frame.Parent = screen
+	frame.Size = UDim2.fromScale(1, 1)
+	-- On top of the tabs, which reach a little under the window's edge.
+	frame.ZIndex = 2
+	frame.Parent = holder
 	Draw.corner(frame, Ui.corners.window)
 	Draw.border(frame)
-
-	local scale = Instance.new("UIScale")
-	scale.Parent = frame
 
 	local content = Draw.panel("Content", Ui.colors.windowInner, frame)
 	content.ZIndex = 2
@@ -176,6 +197,39 @@ function Window.new(props: Props): Window
 	closeButton.frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	closeButton.frame.ZIndex = 5
 
+	local tabs: { Tab } = {}
+	local pages: { Frame } = {}
+	local function selectTab(selected: number)
+		for index, tab in tabs do
+			local active = index == selected
+			tab.page.Visible = active
+			tab.button.BackgroundColor3 = Draw.color(
+				if active
+					then ColorMath.lighten(Ui.colors.windowOuter, settings.tab.activeLighten)
+					else Ui.colors.windowOuter
+			)
+		end
+	end
+	for index, caption in props.tabs or {} do
+		local button = Instance.new("TextButton")
+		button.Name = `Tab{index}`
+		button.Text = ""
+		button.AutoButtonColor = false
+		button.BorderSizePixel = 0
+		button.Parent = holder
+		Draw.corner(button, Ui.corners.card)
+		Draw.border(button)
+		local text = OutlinedText.new({ name = "Caption", parent = button, text = caption })
+		text.frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		local page = Draw.box(`Page{index}`, content)
+		button.Activated:Connect(function()
+			selectTab(index)
+		end)
+		table.insert(tabs, { button = button, caption = text, page = page })
+		table.insert(pages, page)
+	end
+	selectTab(1)
+
 	local listeners: { () -> () } = {}
 	local contentSize = Vector2.zero
 	local isOpen = false
@@ -184,11 +238,12 @@ function Window.new(props: Props): Window
 
 	local function resize()
 		local size = screen.AbsoluteSize
-		local layout = UiLayout.window(Ui.layout, size.X, size.Y, props.maxWidth, props.maxHeight)
+		local layout = UiLayout.window(Ui.layout, size.X, size.Y, props.maxWidth, props.maxHeight, #tabs > 0)
 		local titleHeight = layout.titleHeight
-		frame.Size = UDim2.fromOffset(math.round(layout.width), math.round(layout.height))
-		-- A little below the middle, because the title sticks out at the top.
-		frame.Position = UDim2.new(0.5, 0, 0.5, math.round(titleHeight / 4))
+		holder.Size = UDim2.fromOffset(math.round(layout.width), math.round(layout.height))
+		-- A little below the middle, because the title sticks out at the top. With tabs a little
+		-- to the right, so window and tabs together sit in the middle.
+		holder.Position = UDim2.new(0.5, math.round(layout.offsetX), 0.5, math.round(titleHeight / 4))
 
 		title.frame.Position = UDim2.fromScale(0.5, 0)
 		title.frame.Size = UDim2.new(settings.titleWidth, 0, 0, math.round(titleHeight))
@@ -199,6 +254,21 @@ function Window.new(props: Props): Window
 			icon.Position =
 				UDim2.fromOffset(math.round(iconSize * settings.iconInsetX), math.round(iconSize * settings.iconInsetY))
 		end
+		-- The tabs hang on the left edge, below the symbol.
+		local tabWidth, tabHeight = math.round(layout.tabWidth), math.round(layout.tabHeight)
+		local tabTop = settings.tab.gapPixels
+			+ (if icon then math.round(iconSize * (settings.iconInsetY + 1 / 2)) else math.round(titleHeight / 2))
+		for index, tab in tabs do
+			tab.button.Size = UDim2.fromOffset(tabWidth + settings.tab.overlapPixels, tabHeight)
+			tab.button.Position =
+				UDim2.fromOffset(-tabWidth, tabTop + (index - 1) * (tabHeight + settings.tab.gapPixels))
+			tab.caption.frame.Position = UDim2.fromOffset(math.round(tabWidth / 2), math.round(tabHeight / 2))
+			tab.caption.frame.Size = UDim2.fromOffset(
+				math.round(tabWidth * settings.tab.textWidth),
+				math.round(tabHeight * settings.tab.textHeight)
+			)
+		end
+
 		local closeSize = math.round(titleHeight * settings.closeFactor)
 		closeButton.frame.Size = UDim2.fromOffset(closeSize, closeSize)
 		local closeInset = math.round(closeSize * settings.closeInset)
@@ -235,7 +305,7 @@ function Window.new(props: Props): Window
 			TweenService:Create(scale, TweenInfo.new(settings.closeSeconds), { Scale = settings.closeToScale })
 		tween.Completed:Connect(function()
 			if token == closeToken then
-				frame.Visible = false
+				holder.Visible = false
 			end
 		end)
 		tween:Play()
@@ -253,7 +323,7 @@ function Window.new(props: Props): Window
 		resize()
 		setBackdrop(true)
 		scale.Scale = settings.openFromScale
-		frame.Visible = true
+		holder.Visible = true
 		local info = TweenInfo.new(settings.openSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 		TweenService:Create(scale, info, { Scale = 1 }):Play()
 	end
@@ -262,6 +332,7 @@ function Window.new(props: Props): Window
 
 	self = {
 		content = content,
+		pages = pages,
 		open = open,
 		close = close,
 		toggle = function()

@@ -74,7 +74,7 @@ return {
 	-- Folder in ReplicatedStorage with the weapon models.
 	templateFolder = "Assets",
 
-	-- Server: at most this many uses of the shop (pedestal or shop window) per player within the time window.
+	-- Server: at most this many uses of a pedestal or of the items window per player within the time window.
 	maxRequests = 3,
 	requestWindowSeconds = 2,
 	-- Server: a weapon id sent by a client that is longer than this is thrown away unread.

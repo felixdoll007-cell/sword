@@ -143,7 +143,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Alle Farben, Größen, Zeiten und Texte der Oberfläche in `Config/Ui`; die Anordnung für jedes Bildschirmformat rechnet `Rules/UiLayout` (mit Tests für Handy, Tablet und Monitor, hoch und quer)
 - [x] Werte links unter dem Menü, Fortschrittsbalken unten mittig, Wurf-Button und Anzeige mit dem Zeiger im neuen Stil
 - [x] Rebirth-Fenster als Vorher-Nachher mit Warnzeile, Balken und grünem Button
-- [x] Menü-Raster links mit sechs Buttons; Shop-Fenster mit Waffen-Kacheln (3D-Modell), Kaufen und Ausrüsten über den Server; vier Buttons gesperrt mit "Coming soon" und Schalter in der Config
+- [x] Menü-Raster links mit sechs Buttons; Shop-Fenster mit Waffen-Kacheln (3D-Modell), Kaufen und Ausrüsten über den Server; vier Buttons gesperrt mit "Coming soon" und Schalter in der Config (das Shop-Fenster wurde im Block "Shop und Items trennen" zum Items-Fenster)
 - [x] Einblendungen "+..." im selben Schriftstil
 - [x] Zahlen nie länger als vier Zeichen vor der Einheit
 - Noppen-Textur: vorerst nicht. Buttons und Balken bleiben einfarbig, der Platz für die Nummer in `Config/Ui` bleibt.
@@ -151,6 +151,14 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Symbole für Schloss, Haken und Schließen (bis dahin Platzhalter)
 - [ ] Von mir getestet
 - Nicht umgestellt: die Schilder in der Welt (Trainingsbahnen, Shop-Sockel). Sie stehen in STYLE.md, waren aber nicht Teil dieses Blocks.
+
+### Block: Shop und Items trennen
+- [x] Menü-Button ITEMS ist frei und öffnet das Waffen-Fenster mit der Überschrift ITEMS und dem Reiter WEAPONS links außen (Fenster-Baustein kann jetzt Reiter, ein weiterer Reiter braucht nur einen Eintrag)
+- [x] Gekaufte Waffen: Antippen der Kachel rüstet aus, die ausgerüstete hat den grünen Haken
+- [x] Nicht gekaufte Waffen: abgedunkelt mit Schloss, Preis und Hinweis "Buy at the pedestal", kein Kaufen im Fenster
+- [x] Server: Die Nachricht aus dem Fenster kann nur noch ausrüsten (nur gekaufte Waffen), nie kaufen
+- [x] Menü-Button SHOP ist gesperrt mit Schloss und "Coming soon", über den Schalter in der Config
+- [ ] Von mir getestet
 
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound

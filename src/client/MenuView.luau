@@ -15,8 +15,8 @@ local Ui = require(Shared.Config.Ui)
 local Rebirth = require(Shared.Rules.Rebirth)
 local UiLayout = require(Shared.Rules.UiLayout)
 
+local ItemsWindowView = require(script.Parent.ItemsWindowView)
 local RebirthView = require(script.Parent.RebirthView)
-local ShopWindowView = require(script.Parent.ShopWindowView)
 local StatsView = require(script.Parent.StatsView)
 local ThrowSession = require(script.Parent.ThrowSession)
 local Draw = require(script.Parent.Ui.Draw)
@@ -27,8 +27,8 @@ local Window = require(script.Parent.Ui.Window)
 
 -- What the button with this id opens. An id without an entry here has nothing to open yet.
 local OPENERS: { [string]: () -> () } = {
-	shop = ShopWindowView.toggle,
 	rebirth = RebirthView.toggle,
+	inventory = ItemsWindowView.toggle,
 }
 local REBIRTH_ID = "rebirth"
 

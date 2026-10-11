@@ -210,6 +210,17 @@ return {
 		paddingFactor = 0.3,
 		-- Space between the inner area's edge and what is in it, as a share of the inner area.
 		innerPadding = 0.03,
+		-- Tabs on the left of a window, outside of it. Their size is in the layout below.
+		tab = {
+			-- The active tab is this much lighter than the others (0 to 1).
+			activeLighten = 0.3,
+			-- How far a tab reaches under the window's edge, and the space between two tabs, in pixels.
+			overlapPixels = 12,
+			gapPixels = 6,
+			-- Room for the caption, as a share of the tab.
+			textWidth = 0.82,
+			textHeight = 0.5,
+		},
 	},
 
 	toast = {
@@ -295,6 +306,9 @@ return {
 			portraitWidthShare = 0.94,
 			portraitHeightShare = 0.8,
 			title = { share = 0.11, min = 30, max = 58 },
+			-- Tabs on the left of a window, outside of it. Sizes relative to the title height.
+			tabWidthFactor = 2.9,
+			tabHeightFactor = 1,
 		},
 	},
 
@@ -379,11 +393,12 @@ return {
 	--   icon: uploaded picture, 512x512, cut out, without text. The caption is real text.
 	menu = {
 		entries = {
-			{ id = "shop", label = "SHOP", icon = "rbxassetid://78881260504747", enabled = true },
+			-- The shop is planned for purchases with Robux and stays locked until then.
+			{ id = "shop", label = "SHOP", icon = "rbxassetid://78881260504747", enabled = false },
 			{ id = "rebirth", label = "REBIRTH", icon = "rbxassetid://106323553177111", enabled = true },
 			{ id = "pets", label = "PETS", icon = "rbxassetid://138261598867132", enabled = false },
 			{ id = "trails", label = "TRAILS", icon = "rbxassetid://103736409902587", enabled = false },
-			{ id = "inventory", label = "ITEMS", icon = "rbxassetid://79691833732200", enabled = false },
+			{ id = "inventory", label = "ITEMS", icon = "rbxassetid://79691833732200", enabled = true },
 			{ id = "gifts", label = "GIFTS", icon = "rbxassetid://100679695739473", enabled = false },
 		},
 		comingSoonText = "Coming soon",
@@ -428,27 +443,33 @@ return {
 		arrowHeight = 0.5,
 	},
 
-	-- Window with the weapons as tiles. Buying and equipping work like at the pedestals.
-	shopWindow = {
-		menuEntry = "shop",
+	-- Window with what the player owns, opened by the ITEMS menu button. It has tabs on its left;
+	-- for now one, the weapons as tiles. Pressing the tile of an owned weapon equips it. Nothing is
+	-- bought here: weapons are only bought at the pedestals in the world.
+	itemsWindow = {
+		menuEntry = "inventory",
 		maxWidth = 900,
 		maxHeight = 520,
-		title = "SHOP",
+		title = "ITEMS",
+		weaponsTab = "WEAPONS",
 		-- %s: bonus in percent, shown on the tile.
 		valueText = "+%s%%",
-		-- %s: price.
-		buyText = "BUY %s",
-		freeText = "FREE",
-		equipText = "EQUIP",
+		-- Below the tile of an owned weapon.
 		equippedText = "EQUIPPED",
-		-- After pressing a button, wait this long before the next press counts.
+		equipText = "TAP TO EQUIP",
+		-- Below the tile of a weapon the player does not own. %s: price.
+		priceText = "%s Coins",
+		pedestalHint = "Buy at the pedestal",
+		-- After pressing a tile, wait this long before the next press counts.
 		pressWaitSeconds = 0.6,
-		-- One card per weapon: name, tile, button. Heights as a share of the card's width.
+		-- One card per weapon: name, tile, a line of text and a smaller line. Heights as a share
+		-- of the card's width.
 		minCardWidth = 108,
 		maxCardWidth = 190,
 		cardGap = 8,
 		nameHeight = 0.2,
-		buttonHeight = 0.34,
+		statusHeight = 0.2,
+		hintHeight = 0.13,
 		-- Width of the scroll bar on the right, in pixels.
 		scrollBarWidth = 6,
 	},

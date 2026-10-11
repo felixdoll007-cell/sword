@@ -103,11 +103,12 @@ nächstes Ziel ist.
 - Waffen sind eine echte Beschleunigung: Nach einem Waffenkauf darf der nächste Durchlauf kürzer sein als der davor. Die Rebirth-Schwellen bleiben unverändert und rechnen ohne Waffen.
 - Der Shop steht in der Welt, rechts neben der Wurfzone: fünf Sockel nebeneinander, auf jedem die Waffe, darüber ein Schild mit Name, Bonus ("+25% Strength"), Preis und OWNED, EQUIPPED oder LOCKED.
 - Am Sockel kauft man und rüstet aus, per Touch bedienbar. Ein Kauf rüstet die Waffe sofort aus. Zwischen gekauften Waffen wechselt man frei.
-- Dasselbe geht im Shop-Fenster (Menü-Button Shop), von überall: jede Waffe als Kachel mit dem echten 3D-Modell, Bonus, Preis und einem Button zum Kaufen oder Ausrüsten. Die Sockel in der Welt bleiben.
+- Waffen kauft man ausschließlich an den Sockeln. Der Menü-Button Shop ist für spätere Käufe mit Robux gedacht und bis dahin gesperrt.
+- Das Items-Fenster (Menü-Button Items, Reiter Weapons) zeigt jede Waffe als Kachel mit dem echten 3D-Modell und Bonus. Gekaufte Waffen rüstet man dort von überall durch Antippen aus, die ausgerüstete hat den grünen Haken. Nicht gekaufte sind abgedunkelt mit Schloss, Preis und dem Hinweis "Buy at the pedestal". Im Fenster gibt es weitere Reiter, sobald es mehr gibt (Pets).
 - Jede Waffe hat eine Seltenheit (in der Config), die die Farbe ihrer Kachel und ihres Namens bestimmt: Wooden Sword Common, Iron Dagger Uncommon, Battle Axe Rare, Ember Greatsword Epic, Void Blade Legendary.
 - Die ausgerüstete Waffe fliegt bei Hauptwurf, Training und für Zuschauer.
 - Waffen und Coins bleiben beim Rebirth erhalten. Besitz und Ausrüstung werden gespeichert.
-- Der Server prüft immer Preis, Besitz und Coins. Der Client meldet nur den Wunsch. Am Sockel prüft der Server zusätzlich die Nähe zum Sockel. Im Shop-Fenster gibt es keine Nähe-Prüfung (gewollt, man kauft von überall); dafür prüft der Server dort, dass die gemeldete Waffe existiert und gerade kein Wurf läuft.
+- Der Client meldet nur den Wunsch. Am Sockel prüft der Server Preis, Besitz, Coins und die Nähe zum Sockel; nur dort kann gekauft werden. Beim Ausrüsten im Items-Fenster prüft der Server, dass die gemeldete Waffe existiert, dass der Spieler sie besitzt und dass gerade kein Wurf läuft. Über das Fenster kann der Server nichts verkaufen, auch nicht für einen manipulierten Client.
 - Waffen ohne Modell fliegen als grauer Platzhalter. Ein neues Modell braucht nur einen Config-Eintrag und die Vorlage in `ReplicatedStorage.Assets`.
 
 ## Wurf: Waffe in der Hand, Animation, Kamera
@@ -146,9 +147,9 @@ Die Oberfläche ist aus wiederverwendbaren Bausteinen gebaut (Text mit Rand, But
 Menü-Button, Fenster, Kachel, Fortschrittsbalken). Alle Farben, Größen, Zeiten und Texte
 stehen in `Config/Ui`. Aufbau des Bildschirms:
 - Links: Menü-Raster in zwei Spalten (Shop, Rebirth, Pets, Trails, Items, Gifts), darunter
-  Stärke, Coins und Rebirths, je mit Symbol und Zahl in ihrer Farbe. Pets, Trails, Items
-  und Gifts sind abgedunkelt mit Schloss und sagen beim Antippen "Coming soon"; jeder Button
-  hat einen Schalter in der Config.
+  Stärke, Coins und Rebirths, je mit Symbol und Zahl in ihrer Farbe. Shop, Pets, Trails und
+  Gifts sind abgedunkelt mit Schloss und sagen beim Antippen "Coming soon"; jeder Button hat
+  einen Schalter in der Config. Rebirth und Items öffnen ihr Fenster.
 - Unten mittig: Fortschritt zum nächsten Rebirth, darüber der Wurf-Button (nur in der
   Wurfzone), rechts daneben die Anzeige mit dem Zeiger.
 - Hochformat am Handy: Alles unten in der Mitte rückt nach oben, damit Joystick und

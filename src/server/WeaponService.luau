@@ -1,10 +1,11 @@
 --!strict
 -- The weapon shop on the server: builds the pedestals with their button and handles a player
--- using the shop. There are two ways in, and both only state a wish:
---   * the button at a pedestal ("I used this pedestal"), only when standing next to it
---   * a button in the shop window ("I pressed the button of this weapon"), from anywhere
--- Whether that buys the weapon, equips it or does nothing is decided here, for both ways with the
--- same rules: price, ownership and coins come from the server's own values.
+-- using one, and handles a player equipping a weapon from the items window. Both only state a wish:
+--   * the button at a pedestal ("I used this pedestal"), only when standing next to it. Whether
+--     that buys the weapon, equips it or does nothing is decided here: price, ownership, coins
+--     and the distance to the pedestal. Weapons can only be bought this way.
+--   * a tile in the items window ("I want to equip this weapon"), from anywhere. That only ever
+--     equips a weapon the player already owns.
 --
 -- The weapon models on the pedestals and the signs are drawn by each client (client/ShopView),
 -- because OWNED / EQUIPPED / LOCKED is different for every player.
@@ -43,7 +44,7 @@ local function isNearPedestal(player: Player, weaponIndex: number): boolean
 	return Visibility.isNear(WeaponConfig.useDistance, root.Position.X, root.Position.Z, pedestal.x, pedestal.z)
 end
 
--- One limit for both ways into the shop.
+-- One limit for the pedestals and the items window together.
 local function passesRateLimit(player: Player): boolean
 	local allowed, times = RateLimit.check(
 		requestTimes[player] or {},
@@ -77,8 +78,8 @@ local function onPedestalUsed(player: Player, weaponIndex: number)
 	PlayerStats.useWeaponPedestal(player, weapon.id)
 end
 
--- A button in the shop window was pressed. Everything the client sends is checked here.
-local function onWeaponUseRequested(player: Player, ...: any)
+-- A tile in the items window was pressed. Everything the client sends is checked here.
+local function onWeaponEquipRequested(player: Player, ...: any)
 	-- 1. Rate limit
 	if not passesRateLimit(player) then
 		return
@@ -104,8 +105,9 @@ local function onWeaponUseRequested(player: Player, ...: any)
 		return
 	end
 
-	-- 5. PlayerStats checks price, ownership and coins with its own values and applies the result.
-	PlayerStats.useWeaponPedestal(player, weapon.id)
+	-- 5. PlayerStats checks with its own values that the player owns the weapon, and equips it.
+	-- Nothing is bought here.
+	PlayerStats.equipWeapon(player, weapon.id)
 end
 
 local function buildPedestal(folder: Folder, weaponIndex: number)
@@ -148,7 +150,7 @@ function WeaponService.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		requestTimes[player] = nil
 	end)
-	Remotes.WeaponUseRequested.OnServerEvent:Connect(onWeaponUseRequested)
+	Remotes.WeaponEquipRequested.OnServerEvent:Connect(onWeaponEquipRequested)
 end
 
 return WeaponService

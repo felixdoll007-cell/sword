@@ -7,9 +7,9 @@
 --   ThrowRequested(pressTime: number) second press: only WHEN it was pressed, never a factor
 --   TrainingLeft()                   the player let go of the training pad; can only stop training
 --   RebirthRequested()               "I want to rebirth", no values; the server checks everything
---   WeaponUseRequested(weaponId: string)  "I pressed the button of this weapon in the shop window".
---                                    Only the id; whether that buys the weapon, equips it or does
---                                    nothing is decided by the server, like at a shop pedestal.
+--   WeaponEquipRequested(weaponId: string)  "I want to equip this weapon" (items window). Only the
+--                                    id; the server equips it only if the player owns it.
+--                                    Nothing can be bought with this message.
 -- Server -> Client (only to the player who throws)
 --   MeterStarted(startTime: number, startPhase: number)
 --   ThrowStarted(throwPower: number, factor: number, perWall: { { currency, strength, zoneBonus } })
@@ -25,7 +25,7 @@
 -- the server checks everything itself):
 --   The button at a weapon shop pedestal (a ProximityPrompt made by the server, see
 --   server/WeaponService): "I want to use this pedestal". The server decides whether that buys
---   the weapon, equips it, or does nothing.
+--   the weapon, equips it, or does nothing. This is the only way to buy a weapon.
 --
 -- Values the server shows to the client through attributes on the Player (read-only for the client;
 -- attributes on a Player are visible to all players):
@@ -47,7 +47,7 @@ local EVENT_NAMES = {
 	"TrainingThrow",
 	"TrainingLeft",
 	"RebirthRequested",
-	"WeaponUseRequested",
+	"WeaponEquipRequested",
 	"OtherPlayerThrew",
 }
 
@@ -73,7 +73,7 @@ return {
 	TrainingThrow = folder:WaitForChild("TrainingThrow") :: RemoteEvent,
 	TrainingLeft = folder:WaitForChild("TrainingLeft") :: RemoteEvent,
 	RebirthRequested = folder:WaitForChild("RebirthRequested") :: RemoteEvent,
-	WeaponUseRequested = folder:WaitForChild("WeaponUseRequested") :: RemoteEvent,
+	WeaponEquipRequested = folder:WaitForChild("WeaponEquipRequested") :: RemoteEvent,
 	OtherPlayerThrew = folder:WaitForChild("OtherPlayerThrew") :: RemoteEvent,
 
 	-- Values for the "kind" of OtherPlayerThrew.

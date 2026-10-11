@@ -65,12 +65,23 @@ return {
 	end,
 
 	["windows name a menu entry that exists for their symbol"] = function(expect)
-		for _, settings in { Ui.rebirthWindow, Ui.shopWindow } do
+		for _, settings in { Ui.rebirthWindow, Ui.itemsWindow } do
 			local found = false
 			for _, entry in Ui.menu.entries do
 				found = found or entry.id == settings.menuEntry
 			end
 			expect(found).toBe(true)
+		end
+	end,
+
+	["the shop button is locked and the items button is open"] = function(expect)
+		for _, entry in Ui.menu.entries do
+			if entry.id == "shop" then
+				expect(entry.enabled).toBe(false)
+			elseif entry.id == "inventory" then
+				expect(entry.enabled).toBe(true)
+				expect(entry.label).toBe("ITEMS")
+			end
 		end
 	end,
 
