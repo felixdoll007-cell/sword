@@ -104,3 +104,7 @@ Jeder Fehler, der uns Zeit gekostet hat, kommt hier hinein: was passiert ist, Ur
   und `C0` ist dort schreibgeschützt. Regel: Gelenke von Figuren über `Transform` in
   `PreSimulation` bewegen und beide Typen unterstützen; vorher per MCP prüfen, welcher Typ
   wirklich vorhanden ist.
+- **Boden flackerte je nach Kamerawinkel.** Ursache: Zwei Bodenflächen lagen fast auf gleicher
+  Höhe übereinander (0,05 Studs Abstand, die untere mit Textur). Regel: Böden nebeneinander
+  legen, nie übereinander. Wenn es nicht anders geht, mindestens 0,2 Studs Abstand, und nichts
+  ragt durch.
