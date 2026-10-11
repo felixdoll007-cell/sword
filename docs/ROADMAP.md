@@ -158,7 +158,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Nicht gekaufte Waffen: abgedunkelt mit Schloss, Preis und Hinweis "Buy at the pedestal", kein Kaufen im Fenster
 - [x] Server: Die Nachricht aus dem Fenster kann nur noch ausrüsten (nur gekaufte Waffen), nie kaufen
 - [x] Menü-Button SHOP ist gesperrt mit Schloss und "Coming soon", über den Schalter in der Config
-- [ ] Von mir getestet
+- [x] Von mir getestet
 
 ## Version 3: Pets, Glück und Glückswurf
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
