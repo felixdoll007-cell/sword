@@ -3,7 +3,9 @@
 --   * floor: checkerboard in two tones of ember orange with studs
 --   * a slightly raised, darker edge all around, low enough to walk over
 --   * "THROW ZONE" written big on the floor, in the font of the interface
---   * the floor around the zone: checkerboard in two tones of calm green
+--   * the floor around the zone: checkerboard in two tones of calm green. It lies next to the
+--     zone and the lane at the same height, in pieces, and never under or over another floor
+--     (two floors on top of each other flicker).
 -- Only looks. Where the zone is and whether a player stands in it is not touched
 -- (Config/Lane, Rules/LaneLayout). All colors and sizes are in Config/Ui (world).
 --
@@ -145,14 +147,10 @@ function ThrowZoneLook.build(zoneFloor: BasePart, folder: Instance)
 	addLabel(folder)
 
 	local green = world.surroundings
-	local ground = addBlock(
-		folder,
-		"ThrowZoneSurroundings",
-		ThrowZoneLayout.surroundings(LaneConfig, green),
-		LaneConfig.floorTopY - green.belowFloor,
-		green.darkColor
-	)
-	addFloorTile(ground, green.lightColor)
+	for index, piece in ThrowZoneLayout.surroundings(LaneConfig, green) do
+		local ground = addBlock(folder, `ThrowZoneSurroundings{index}`, piece, LaneConfig.floorTopY, green.darkColor)
+		addFloorTile(ground, green.lightColor)
+	end
 end
 
 return ThrowZoneLook

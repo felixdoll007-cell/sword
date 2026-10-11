@@ -163,7 +163,8 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 ### Block: Wurfzone in fertiger Optik (Vorgriff auf Version 4)
 - [x] Boden der Wurfzone in zwei Tönen Glut-Orange, leicht erhöhter dunklerer Rand rundherum (ohne Springen begehbar)
 - [x] Schriftzug "THROW ZONE" auf dem Boden, in der Schrift der Oberfläche
-- [x] Boden um die Wurfzone in zwei Tönen Grün (150 x 100 Studs)
+- [x] Boden um die Wurfzone in zwei Tönen Grün
+- [x] Korrektur: Das Grün liegt in drei Stücken neben Wurfzone und Bahn auf gleicher Höhe, nie unter oder über einem anderen Boden (das flackerte), und endet vor den Trainingsbahnen
 - [x] Alle Farben und Größen in `Config/Ui` (world); Lage von Rand, Schriftzug und Grün als getestete reine Funktionen
 - [x] Kachelbild für Schachbrett und Noppen erzeugt: `assets/textures/floor-tile.png` (Skript `tools/textures/make_floor_tile.py`)
 - [x] Kachelbild von mir angesehen und hochgeladen, Nummer in `Config/Ui` (world.floorTile.image)

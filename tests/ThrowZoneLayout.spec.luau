@@ -92,39 +92,85 @@ return {
 		expect(front(atLine)).toBeNear(front(zone))
 	end,
 
-	["the green floor reaches around the zone and its edge by the configured room"] = function(expect)
+	["the green floor lies around the zone and never under or over another floor"] = function(expect)
 		local zone = ThrowZoneLayout.zone(LaneConfig)
 		local settings = world.surroundings
-		local green = ThrowZoneLayout.surroundings(LaneConfig, settings)
-		expect(left(green)).toBeNear(left(zone) - settings.left)
-		expect(right(green)).toBeNear(right(zone) + settings.right)
-		expect(front(green)).toBeNear(front(zone) - settings.front)
-		expect(back(green)).toBeNear(back(zone) + settings.back)
-		for _, room in { settings.left, settings.right, settings.front, settings.back } do
-			expect(room > world.throwZone.rim.width).toBe(true)
+		local pieces = ThrowZoneLayout.surroundings(LaneConfig, settings)
+		expect(#pieces).toBe(3)
+
+		-- The lane in front of the zone, as far as the green reaches along it.
+		local lane: ThrowZoneLayout.Area = {
+			x = zone.x,
+			z = front(zone) - settings.front / 2,
+			width = LaneConfig.laneWidth,
+			length = settings.front,
+		}
+		local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
+		local area = 0
+		for index, piece in pieces do
+			expect(overlap(piece, zone)).toBe(false)
+			expect(overlap(piece, lane)).toBe(false)
+			for other = index + 1, #pieces do
+				expect(overlap(piece, pieces[other])).toBe(false)
+			end
+			minX, maxX = math.min(minX, left(piece)), math.max(maxX, right(piece))
+			minZ, maxZ = math.min(minZ, front(piece)), math.max(maxZ, back(piece))
+			area += piece.width * piece.length
 		end
+		expect(minX).toBeNear(left(zone) - settings.left)
+		expect(maxX).toBeNear(right(zone) + settings.right)
+		expect(minZ).toBeNear(front(zone) - settings.front)
+		expect(maxZ).toBeNear(back(zone) + settings.back)
+		-- No gaps: everything inside that outline is green, except the zone and the lane.
+		expect(area).toBeNear((maxX - minX) * (maxZ - minZ) - zone.width * zone.length - lane.width * lane.length)
 		-- It stays on the ground of the map.
-		expect(math.max(math.abs(left(green)), math.abs(right(green))) <= LaneConfig.groundHalfSize).toBe(true)
-		expect(math.max(math.abs(front(green)), math.abs(back(green))) <= LaneConfig.groundHalfSize).toBe(true)
-		-- Negative room counts as none.
-		local none = ThrowZoneLayout.surroundings(LaneConfig, { left = -5, right = -5, front = -5, back = -5 })
-		expect(none.width).toBe(zone.width)
-		expect(none.length).toBe(zone.length)
+		expect(math.max(math.abs(minX), math.abs(maxX)) <= LaneConfig.groundHalfSize).toBe(true)
+		expect(math.max(math.abs(minZ), math.abs(maxZ)) <= LaneConfig.groundHalfSize).toBe(true)
 	end,
 
-	["floors of the world are whole checkerboard fields wide, so the pattern is not cut off"] = function(expect)
-		local field = world.floorTile.fieldStuds
+	["the green floor keeps away from the training lanes and their pads"] = function(expect)
+		local TrainingConfig = require("../src/shared/Config/Training")
+		local Training = require("../src/shared/Rules/Training")
+		local pieces = ThrowZoneLayout.surroundings(LaneConfig, world.surroundings)
+		for laneIndex = 1, Training.laneCount(TrainingConfig) do
+			local pad = Training.lanePad(TrainingConfig, laneIndex) :: any
+			-- Pad and lane in one rectangle, with the invisible barriers along the sides.
+			local padBack = pad.z + pad.length / 2
+			local laneFront = pad.z - pad.length / 2 - TrainingConfig.laneLength
+			local training: ThrowZoneLayout.Area = {
+				x = pad.x,
+				z = (padBack + laneFront) / 2,
+				width = pad.width + 2 * LaneConfig.barrierThickness,
+				length = padBack - laneFront,
+			}
+			for _, piece in pieces do
+				expect(overlap(piece, training)).toBe(false)
+			end
+		end
+	end,
+
+	["negative room around the zone counts as none"] = function(expect)
+		expect(#ThrowZoneLayout.surroundings(LaneConfig, { left = -5, right = -5, front = -5, back = -5 })).toBe(0)
+		local onlyBack = ThrowZoneLayout.surroundings(LaneConfig, { left = 0, right = 0, front = 30, back = 10 })
+		expect(#onlyBack).toBe(1)
+		expect(onlyBack[1].length).toBe(10)
+	end,
+
+	["the checkerboard continues across the green pieces and is not cut off on the zone"] = function(expect)
+		local picture = world.floorTile.fieldStuds * world.floorTile.fieldsPerPicture
 		local zone = ThrowZoneLayout.zone(LaneConfig)
-		local green = ThrowZoneLayout.surroundings(LaneConfig, world.surroundings)
-		for _, size in { zone.width, zone.length, green.width, green.length } do
-			expect(size % field).toBe(0)
+		expect(zone.width % picture).toBe(0)
+		expect(zone.length % picture).toBe(0)
+		-- Every piece is a whole number of pictures wide and long, and all pieces start on the
+		-- same grid. Then the pattern lines up whichever corner Roblox starts the picture at.
+		local pieces = ThrowZoneLayout.surroundings(LaneConfig, world.surroundings)
+		local gridX, gridZ = left(pieces[1]) % picture, front(pieces[1]) % picture
+		for _, piece in pieces do
+			expect(piece.width % picture).toBe(0)
+			expect(piece.length % picture).toBe(0)
+			expect(left(piece) % picture).toBe(gridX)
+			expect(front(piece) % picture).toBe(gridZ)
 		end
 		expect(world.floorTile.image == "" or world.floorTile.image:match("^rbxassetid://%d+$") ~= nil).toBe(true)
-	end,
-
-	["the green floor lies between the ground and the lane floors"] = function(expect)
-		local top = LaneConfig.floorTopY - world.surroundings.belowFloor
-		expect(top > 0).toBe(true)
-		expect(top < LaneConfig.floorTopY).toBe(true)
 	end,
 }

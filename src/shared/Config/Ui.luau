@@ -546,16 +546,18 @@ return {
 		},
 
 		-- The floor around the throw zone: two tones of calm green. It reaches this far beyond
-		-- the zone on each side (front = towards the lane). Lanes, pads and pedestals lie on it.
+		-- the zone on each side (front = along the lane). It is laid in pieces next to the zone
+		-- and the lane, at the same height, never under or over another floor.
+		-- Keep each value a whole number of pictures (fieldStuds x fieldsPerPicture = 10 studs),
+		-- so the checkerboard continues from one piece to the next.
+		-- left stops short of the first training lane, which keeps its old look.
 		surroundings = {
 			darkColor = { 74, 148, 70 },
 			lightColor = { 90, 166, 82 },
-			left = 60,
+			left = 20,
 			right = 60,
 			front = 40,
 			back = 40,
-			-- Its top lies this far below the lane floors, so they stay visible on top of it.
-			belowFloor = 0.05,
 		},
 	},
 }

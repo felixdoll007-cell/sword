@@ -165,7 +165,8 @@ Schachbrett-Boden in zwei Tönen Glut-Orange mit Noppen, dunklerer, leicht erhö
 der Schriftzug "THROW ZONE" auf dem Boden und drumherum ein Schachbrett in zwei Tönen Grün.
 Schachbrett und Noppen sind ein einziges Kachelbild, das als Textur auf einem großen Teil
 liegt (wenige große Teile statt vieler kleiner). Farben und Größen stehen in `Config/Ui`
-(world). Die Bahnen selbst sind noch grau.
+(world). Die Bahnen selbst sind noch grau. Regel für alle Böden: Zwei Bodenflächen liegen nie
+übereinander, sondern nebeneinander; sonst flackern sie je nach Kamerawinkel.
 
 ## Balance
 Alle Zahlen stehen im Config-Ordner und werden beim Spielen eingestellt. Ziel: Der Spieler

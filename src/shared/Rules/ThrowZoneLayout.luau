@@ -70,17 +70,30 @@ function ThrowZoneLayout.label(config: ZoneConfig, label: LabelConfig): Area
 	return { x = zone.x, z = z, width = width, length = length }
 end
 
--- The green floor around the zone: the zone plus this much room on each side.
-function ThrowZoneLayout.surroundings(config: ZoneConfig, surroundings: SurroundingsConfig): Area
+-- The green floor around the zone, as pieces that lie next to the other floors and never under
+-- or over one: a piece left of the zone and the lane, a piece right of them, and a piece behind
+-- the zone. In front of the zone runs the lane, so nothing is laid there.
+-- left, right, front and back say how far the green reaches beyond the zone on each side.
+function ThrowZoneLayout.surroundings(config: ZoneConfig, surroundings: SurroundingsConfig): { Area }
 	local zone = ThrowZoneLayout.zone(config)
 	local left, right = math.max(surroundings.left, 0), math.max(surroundings.right, 0)
 	local front, back = math.max(surroundings.front, 0), math.max(surroundings.back, 0)
-	return {
-		x = zone.x + (right - left) / 2,
-		z = zone.z + (back - front) / 2,
-		width = zone.width + left + right,
-		length = zone.length + front + back,
-	}
+	local zoneLeft, zoneRight = zone.x - zone.width / 2, zone.x + zone.width / 2
+	local zoneBack = zone.z + zone.length / 2
+	local sideLength = zone.length + front + back
+	local sideZ = zone.z + (back - front) / 2
+
+	local pieces: { Area } = {}
+	if left > 0 then
+		table.insert(pieces, { x = zoneLeft - left / 2, z = sideZ, width = left, length = sideLength })
+	end
+	if right > 0 then
+		table.insert(pieces, { x = zoneRight + right / 2, z = sideZ, width = right, length = sideLength })
+	end
+	if back > 0 then
+		table.insert(pieces, { x = zone.x, z = zoneBack + back / 2, width = zone.width, length = back })
+	end
+	return pieces
 end
 
 return ThrowZoneLayout
