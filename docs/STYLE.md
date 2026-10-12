@@ -53,6 +53,10 @@ Noppen-Textur in etwas hellerem Ton der Grundfarbe. Eine einzige Kachel-Grafik f
 - Unten eine dunklere Kante in der Grundfarbe, damit er erhaben wirkt.
 - Beim Drücken sackt er um die Höhe dieser Kante ein. Beim Überfahren wird er leicht größer.
 - Farbe nach Bedeutung, siehe oben.
+- Glanz-Button (Karte am Ei-Stand): statt Noppen ein Farbverlauf von hell oben nach kräftig
+  unten mit hellem Glanzstreifen. Er kann ein Symbol links der Beschriftung tragen (Schloss
+  für "kommt noch"), eine Preis-Pille, die halb unter ihm hängt, und ein schräges helles
+  Schildchen mit der Taste links oben.
 
 ### Menü-Button (Raster links)
 - Quadrat, dunkle Fläche, heller runder Rand.
@@ -70,21 +74,24 @@ Noppen-Textur in etwas hellerem Ton der Grundfarbe. Eine einzige Kachel-Grafik f
   der aktive Reiter ist heller.
 - Öffnen: kurzes Aufploppen von klein nach groß. Schließen: schnell.
 - Es ist immer nur ein Fenster offen.
-- Kein Fenster ist das Kärtchen am Ei-Stand: klein, dunkel und halb durchsichtig, runde Ecken,
-  kein Rahmen, kein X, kleiner Titel in Türkis. Es zeigt sich von selbst, wenn man davorsteht.
+- Kein Fenster ist die Karte am Ei-Stand: dunkel und leicht durchsichtig, runde Ecken, dünner
+  heller Rand, kein X, Titel in Türkis. Sie zeigt sich von selbst, wenn man davorsteht.
 
 ### Kachel für einen Gegenstand
 - Quadrat mit runden Ecken, heller Rand in der Farbe der Seltenheit.
 - Gegenstand groß in der Mitte, Wert unten ("+25%") in hellem Grün.
 - Ausgerüstet: grüner runder Haken oben rechts und hellerer Rahmen.
 - Gesperrt: abgedunkelt, kleines Schloss oben rechts.
-- Gefüllte Kachel (Pets am Ei-Stand): Fläche in der Farbe der Seltenheit, etwas dunkler, Rand
-  etwas heller, Wert unten in Weiß.
+- Gefüllte Kachel: Fläche in der Farbe der Seltenheit, etwas dunkler, Rand etwas heller, Wert
+  unten in Weiß.
+- Glanz-Kachel (Pets am Ei-Stand): Farbverlauf in der Seltenheit von hell oben nach kräftig
+  unten, heller Glanzstreifen oben, dunkler Rand, Gegenstand füllt die Kachel fast ganz, Wert
+  unten in Weiß.
 
 ### Pille
 Dunkle, ganz runde Fläche mit schwarzem Rand, links ein Symbol, rechts eine kurze Zahl in ihrer
-Farbe. Für das, was etwas kostet oder braucht: auf Schildern in der Welt und im Button
-(HATCH mit Preis: Beschriftung links, Pille rechts).
+Farbe. Für das, was etwas kostet oder braucht: auf Schildern in der Welt und am Button
+(im Button rechts der Beschriftung, oder halb unter dem Button wie bei HATCH).
 
 ### Vorher-Nachher (Rebirth)
 Zwei gleiche Karten nebeneinander mit Pfeil dazwischen, darunter eine rote Warnzeile,

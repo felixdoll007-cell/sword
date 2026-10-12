@@ -117,31 +117,86 @@ return {
 		expect(stand.sign.nameHeight + stand.sign.pillHeight <= 1).toBe(true)
 	end,
 
-	["the egg card names its texts and the pill fits into the HATCH button"] = function(expect)
+	["the egg card names its texts and colors, and its buttons carry what the design shows"] = function(expect)
 		local card = Ui.eggCard
 		expect(card.hatchText).toBe("HATCH")
 		expect(card.key).toBe("E")
 		expect(string.format(card.chanceText, "50")).toBe("50%")
 		expect(#card.notEnoughText > 0 and #card.fullText > 0).toBe(true)
 		expect(card.pressWaitSeconds >= 0).toBe(true)
-		-- Dark and half see-through, with a turquoise title.
+		-- Dark and a little see-through, with a thin light border and a turquoise title.
 		expect(isColor(card.backColor)).toBe(true)
 		expect(isColor(card.titleColor)).toBe(true)
+		expect(isColor(card.borderColor)).toBe(true)
 		expect(card.backTransparency > 0 and card.backTransparency < 1).toBe(true)
-		expect(isColor(Ui.button.keyBadge.color)).toBe(true)
-		expect(Ui.button.keyBadge.size > 0 and Ui.button.keyBadge.size < 1).toBe(true)
-		-- Caption left, pill right, both on the button and not on top of each other.
+		expect(card.borderTransparency >= 0 and card.borderTransparency < 1).toBe(true)
+		expect(card.borderThickness > 0).toBe(true)
+		expect(card.petFill >= 1 and card.petFill <= 1.5).toBe(true)
+		expect(card.petBottomShare >= 0 and card.petBottomShare < 0.5).toBe(true)
+		-- HATCH and the two planned buttons, each with its own colors.
+		local sets = { card.hatchColors }
+		expect(#card.lockedButtons).toBe(2)
+		expect(card.lockedButtons[1].text).toBe("MULTI")
+		expect(card.lockedButtons[2].text).toBe("AUTO")
+		expect(card.lockedText).toBe("Coming soon")
+		for _, button in card.lockedButtons do
+			expect(#button.id > 0).toBe(true)
+			table.insert(sets, button.colors)
+		end
+		for _, colors in sets do
+			expect(isColor(colors.top) and isColor(colors.bottom) and isColor(colors.edge)).toBe(true)
+		end
+		-- The key: a small light badge, slightly tilted.
+		local badge = Ui.button.keyBadge
+		expect(isColor(badge.color) and isColor(badge.bottomColor) and isColor(badge.letterColor)).toBe(true)
+		expect(badge.size > 0 and badge.size < 1).toBe(true)
+		expect(math.abs(badge.degrees) <= 20).toBe(true)
+		-- The pill below HATCH lies on the button's lower edge and is not wider than the button.
+		local below = Ui.button.pillBelow
+		expect(below.centerY - below.height / 2 < 1 and below.centerY + below.height / 2 > 1).toBe(true)
+		expect(below.width > 0 and below.width <= 1).toBe(true)
+		-- What hangs out fits into the room the layout leaves below the buttons.
+		local hang = (below.centerY + below.height / 2 - 1) * Ui.layout.eggCard.buttonShare
+		expect(hang <= Ui.layout.eggCard.pillHangShare + Ui.layout.eggCard.padShare).toBe(true)
+		-- The lock and the caption share the face without lying on top of each other.
+		local icon = Ui.button.withIcon
+		expect(icon.iconSize > 0 and icon.iconSize < 1).toBe(true)
+		expect(icon.captionCenterX - icon.captionWidth / 2 > icon.iconCenterX).toBe(true)
+		expect(icon.captionCenterX + icon.captionWidth / 2 <= 1).toBe(true)
+		local gloss = Ui.button.gloss
+		expect(isColor(gloss.color)).toBe(true)
+		expect(gloss.transparency > 0 and gloss.transparency < 1).toBe(true)
+		expect(gloss.y + gloss.height < 0.5 and gloss.insetX < 0.5).toBe(true)
+		-- Caption left, pill right inside a button: both on it and not on top of each other.
 		local places = Ui.button.withPill
-		local captionRight = places.captionCenterX + places.captionWidth / 2
-		local pillLeft = places.pillCenterX - places.pillWidth / 2
-		expect(places.captionCenterX - places.captionWidth / 2 >= 0).toBe(true)
-		expect(captionRight <= pillLeft).toBe(true)
+		expect(places.captionCenterX + places.captionWidth / 2 <= places.pillCenterX - places.pillWidth / 2).toBe(true)
 		expect(places.pillCenterX + places.pillWidth / 2 <= 1).toBe(true)
-		expect(places.pillHeight > 0 and places.pillHeight <= 1).toBe(true)
 		expect(isColor(Ui.pill.color)).toBe(true)
+	end,
+
+	["tiles have their filled and their glossy look for every rarity"] = function(expect)
 		-- A filled tile: darker face, lighter border.
 		expect(Ui.tile.filledDarken > 0 and Ui.tile.filledDarken < 1).toBe(true)
 		expect(Ui.tile.filledBorderLighten > 0 and Ui.tile.filledBorderLighten < 1).toBe(true)
+		-- A glossy tile: two tones per rarity, light at the top, strong at the bottom.
+		local glossy = Ui.tile.glossy
+		for rarity in Ui.rarity do
+			local tones = (glossy.gradients :: any)[rarity]
+			if not tones or not isColor(tones.top) or not isColor(tones.bottom) then
+				error(`the glossy tile has no two tones for {rarity}`)
+			end
+			local top, bottom = tones.top, tones.bottom
+			expect(top[1] + top[2] + top[3] > bottom[1] + bottom[2] + bottom[3]).toBe(true)
+		end
+		for rarity in glossy.gradients do
+			expect((Ui.rarity :: any)[rarity] ~= nil).toBe(true)
+		end
+		expect(glossy.lighten > 0 and glossy.lighten < 1 and glossy.darken >= 0 and glossy.darken < 1).toBe(true)
+		expect(isColor(glossy.borderColor) and isColor(glossy.glossColor)).toBe(true)
+		expect(glossy.glossTransparency > 0 and glossy.glossTransparency < 1).toBe(true)
+		expect(glossy.glossY + glossy.glossHeight < 0.5 and glossy.glossInsetX < 0.5).toBe(true)
+		expect(glossy.valueHeight > 0 and glossy.valueHeight < 0.5).toBe(true)
+		expect(glossy.cornerShare > 0 and glossy.cornerShare <= 0.5).toBe(true)
 	end,
 
 	["the hatching display opens by itself after three seconds and wobbles more and more"] = function(expect)
@@ -170,6 +225,14 @@ return {
 		expect(hatch.pictureCenterY - hatch.pictureShare / 2 >= 0).toBe(true)
 		expect(textsBottom <= hatch.hintCenterY - hatch.hintHeight / 2).toBe(true)
 		expect(hatch.hintCenterY + hatch.hintHeight / 2 <= 1).toBe(true)
+		-- While the egg is closed: the egg is 1.5 times the picture, and the big line sits at
+		-- the bottom of the screen.
+		expect(hatch.eggSize).toBe(1.5)
+		expect(hatch.hatchHintText).toBe("TAP TO HATCH")
+		expect(hatch.hatchHintHeight > hatch.hintHeight).toBe(true)
+		expect(hatch.hatchHintCenterY > 0.75).toBe(true)
+		expect(hatch.hatchHintCenterY + hatch.hatchHintHeight / 2 * hatch.hintPulseScale <= 1).toBe(true)
+		expect(hatch.hintPulseScale >= 1 and hatch.hintPulseSeconds > 0).toBe(true)
 		-- The glow: light, round, made of a sparing number of faint rings.
 		expect(isColor(hatch.glow.color)).toBe(true)
 		expect(hatch.glow.size > 0).toBe(true)
@@ -177,12 +240,14 @@ return {
 		expect(hatch.glow.ringTransparency > 0.5 and hatch.glow.ringTransparency < 1).toBe(true)
 	end,
 
-	["the rays behind the egg are an even number of faint, slowly turning rays"] = function(expect)
+	["the rays behind the egg are wide and narrow in turns, faint and slowly turning"] = function(expect)
 		local rays = Ui.hatch.rays
-		expect(rays.count >= 2 and rays.count % 2 == 0).toBe(true)
-		expect(rays.stripsPerRay >= 1 and rays.stripsPerRay % 1 == 0).toBe(true)
+		-- Every strip makes two rays; wide and narrow lines take turns all the way around.
+		expect(rays.count >= 4 and rays.count % 4 == 0).toBe(true)
+		expect(rays.strips.narrow >= 1 and rays.strips.narrow % 1 == 0).toBe(true)
+		expect(rays.strips.wide > rays.strips.narrow and rays.strips.wide % 1 == 0).toBe(true)
 		-- Sparing for weak phones: every strip is one element that turns every frame.
-		expect(rays.count / 2 * rays.stripsPerRay <= 40).toBe(true)
+		expect(rays.count / 4 * (rays.strips.wide + rays.strips.narrow) <= 40).toBe(true)
 		expect(rays.thickness > 0 and rays.thickness < 0.2).toBe(true)
 		expect(rays.reach >= 0.5).toBe(true)
 		expect(rays.transparency > 0 and rays.transparency < 1).toBe(true)

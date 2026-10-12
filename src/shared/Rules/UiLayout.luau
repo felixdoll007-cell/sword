@@ -23,7 +23,21 @@ export type LayoutConfig = {
 	throwButton: { height: Scaled, aspectRatio: number },
 	meter: { heightFactor: number, aspectRatio: number, minWidth: number, maxWidth: number, gapFactor: number },
 	factorLabel: { heightFactor: number, widthFactor: number },
-	eggCard: { tile: Scaled, columns: number, titleHeight: Scaled, buttonHeight: Scaled, bottomY: number },
+	eggCard: {
+		columns: number,
+		heightShare: number,
+		portraitHeightShare: number,
+		tile: { min: number, max: number },
+		titleShare: number,
+		gapShare: number,
+		padShare: number,
+		buttonGapShare: number,
+		buttonShare: number,
+		buttonMin: number,
+		buttonMinWidth: number,
+		pillHangShare: number,
+		bottomY: number,
+	},
 	menu: { cell: Scaled, columns: number, minCell: number },
 	stats: { sizeFactor: number, rowHeight: Scaled, rowGap: number },
 	window: {
@@ -244,12 +258,14 @@ function UiLayout.window(
 	}
 end
 
--- The small card at the egg stand: a small title, the pets that can hatch as square tiles in a
--- grid, below them a row of buttons that share its whole width (for now only HATCH).
--- The card is as big as what is in it. It sits above the middle of the screen, so the egg and
--- its stand below stay visible, and always right of the left column: it never covers the menu
--- or the values. Where the screen is wide enough it sits in the middle of the screen, otherwise
--- in the middle of the room right of the column.
+-- The card at the egg stand: a title, the pets that can hatch as square tiles in a grid, below
+-- them a row of buttons that share its whole width.
+-- Everything in the card is sized by the edge length of a tile. The tile is chosen so that the
+-- whole card takes its share of the screen's height, within the smallest and biggest tile and
+-- within the room there is. It sits above the middle of the screen, so the egg and its stand
+-- below stay visible, and always right of the left column: it never covers the menu or the
+-- values. Where the screen is wide enough it sits in the middle of the screen, otherwise in the
+-- middle of the room right of the column.
 -- menuCount, statCount: as for the always visible interface. tileCount: number of pets shown.
 -- buttonCount: number of buttons in the row.
 function UiLayout.eggCard(
@@ -263,32 +279,47 @@ function UiLayout.eggCard(
 ): EggCard
 	local settings = config.eggCard
 	local width, height = safe(screenWidth), safe(screenHeight)
-	local short = math.min(width, height)
 	local hud = UiLayout.hud(config, width, height, menuCount, statCount)
-	local margin, gap = hud.margin, hud.gap
 
 	local count = math.max(math.floor(safe(tileCount)), 0)
 	local columns = math.clamp(math.floor(settings.columns), 1, math.max(count, 1))
 	local rows = math.max(math.ceil(count / columns), 1)
-	local titleHeight = UiLayout.scaled(settings.titleHeight, short)
-	local buttonHeight = UiLayout.scaled(settings.buttonHeight, short)
+
+	-- Height and width of the card in tiles, the height without the buttons.
+	local tilesHigh = 2 * settings.padShare
+		+ settings.titleShare
+		+ settings.gapShare
+		+ rows
+		+ (rows - 1) * settings.gapShare
+		+ settings.buttonGapShare
+		+ settings.pillHangShare
+	local tilesWide = columns + (columns - 1) * settings.gapShare + 2 * settings.padShare
+	-- The tile with which the card is this high. The buttons do not shrink below their minimum.
+	local function tileForHeight(cardHeight: number): number
+		local tile = cardHeight / (tilesHigh + settings.buttonShare)
+		if tile * settings.buttonShare < settings.buttonMin then
+			tile = (cardHeight - settings.buttonMin) / tilesHigh
+		end
+		return tile
+	end
 
 	-- The room on the screen: right of the left column, above the progress bar.
-	local left = hud.menu.x + hud.menu.width + gap
-	local roomWidth = math.max(width - margin - left, 0)
-	local roomHeight = math.max(hud.bar.y - gap - margin, 0)
-	-- Around and between everything in the card there is one gap.
-	local aroundY = titleHeight + buttonHeight + 4 * gap
-	local tile = math.min(
-		UiLayout.scaled(settings.tile, short),
-		(roomWidth - (columns + 1) * gap) / columns,
-		(roomHeight - aroundY - (rows - 1) * gap) / rows
-	)
-	tile = math.max(tile, 0)
+	local left = hud.menu.x + hud.menu.width + hud.gap
+	local roomWidth = math.max(width - hud.margin - left, 0)
+	local roomHeight = math.max(hud.bar.y - hud.gap - hud.margin, 0)
+	local share = if width >= height then settings.heightShare else settings.portraitHeightShare
+	local tile = math.clamp(tileForHeight(height * share), settings.tile.min, settings.tile.max)
+	tile = math.max(math.min(tile, roomWidth / tilesWide, tileForHeight(roomHeight)), 0)
 
-	local cardWidth = columns * tile + (columns + 1) * gap
+	local gap, pad = tile * settings.gapShare, tile * settings.padShare
+	local titleHeight = tile * settings.titleShare
+	local buttonHeight = math.max(tile * settings.buttonShare, settings.buttonMin)
+	-- Wide enough for the tiles, and for buttons a thumb hits where the screen has the room.
+	local buttonTotal = math.max(math.floor(safe(buttonCount)), 0)
+	local buttonsWide = buttonTotal * settings.buttonMinWidth + math.max(buttonTotal - 1, 0) * gap + 2 * pad
+	local cardWidth = math.max(tile * tilesWide, math.min(buttonsWide, roomWidth))
+	local cardHeight = tile * tilesHigh + buttonHeight
 	local tilesHeight = rows * tile + (rows - 1) * gap
-	local cardHeight = tilesHeight + aroundY
 	-- In the middle of the screen if that keeps it clear of the left column.
 	local x = (width - cardWidth) / 2
 	if x < left then
@@ -296,10 +327,10 @@ function UiLayout.eggCard(
 	end
 	-- Its lower edge sits above the middle of the screen; on a low screen it moves down as far
 	-- as it must to stay on the screen.
-	local y = math.max(height * settings.bottomY - cardHeight, margin)
+	local y = math.max(height * settings.bottomY - cardHeight, hud.margin)
 
-	local inner = cardWidth - 2 * gap
-	local tilesTop = titleHeight + 2 * gap
+	local inner = cardWidth - 2 * pad
+	local tilesTop = pad + titleHeight + gap
 	local tiles: { Rect } = {}
 	for index = 1, count do
 		local row = math.floor((index - 1) / columns)
@@ -314,13 +345,12 @@ function UiLayout.eggCard(
 		})
 	end
 
-	local buttonTotal = math.max(math.floor(safe(buttonCount)), 0)
 	local buttonWidth = if buttonTotal > 0 then math.max(inner - (buttonTotal - 1) * gap, 0) / buttonTotal else 0
 	local buttons: { Rect } = {}
 	for index = 1, buttonTotal do
 		table.insert(buttons, {
-			x = gap + (index - 1) * (buttonWidth + gap),
-			y = tilesTop + tilesHeight + gap,
+			x = pad + (index - 1) * (buttonWidth + gap),
+			y = tilesTop + tilesHeight + tile * settings.buttonGapShare,
 			width = buttonWidth,
 			height = buttonHeight,
 		})
@@ -331,7 +361,7 @@ function UiLayout.eggCard(
 		rows = rows,
 		columns = columns,
 		tile = tile,
-		title = { x = gap, y = gap, width = inner, height = titleHeight },
+		title = { x = pad, y = pad, width = inner, height = titleHeight },
 		tiles = tiles,
 		buttons = buttons,
 	}

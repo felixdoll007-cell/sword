@@ -71,7 +71,8 @@ function PetPreview.eggModel(): Model
 end
 
 -- Shows this model in a picture that fills the room it is given.
-function PetPreview.show(model: Model, parent: Instance?): ViewportFrame
+-- fill: how big the model is in the picture (default: Config/Ui, petPreview.fill).
+function PetPreview.show(model: Model, parent: Instance?, fill: number?): ViewportFrame
 	local settings = Ui.petPreview
 
 	local viewport = Instance.new("ViewportFrame")
@@ -90,7 +91,7 @@ function PetPreview.show(model: Model, parent: Instance?): ViewportFrame
 	local boxFrame, boxSize = model:GetBoundingBox()
 	local radius = boxSize.Magnitude / 2
 	local halfAngle = math.rad(settings.fieldOfView) / 2
-	local distance = radius / math.sin(halfAngle) / settings.fill
+	local distance = radius / math.sin(halfAngle) / (fill or settings.fill)
 	local center = boxFrame.Position
 	local from = center + Vector3.new(settings.from.x, settings.from.y, settings.from.z).Unit * distance
 
@@ -105,8 +106,8 @@ function PetPreview.show(model: Model, parent: Instance?): ViewportFrame
 end
 
 -- A picture of this pet.
-function PetPreview.pet(petId: string, parent: Instance?): ViewportFrame
-	return PetPreview.show(PetPreview.petModel(petId), parent)
+function PetPreview.pet(petId: string, parent: Instance?, fill: number?): ViewportFrame
+	return PetPreview.show(PetPreview.petModel(petId), parent, fill)
 end
 
 -- A picture of the egg.

@@ -243,6 +243,8 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Nachbesserung: Beim Schlüpfen ist die übrige Oberfläche ausgeblendet; Ei und Pet rund 1,4-mal so groß; weicher heller Schein hinter dem Ei, Strahlen kräftiger
 - [x] Altes `pet_egg` aus dem Ort gelöscht
 - [x] Fünf Pets durch die zweite Fassung mit großen Augen ersetzt (gleiche Vorlagen-Namen, Form und Größe unverändert), alte Vorlagen gelöscht
+- [x] Nach Entwurf (`docs/mocups`): Karte mit Glanz-Kacheln (Farbverlauf, Glanzstreifen, dunkler Rand, Pet groß) und drei Buttons in einer Reihe: HATCH grün mit schrägem "E"-Schildchen und Preis-Pille halb unter dem Button, MULTI gelb und AUTO lila mit Schloss, beide ohne Funktion ("Coming soon"); am PC etwa ein Drittel der Bildschirmhöhe
+- [x] Nach Entwurf: Schlüpf-Anzeige mit breiten hellen Strahlen (abwechselnd breit und schmal), kräftigerem Schein, Ei 1,5-mal so groß, "TAP TO HATCH" groß unten und leicht pulsierend
 - [ ] Von mir getestet
 - Unverändert: Preise, Chancen, Würfeln, Speichern, Server-Prüfungen.
 - Wichtig: Die Vorlage liegt nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).

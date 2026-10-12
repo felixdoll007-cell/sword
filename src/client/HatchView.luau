@@ -1,8 +1,9 @@
 --!strict
 -- What a player sees when their egg hatches. The world behind is blurred and darkened, the rest
--- of the interface is hidden. A soft glow and slowly turning rays lie behind the egg, which
--- sits big in the middle and wobbles more and more. A press
--- opens it at once, otherwise it opens by itself after a few seconds: a white flash, then the
+-- of the interface is hidden. A soft glow and slowly turning rays, in turns a wide and a narrow
+-- one, lie behind the egg, which sits big in the middle and wobbles more and more. A big line
+-- at the bottom says TAP TO HATCH. A press opens the egg at once, otherwise it opens by itself
+-- after a few seconds: a white flash, then the
 -- pet with its name, its rarity in its color and its bonus, and the rays take the color of the
 -- rarity. A press closes.
 -- Only showing: when this runs, the server has already taken the coins, rolled the pet and
@@ -67,6 +68,9 @@ local nameText: OutlinedText.OutlinedText
 local rarityText: OutlinedText.OutlinedText
 local bonusText: OutlinedText.OutlinedText
 local hintText: OutlinedText.OutlinedText
+local hintScale: UIScale
+-- While the egg is closed the line at the bottom is big.
+local hintBig = true
 -- The strips the rays are made of.
 local strips: { Strip } = {}
 
@@ -106,19 +110,31 @@ local function setRayColor(rgb: { number })
 	end
 end
 
+local function placeHint()
+	local settings = Ui.hatch
+	local size = gui.AbsoluteSize
+	local short = math.min(size.X, size.Y)
+	local height = if hintBig then settings.hatchHintHeight else settings.hintHeight
+	hintText.frame.Position = UDim2.fromScale(0.5, if hintBig then settings.hatchHintCenterY else settings.hintCenterY)
+	hintText.frame.Size = UDim2.fromOffset(math.round(short * settings.hintWidth), math.round(short * height))
+end
+
 -- The line at the bottom. An empty text hides it.
-local function setHint(text: string)
+local function setHint(text: string, big: boolean)
+	hintBig = big
 	hintText.setText(text)
 	hintText.frame.Visible = text ~= ""
+	placeHint()
 end
 
 -- Every ray is a fan of narrow strips through the middle of the picture. Each strip fades
--- towards both of its ends and makes two rays, one to each side.
+-- towards both of its ends and makes two rays, one to each side. Wide and narrow rays take turns.
 local function buildRays()
 	local settings = Ui.hatch.rays
 	local lines = math.max(math.floor(settings.count / 2), 1)
-	local perRay = math.max(math.floor(settings.stripsPerRay), 1)
 	for line = 1, lines do
+		local wide = line % 2 == 1
+		local perRay = math.max(math.floor(if wide then settings.strips.wide else settings.strips.narrow), 1)
 		for index = 1, perRay do
 			local frame = Draw.panel("Ray", settings.color, gui)
 			frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -163,8 +179,7 @@ local function resize()
 		entry.text.frame.Size = UDim2.fromOffset(math.round(short * settings.hintWidth), height)
 		y += height
 	end
-	hintText.frame.Size =
-		UDim2.fromOffset(math.round(short * settings.hintWidth), math.round(short * settings.hintHeight))
+	placeHint()
 
 	-- The strips of one ray are fanned out just so far that they still touch at their ends.
 	local rays = settings.rays
@@ -221,7 +236,7 @@ local function showPet()
 	for _, text in { nameText, rarityText, bonusText } do
 		text.frame.Visible = true
 	end
-	setHint(settings.closeHintText)
+	setHint(settings.closeHintText, false)
 end
 
 local function onPressed()
@@ -261,7 +276,7 @@ function HatchView.play(petId: string)
 	for _, text in { nameText, rarityText, bonusText } do
 		text.frame.Visible = false
 	end
-	setHint(settings.hatchHintText)
+	setHint(settings.hatchHintText, true)
 	setRayColor(settings.rays.color)
 
 	eggScale.Scale = 1
@@ -330,6 +345,7 @@ function HatchView.start()
 	eggHolder = Draw.box("Egg", picture)
 	eggHolder.AnchorPoint = Vector2.new(0.5, 0.5)
 	eggHolder.Position = UDim2.fromScale(0.5, 0.5)
+	eggHolder.Size = UDim2.fromScale(settings.eggSize, settings.eggSize)
 	eggScale = Instance.new("UIScale")
 	eggScale.Parent = eggHolder
 	PetPreview.egg(eggHolder)
@@ -351,8 +367,9 @@ function HatchView.start()
 
 	hintText = OutlinedText.new({ name = "Hint", parent = gui })
 	hintText.frame.AnchorPoint = Vector2.new(0.5, 0.5)
-	hintText.frame.Position = UDim2.fromScale(0.5, settings.hintCenterY)
 	hintText.frame.ZIndex = Z_TEXT
+	hintScale = Instance.new("UIScale")
+	hintScale.Parent = hintText.frame
 
 	-- The white flash when the egg opens.
 	flash = Draw.panel("Flash", settings.flashColor, gui)
@@ -384,6 +401,9 @@ function HatchView.start()
 		end
 
 		local elapsed = os.clock() - stepStartedAt
+		-- The line at the bottom grows a little and shrinks again.
+		local pulse = (1 - math.cos(elapsed / settings.hintPulseSeconds * math.pi)) / 2
+		hintScale.Scale = 1 + (settings.hintPulseScale - 1) * pulse
 		if step == "egg" then
 			-- The egg tilts to both sides, further and faster the longer it takes.
 			local progress = if settings.eggSeconds > 0 then math.clamp(elapsed / settings.eggSeconds, 0, 1) else 1

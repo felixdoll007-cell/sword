@@ -3,7 +3,9 @@
 -- border and a darker edge at the bottom that makes it look raised. Pressing sinks it by the
 -- height of that edge; with a mouse over it, it grows a little. Works with touch and mouse.
 -- The color tells what the button means (Config/Ui, colors).
--- A button can carry a dark pill next to its caption, for a price.
+-- A button can carry a dark pill for a price, next to its caption or hanging below it, a symbol
+-- left of its caption and the key that also presses it. A glossy button has a face that runs
+-- from a light tone at the top to a strong one at the bottom, with a strip of shine.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -24,9 +26,15 @@ export type Props = {
 	color: { number },
 	-- How round the corners are (default: the button corners of the style). 0.5 = a round button.
 	cornerShare: number?,
-	-- A dark pill inside the button, right of the caption (HATCH with its price): its symbol
-	-- and the color of its text. nil = a button with only a caption.
-	pill: { icon: Icon.Kind?, color: { number }? }?,
+	-- A glossy button: the two tones of its face and the color of its edge. `color` is then
+	-- not used.
+	gloss: { top: { number }, bottom: { number }, edge: { number } }?,
+	-- A symbol left of the caption (the lock on a button that is still planned).
+	icon: Icon.Kind?,
+	-- A dark pill for a price: its symbol and the color of its text. below = true: it hangs
+	-- half out of the button's lower edge, otherwise it sits inside, right of the caption.
+	-- nil = a button without a pill.
+	pill: { icon: Icon.Kind?, color: { number }?, below: boolean? }?,
 	-- The key that also presses the button ("E"), as a small badge on its top left corner.
 	-- Only the badge: listening to the key is up to whoever makes the button. Hidden at first.
 	key: string?,
@@ -76,6 +84,20 @@ function Button.new(props: Props): Button
 	Draw.corner(face, corner)
 
 	local studs = Draw.studs(face, rgb, corner)
+	local gloss = props.gloss
+	local faceGradient: UIGradient? = nil
+	if gloss then
+		local look = settings.gloss
+		if studs.image then
+			studs.image.Visible = false
+		end
+		faceGradient = Draw.gradient(face, gloss.top, gloss.bottom)
+		local shine = Draw.panel("Shine", look.color, face)
+		shine.BackgroundTransparency = look.transparency
+		shine.Position = UDim2.fromScale(look.insetX, look.y)
+		shine.Size = UDim2.fromScale(1 - 2 * look.insetX, look.height)
+		Draw.corner(shine, Ui.corners.round)
+	end
 
 	local text = OutlinedText.new({ name = "Caption", parent = face, text = props.text })
 	text.frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -83,8 +105,30 @@ function Button.new(props: Props): Button
 	text.frame.Size = UDim2.fromScale(settings.textWidth, settings.textHeight)
 	text.frame.ZIndex = 2
 
+	if props.icon then
+		local places = settings.withIcon
+		text.frame.Position = UDim2.fromScale(places.captionCenterX, 0.5)
+		text.frame.Size = UDim2.fromScale(places.captionWidth, settings.textHeight)
+		local icon = Icon.new(props.icon, face)
+		icon.AnchorPoint = Vector2.new(0.5, 0.5)
+		icon.Position = UDim2.fromScale(places.iconCenterX, 0.5)
+		-- A square, sized by the face's height.
+		icon.Size = UDim2.fromScale(places.iconSize, places.iconSize)
+		icon.SizeConstraint = Enum.SizeConstraint.RelativeYY
+		icon.ZIndex = 2
+	end
+
 	local pill: Pill.Pill? = nil
-	if props.pill then
+	if props.pill and props.pill.below then
+		local places = settings.pillBelow
+		-- On the button, not on its face: it stays where it is while the face sinks.
+		local made = Pill.new({ parent = frame, icon = props.pill.icon, color = props.pill.color })
+		made.frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		made.frame.Position = UDim2.fromScale(0.5, places.centerY)
+		made.frame.Size = UDim2.fromScale(places.width, places.height)
+		made.frame.ZIndex = 4
+		pill = made
+	elseif props.pill then
 		local places = settings.withPill
 		text.frame.Position = UDim2.fromScale(places.captionCenterX, 0.5)
 		text.frame.Size = UDim2.fromScale(places.captionWidth, settings.textHeight)
@@ -107,9 +151,18 @@ function Button.new(props: Props): Button
 		badge.SizeConstraint = Enum.SizeConstraint.RelativeYY
 		badge.ZIndex = 3
 		badge.Visible = false
+		badge.Rotation = look.degrees
+		Draw.gradient(badge, look.color, look.bottomColor)
+		badge.BackgroundColor3 = Draw.color(Ui.text.color)
 		Draw.corner(badge, look.cornerShare)
 		Draw.border(badge, nil, Ui.borderThickness - 1)
-		local letter = OutlinedText.new({ name = "Letter", parent = badge, text = props.key, shadow = false })
+		local letter = OutlinedText.new({
+			name = "Letter",
+			parent = badge,
+			text = props.key,
+			color = look.letterColor,
+			shadow = false,
+		})
 		letter.frame.AnchorPoint = Vector2.new(0.5, 0.5)
 		letter.frame.Position = UDim2.fromScale(0.5, 0.5)
 		letter.frame.Size = UDim2.fromScale(look.textHeight, look.textHeight)
@@ -118,6 +171,14 @@ function Button.new(props: Props): Button
 
 	local function paint()
 		local shown = if enabled then rgb else Ui.colors.disabled
+		if gloss and faceGradient then
+			-- The gradient gives the face its colors; switched off, the face is plain grey.
+			faceGradient.Enabled = enabled
+			face.BackgroundColor3 = Draw.color(if enabled then Ui.text.color else shown)
+			edge.BackgroundColor3 =
+				Draw.color(if enabled then gloss.edge else ColorMath.darken(shown, settings.edgeDarken))
+			return
+		end
 		face.BackgroundColor3 = Draw.color(shown)
 		edge.BackgroundColor3 = Draw.color(ColorMath.darken(shown, settings.edgeDarken))
 		studs.setColor(shown)
@@ -146,6 +207,8 @@ function Button.new(props: Props): Button
 		hover(false)
 		sink(false)
 	end)
+
+	paint()
 
 	frame.Parent = props.parent
 	return {

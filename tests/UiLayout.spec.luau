@@ -6,6 +6,8 @@ local MENU_COUNT = #Ui.menu.entries
 local STAT_COUNT = 3
 -- Pets shown in the window at the egg stand.
 local HATCH_COUNT = 5
+-- Buttons in the card at the egg stand: HATCH and the two planned ones.
+local EGG_BUTTONS = 1 + #Ui.eggCard.lockedButtons
 -- A button smaller than this is hard to hit with a thumb.
 local THUMB_PIXELS = 44
 
@@ -29,7 +31,15 @@ local function hud(screen)
 end
 
 local function eggCard(screen, buttons: number?): UiLayout.EggCard
-	return UiLayout.eggCard(layout, screen.width, screen.height, MENU_COUNT, STAT_COUNT, HATCH_COUNT, buttons or 1)
+	return UiLayout.eggCard(
+		layout,
+		screen.width,
+		screen.height,
+		MENU_COUNT,
+		STAT_COUNT,
+		HATCH_COUNT,
+		buttons or EGG_BUTTONS
+	)
 end
 
 local function overlap(a: UiLayout.Rect, b: UiLayout.Rect): boolean
@@ -127,6 +137,22 @@ return {
 		end
 	end,
 
+	["the egg card takes about a third of the height of a wide screen and more of an upright one"] = function(expect)
+		for _, screen in SCREENS do
+			local egg = eggCard(screen)
+			local share = egg.card.height / screen.height
+			if screen.width >= screen.height and screen.height >= 600 then
+				expect(share > 0.3 and share <= layout.eggCard.heightShare + 0.001).toBe(true)
+			elseif screen.width < screen.height then
+				expect(share <= layout.eggCard.portraitHeightShare + 0.001).toBe(true)
+			end
+			expect(egg.tile <= layout.eggCard.tile.max).toBe(true)
+			-- Room below the buttons for the pill that hangs out of HATCH.
+			local below = egg.card.height - egg.buttons[1].y - egg.buttons[1].height
+			expect(below >= egg.tile * layout.eggCard.pillHangShare - 0.001).toBe(true)
+		end
+	end,
+
 	["the egg card shows the pets in three columns, small but big enough to see"] = function(expect)
 		for _, screen in SCREENS do
 			local egg = eggCard(screen)
@@ -160,32 +186,38 @@ return {
 		end
 	end,
 
-	["HATCH is as wide as the row and big enough for a thumb; later buttons share the row"] = function(expect)
+	["the three buttons share the row below the tiles, each big enough for a thumb"] = function(expect)
 		for _, screen in SCREENS do
 			local egg = eggCard(screen)
 			local card = { width = egg.card.width, height = egg.card.height }
-			expect(#egg.buttons).toBe(1)
-			local button = egg.buttons[1]
-			expect(inside(button, card)).toBe(true)
-			expect(button.height >= THUMB_PIXELS).toBe(true)
-			if button.width < 2 * THUMB_PIXELS then
-				error(`HATCH is only {button.width} pixels wide on {screen.name}`)
-			end
-			-- From the first tile's left edge to the last column's right edge: no empty room.
-			expect(button.x).toBeNear(egg.tiles[1].x)
-			expect(button.x + button.width).toBeNear(egg.tiles[3].x + egg.tiles[3].width)
-
-			local three = eggCard(screen, 3)
-			expect(#three.buttons).toBe(3)
-			expect(three.card.width).toBeNear(egg.card.width)
-			for index, each in three.buttons do
-				expect(inside(each, card)).toBe(true)
-				expect(each.width).toBeNear(three.buttons[1].width)
+			expect(#egg.buttons).toBe(3)
+			for index, button in egg.buttons do
+				expect(inside(button, card)).toBe(true)
+				if button.height < THUMB_PIXELS or button.width < THUMB_PIXELS then
+					error(`button {index} is only {button.width} x {button.height} pixels on {screen.name}`)
+				end
+				expect(button.width).toBeNear(egg.buttons[1].width)
+				expect(button.y >= egg.tiles[5].y + egg.tiles[5].height).toBe(true)
 				if index > 1 then
-					expect(overlap(each, three.buttons[index - 1])).toBe(false)
+					expect(overlap(button, egg.buttons[index - 1])).toBe(false)
 				end
 			end
-			expect(three.buttons[3].x + three.buttons[3].width).toBeNear(button.x + button.width)
+			-- From edge to edge of what is in the card, like the title: no empty room. Never
+			-- narrower than the tiles above them.
+			expect(egg.buttons[1].x).toBeNear(egg.title.x)
+			expect(egg.buttons[3].x + egg.buttons[3].width).toBeNear(egg.title.x + egg.title.width)
+			expect(egg.buttons[1].x <= egg.tiles[1].x + 0.001).toBe(true)
+			-- The tiles sit in the middle of the card.
+			expect((egg.tiles[1].x + egg.tiles[3].x + egg.tiles[3].width) / 2).toBeNear(card.width / 2)
+			-- Wide enough to read the caption wherever the screen is wider than high.
+			if screen.width >= screen.height then
+				expect(egg.buttons[1].width >= layout.eggCard.buttonMinWidth - 0.001).toBe(true)
+			end
+
+			-- One button alone takes the whole row.
+			local one = eggCard(screen, 1)
+			expect(one.buttons[1].x).toBeNear(one.title.x)
+			expect(one.buttons[1].width).toBeNear(one.title.width)
 		end
 	end,
 

@@ -9,6 +9,9 @@ local Shared = ReplicatedStorage.Shared
 local Ui = require(Shared.Config.Ui)
 local ColorMath = require(Shared.Rules.ColorMath)
 
+-- Turns a gradient so that it runs from top to bottom.
+local QUARTER_TURN = 90
+
 local Draw = {}
 
 function Draw.color(rgb: { number }): Color3
@@ -70,6 +73,16 @@ function Draw.border(parent: Instance, rgb: { number }?, thickness: number?): UI
 	stroke.Thickness = thickness or Ui.borderThickness
 	stroke.Parent = parent
 	return stroke
+end
+
+-- Lets a surface run from one color at the top to another at the bottom. The surface itself
+-- must be white for the colors to show as they are.
+function Draw.gradient(parent: Instance, top: { number }, bottom: { number }): UIGradient
+	local gradient = Instance.new("UIGradient")
+	gradient.Rotation = QUARTER_TURN
+	gradient.Color = ColorSequence.new(Draw.color(top), Draw.color(bottom))
+	gradient.Parent = parent
+	return gradient
 end
 
 -- Keeps a thing square inside the room it is given.

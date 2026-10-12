@@ -1,8 +1,9 @@
 --!strict
 -- What this player sees of the egg stand: the egg floating above the pedestal (it bobs and
 -- turns slowly), the sign floating above it (name and this player's price), and, while the
--- player stands at the stand, a small card above the middle of the screen with the pets that
--- can hatch, their chances and the HATCH button with the price in it (on a keyboard also E).
+-- player stands at the stand, a card above the middle of the screen with the pets that can
+-- hatch, their chances and a row of buttons: HATCH with the price below it (on a keyboard also
+-- E), and the planned ones, which only answer "Coming soon".
 -- The pedestal is made by the server (server/PetService). Pressing HATCH only tells the server
 -- "I want to hatch an egg"; coins, room and the pet are decided there.
 
@@ -38,8 +39,6 @@ local WorldSign = require(script.Parent.Ui.WorldSign)
 local FOLDER_NAME = "MyEggStand"
 -- The rows of the sign, from top to bottom.
 local PRICE_ROW = 2
--- Buttons in the card's row. Later buttons (right of HATCH) share the row with it.
-local BUTTON_COUNT = 1
 
 local EggStandView = {}
 
@@ -49,6 +48,8 @@ local sign: WorldSign.WorldSign
 local card: Frame
 local title: OutlinedText.OutlinedText
 local hatchButton: Button.Button
+-- HATCH first, then the planned ones, from left to right.
+local buttons: { Button.Button } = {}
 local oddsTiles: { Tile.Tile } = {}
 -- os.clock() until which presses are ignored after a press.
 local pressBlockedUntil = 0
@@ -145,8 +146,8 @@ local function refreshPrice()
 	hatchButton.setPillText(text)
 end
 
--- The card: the egg's name, one small tile per pet that can hatch in the color of its rarity
--- with its chance, and below them the HATCH button.
+-- The card: the egg's name, one glossy tile per pet that can hatch in the colors of its rarity
+-- with its chance, and below them the buttons.
 local function buildCard()
 	local settings = Ui.eggCard
 	card = Draw.panel("EggCard", settings.backColor, Hud.gui())
@@ -155,6 +156,7 @@ local function buildCard()
 	-- Takes presses, so a press between the tiles does not turn the camera.
 	card.Active = true
 	Draw.corner(card, settings.cornerShare)
+	Draw.border(card, settings.borderColor, settings.borderThickness).Transparency = settings.borderTransparency
 
 	title = OutlinedText.new({ name = "Title", parent = card, text = PetConfig.egg.name, color = settings.titleColor })
 
@@ -162,8 +164,9 @@ local function buildCard()
 		local pet = Pets.get(PetConfig, chance.pet)
 		local rarity = if pet then pet.rarity else Ui.defaultRarity
 		local color = (Ui.rarity :: { [string]: { number } })[rarity] or Ui.rarity[Ui.defaultRarity]
-		local tile = Tile.new(chance.pet, color, card, "filled")
-		PetPreview.pet(chance.pet, tile.content)
+		local tile = Tile.new(chance.pet, color, card, "glossy", rarity)
+		tile.content.Size = UDim2.fromScale(1, 1 - settings.petBottomShare)
+		PetPreview.pet(chance.pet, tile.content, settings.petFill)
 		tile.setValue(string.format(settings.chanceText, tostring(chance.percent)))
 		table.insert(oddsTiles, tile)
 	end
@@ -173,21 +176,43 @@ local function buildCard()
 		parent = card,
 		text = settings.hatchText,
 		color = Ui.colors.confirm,
-		pill = { icon = "coins", color = Ui.colors.coins },
+		gloss = settings.hatchColors,
+		pill = { icon = "coins", color = Ui.colors.coins, below = true },
 		key = settings.key,
 	})
 	hatchButton.onActivated(onHatchPressed)
+	-- Above its neighbors, so the key and the pill that stick out of it are not covered.
+	hatchButton.frame.ZIndex = 2
+	table.insert(buttons, hatchButton)
+
+	-- Planned, without a function yet.
+	for _, planned in settings.lockedButtons do
+		local button = Button.new({
+			name = planned.id,
+			parent = card,
+			text = planned.text,
+			color = planned.colors.bottom,
+			gloss = planned.colors,
+			icon = "lock",
+		})
+		button.onActivated(function()
+			Toast.show(settings.lockedText)
+		end)
+		table.insert(buttons, button)
+	end
 
 	Hud.onLayout(function()
 		local size = Hud.screenSize()
 		local layout =
-			UiLayout.eggCard(Ui.layout, size.X, size.Y, #Ui.menu.entries, Hud.STAT_COUNT, #oddsTiles, BUTTON_COUNT)
+			UiLayout.eggCard(Ui.layout, size.X, size.Y, #Ui.menu.entries, Hud.STAT_COUNT, #oddsTiles, #buttons)
 		Draw.place(card, layout.card)
 		Draw.place(title.frame, layout.title)
 		for index, tile in oddsTiles do
 			Draw.place(tile.frame, layout.tiles[index])
 		end
-		Draw.place(hatchButton.frame, layout.buttons[1])
+		for index, button in buttons do
+			Draw.place(button.frame, layout.buttons[index])
+		end
 	end)
 end
 

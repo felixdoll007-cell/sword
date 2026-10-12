@@ -134,8 +134,8 @@ return {
 		-- Room for the text, as a share of the face.
 		textWidth = 0.84,
 		textHeight = 0.7,
-		-- A button with a pill in it (HATCH with its price): the caption sits left, the pill
-		-- right. Where their middles are and how much room they have, as shares of the face.
+		-- A button with a pill in it (a price): the caption sits left, the pill right. Where
+		-- their middles are and how much room they have, as shares of the face.
 		withPill = {
 			captionCenterX = 0.25,
 			captionWidth = 0.38,
@@ -143,16 +143,48 @@ return {
 			pillWidth = 0.5,
 			pillHeight = 0.62,
 		},
-		-- The key that also presses the button, as a small dark badge on its top left corner.
-		-- Size as a share of the button's height; where its middle sits (0, 0 = top left corner
-		-- of the button, 1, 1 = bottom right corner).
-		keyBadge = {
-			size = 0.42,
-			x = 0.04,
+		-- A button with its pill below it (HATCH with its price): the pill lies half on the
+		-- button's lower edge and hangs out of it. Where its middle is (1 = the button's lower
+		-- edge) and its size, as shares of the button.
+		pillBelow = {
+			centerY = 1.06,
+			width = 0.62,
+			height = 0.48,
+		},
+		-- A button with a symbol left of its caption (the lock on MULTI and AUTO): the symbol is
+		-- a square of this share of the face's height; where the middles are and how wide the
+		-- caption may be, as shares of the face.
+		withIcon = {
+			iconSize = 0.5,
+			iconCenterX = 0.19,
+			captionCenterX = 0.62,
+			captionWidth = 0.56,
+		},
+		-- A glossy button (the buttons of the egg card): its face runs from a light tone at the
+		-- top to a strong one at the bottom, with a light strip of shine at the top. No studs.
+		gloss = {
+			color = { 255, 255, 255 },
+			transparency = 0.62,
+			-- Space to the left and right and to the top, and the strip's height, as shares of
+			-- the face.
+			insetX = 0.065,
 			y = 0.08,
-			color = { 17, 22, 32 },
-			cornerShare = 0.25,
-			textHeight = 0.8,
+			height = 0.22,
+		},
+		-- The key that also presses the button, as a small light badge on its top left corner,
+		-- slightly tilted. Size as a share of the button's height; where its middle sits (0, 0 =
+		-- top left corner of the button, 1, 1 = bottom right corner).
+		keyBadge = {
+			size = 0.46,
+			x = 0.04,
+			y = 0.03,
+			-- From this color at the top to the other at the bottom.
+			color = { 255, 255, 255 },
+			bottomColor = { 217, 221, 230 },
+			letterColor = { 20, 22, 28 },
+			degrees = -8,
+			cornerShare = 0.28,
+			textHeight = 0.72,
 		},
 	},
 
@@ -213,6 +245,34 @@ return {
 		-- much darker, and its border is this much lighter than that color (0 to 1). Its value
 		-- is white.
 		filledDarken = 0.45,
+		-- A glossy tile (the pets at the egg stand): its face runs from a light tone of the
+		-- rarity at the top to a strong one at the bottom, with a light strip of shine at the
+		-- top and a dark border. Its value is white.
+		glossy = {
+			-- Top and bottom color per rarity.
+			gradients = {
+				common = { top = { 213, 220, 229 }, bottom = { 135, 148, 164 } },
+				uncommon = { top = { 157, 245, 138 }, bottom = { 46, 165, 74 } },
+				rare = { top = { 134, 208, 255 }, bottom = { 42, 110, 224 } },
+				epic = { top = { 221, 165, 255 }, bottom = { 130, 56, 220 } },
+				legendary = { top = { 255, 240, 122 }, bottom = { 240, 156, 24 } },
+			},
+			-- A rarity without an entry above: its color, this much lighter at the top and this
+			-- much darker at the bottom (0 to 1).
+			lighten = 0.5,
+			darken = 0.15,
+			borderColor = { 20, 22, 28 },
+			cornerShare = 0.15,
+			-- The strip of shine: color, how see-through, space to the left and right and to the
+			-- top, and its height, as shares of the tile.
+			glossColor = { 255, 255, 255 },
+			glossTransparency = 0.72,
+			glossInsetX = 0.057,
+			glossY = 0.034,
+			glossHeight = 0.17,
+			-- The chance at the bottom, height as a share of the tile.
+			valueHeight = 0.2,
+		},
 		filledBorderLighten = 0.4,
 	},
 
@@ -322,15 +382,34 @@ return {
 			widthFactor = 1.5,
 		},
 
-		-- The small card at the egg stand: a small title, one small square tile per pet that can
-		-- hatch, below them the row of buttons. The card is as big as what is in it and sits above
-		-- the middle of the screen, right of the menu.
+		-- The card at the egg stand: a title, one square tile per pet that can hatch, below them
+		-- the row of buttons. The card is as big as what is in it and sits above the middle of
+		-- the screen, right of the menu.
 		eggCard = {
-			-- Edge length of a tile. The tiles shrink if the screen has less room.
-			tile = { share = 0.13, min = 40, max = 62 },
 			columns = 3,
-			titleHeight = { share = 0.055, min = 15, max = 26 },
-			buttonHeight = { share = 0.13, min = 46, max = 62 },
+			-- How high the whole card is, as a share of the screen's height: on a screen that is
+			-- wider than high, and on one held upright (bigger there, for the thumb).
+			heightShare = 0.36,
+			portraitHeightShare = 0.42,
+			-- Edge length of a tile in pixels: never smaller or bigger than this, whatever the
+			-- share above says. The tiles still shrink if the screen has less room.
+			tile = { min = 46, max = 120 },
+			-- Everything else in the card, as shares of a tile's edge length.
+			titleShare = 0.25,
+			-- Between the tiles, and between title and tiles.
+			gapShare = 0.09,
+			-- From the card's edge to what is in it.
+			padShare = 0.14,
+			-- Between the tiles and the buttons.
+			buttonGapShare = 0.16,
+			buttonShare = 0.5,
+			-- A button is never lower than this many pixels, so a thumb hits it.
+			buttonMin = 48,
+			-- And, where the screen has the room, never narrower than this: with small tiles
+			-- the card gets wider than its tiles, which then sit in its middle.
+			buttonMinWidth = 76,
+			-- Room below the buttons for the price pill that hangs out of HATCH.
+			pillHangShare = 0.16,
 			-- Where the card's lower edge sits (0 = top of the screen, 0.5 = the middle). On a low
 			-- screen the card reaches further down.
 			bottomY = 0.46,
@@ -586,9 +665,10 @@ return {
 		confirmButtonGap = 0.06,
 	},
 
-	-- The small card that shows while the player stands at the egg stand: the egg's name
-	-- (Config/Pets), the pets that can hatch as tiles with their chances, and the HATCH button
-	-- with the price in it. Its sizes are in the layout above (eggCard).
+	-- The card that shows while the player stands at the egg stand: the name of the egg
+	-- (Config/Pets), the pets that can hatch as glossy tiles with their chances, and a row of
+	-- buttons: HATCH with the price below it, and two that are planned and still locked.
+	-- Its sizes are in the layout above (eggCard).
 	eggCard = {
 		hatchText = "HATCH",
 		-- Extra shortcut on keyboards, shown on the button unless the player uses touch.
@@ -600,11 +680,35 @@ return {
 		fullText = "Pet inventory full",
 		-- After a press, wait this long before the next press counts.
 		pressWaitSeconds = 1,
-		-- The surface behind it: dark, half see-through, round corners, no border.
-		backColor = { 17, 22, 32 },
-		backTransparency = 0.4,
-		cornerShare = 0.08,
-		titleColor = { 60, 232, 226 },
+		-- The surface behind it: dark, a little see-through, round corners, a thin light border.
+		backColor = { 28, 36, 52 },
+		backTransparency = 0.16,
+		cornerShare = 0.065,
+		borderColor = { 255, 255, 255 },
+		borderTransparency = 0.58,
+		borderThickness = 2,
+		titleColor = { 70, 236, 224 },
+		-- How big a pet is in its tile. 1 fits whatever its shape, more fills the tile better.
+		petFill = 1.2,
+		-- The picture of the pet leaves this share of the tile free at the bottom, for the chance.
+		petBottomShare = 0.1,
+		-- HATCH: face from top to bottom, and the darker edge below it.
+		hatchColors = { top = { 142, 245, 106 }, bottom = { 60, 194, 58 }, edge = { 29, 122, 44 } },
+		-- Buttons that are planned but do nothing yet, right of HATCH in this order. They show a
+		-- lock, and pressing one only shows the short message below.
+		lockedButtons = {
+			{
+				id = "multi",
+				text = "MULTI",
+				colors = { top = { 255, 235, 106 }, bottom = { 255, 188, 31 }, edge = { 168, 112, 10 } },
+			},
+			{
+				id = "auto",
+				text = "AUTO",
+				colors = { top = { 207, 150, 255 }, bottom = { 141, 75, 239 }, edge = { 85, 36, 163 } },
+			},
+		},
+		lockedText = "Coming soon",
 	},
 
 	-- What is shown when an egg hatches. The world behind is blurred and darkened, rays turn
@@ -635,40 +739,42 @@ return {
 		-- The world behind: darkness (0 = black, 1 = not darkened) and how quickly the blur
 		-- comes and goes. How strong the blur is, is the same as behind a window (window, blurSize).
 		dimColor = { 0, 0, 0 },
-		dimTransparency = 0.3,
+		dimTransparency = 0.42,
 		blurSeconds = 0.2,
 
-		-- The rays behind the egg, from the middle of the picture outwards. Each ray is made of a
-		-- few narrow strips fanned out, so it gets wider and softer towards the outside. No picture.
+		-- The rays behind the egg, from the middle of the picture outwards, in turns a wide and a
+		-- narrow one. Each ray is made of a few narrow strips fanned out, so it gets wider and
+		-- fainter towards the outside. No picture.
 		rays = {
-			-- How many rays. An even number: every strip runs through the middle and makes two.
-			count = 12,
-			-- More strips = wider rays.
-			stripsPerRay = 4,
+			-- How many rays. A multiple of four: every strip runs through the middle and makes
+			-- two rays, and wide and narrow ones take turns.
+			count = 16,
+			-- Strips in a wide and in a narrow ray. More strips = a wider ray.
+			strips = { wide = 5, narrow = 3 },
 			-- Thickness of one strip as a share of the screen's shorter side.
 			thickness = 0.05,
 			-- How far a ray reaches from the middle, as a share of the screen's longer side.
 			-- It fades towards its end.
-			reach = 0.75,
+			reach = 0.55,
 			-- How see-through one strip is in the middle (0 = solid, 1 = invisible). Where
 			-- strips lie on top of each other the ray is brighter.
-			transparency = 0.74,
+			transparency = 0.62,
 			-- Color while the egg is closed. After it opened: the color of the pet's rarity.
-			color = { 150, 245, 238 },
+			color = { 255, 240, 180 },
 			-- A full turn takes this many seconds.
-			turnSeconds = 40,
+			turnSeconds = 28,
 		},
 
 		-- A soft, light, round glow right behind the egg and the pet. No picture: rings of the
 		-- same faint color lie on top of each other, each smaller than the one before, so the
 		-- glow is brightest in the middle.
 		glow = {
-			color = { 255, 255, 235 },
+			color = { 255, 246, 196 },
 			-- Across, as a share of the picture's edge length.
-			size = 1.25,
-			rings = 16,
+			size = 1.3,
+			rings = 22,
 			-- How see-through one ring is (0 = solid, 1 = invisible).
-			ringTransparency = 0.94,
+			ringTransparency = 0.9,
 		},
 
 		-- The picture of egg and pet: edge length as a share of the screen's shorter side, and
@@ -676,6 +782,8 @@ return {
 		-- come below it.
 		pictureShare = 0.66,
 		pictureCenterY = 0.39,
+		-- The egg is this many times as big as the picture; the pet is as big as the picture.
+		eggSize = 1.5,
 		-- Texts below the pet: heights as shares of the screen's shorter side. They reach into
 		-- the lower edge of the picture by textOverlap (there is nothing of the pet down there).
 		nameHeight = 0.092,
@@ -689,10 +797,16 @@ return {
 		hatchHintText = "TAP TO HATCH",
 		closeHintText = "TAP TO CONTINUE",
 		-- Where its middle sits (0 = top of the screen), and its height and room as shares of
-		-- the screen's shorter side.
+		-- the screen's shorter side. While the egg is closed the line is big, afterwards small,
+		-- below the texts of the pet.
+		hatchHintCenterY = 0.89,
+		hatchHintHeight = 0.09,
 		hintCenterY = 0.95,
 		hintHeight = 0.06,
 		hintWidth = 0.9,
+		-- The line grows to this scale and back, one way in this many seconds.
+		hintPulseScale = 1.06,
+		hintPulseSeconds = 0.7,
 	},
 
 	-- A pet (or the egg) as a 3D model in the interface: seen from the front, a little from the
