@@ -357,7 +357,7 @@ return {
 				straw.pieceColor,
 				straw.tuftColor,
 				training.padMark.color,
-				world.signs.pill.color,
+				Ui.pill.color,
 				world.shop.pedestal.darkColor,
 				world.shop.pedestal.lightColor,
 			}

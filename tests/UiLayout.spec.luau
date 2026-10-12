@@ -4,7 +4,7 @@ local Ui = require("../src/shared/Config/Ui")
 local layout = Ui.layout
 local MENU_COUNT = #Ui.menu.entries
 local STAT_COUNT = 3
--- Pets shown in the row at the egg stand.
+-- Pets shown in the window at the egg stand.
 local HATCH_COUNT = 5
 -- A button smaller than this is hard to hit with a thumb.
 local THUMB_PIXELS = 44
@@ -25,7 +25,19 @@ local SCREENS = {
 }
 
 local function hud(screen)
-	return UiLayout.hud(layout, screen.width, screen.height, MENU_COUNT, STAT_COUNT, HATCH_COUNT)
+	return UiLayout.hud(layout, screen.width, screen.height, MENU_COUNT, STAT_COUNT)
+end
+
+local function eggWindow(screen): UiLayout.EggWindow
+	return UiLayout.eggWindow(
+		layout,
+		screen.width,
+		screen.height,
+		MENU_COUNT,
+		STAT_COUNT,
+		HATCH_COUNT,
+		Ui.window.paddingFactor
+	)
 end
 
 local function overlap(a: UiLayout.Rect, b: UiLayout.Rect): boolean
@@ -100,26 +112,152 @@ return {
 		end
 	end,
 
-	["at the egg stand the row of pets sits above the button and clear of the left column"] = function(expect)
+	["the egg window sits in the bottom center, on the screen and above the progress bar"] = function(expect)
 		for _, screen in SCREENS do
 			local result = hud(screen)
-			local row = result.hatchInfo
-			expect(inside(row, screen)).toBe(true)
-			-- One square tile per pet, centered, right above the button.
-			expect(row.height).toBeNear(result.hatchTile)
-			expect(row.width).toBeNear(HATCH_COUNT * result.hatchTile + (HATCH_COUNT - 1) * result.gap)
-			expect(row.x + row.width / 2).toBeNear(screen.width / 2)
-			expect(row.y + row.height <= result.throwButton.y + 0.001).toBe(true)
-			expect(overlap(row, result.menu)).toBe(false)
-			expect(overlap(row, result.stats)).toBe(false)
-			expect(overlap(row, result.bar)).toBe(false)
-			-- Big enough to recognize a pet.
-			if result.hatchTile < 30 then
-				error(`the pet tiles are only {result.hatchTile} pixels on {screen.name}`)
+			local egg = eggWindow(screen)
+			local window = egg.window
+			-- Half the title sticks out above the window.
+			local withTitle: UiLayout.Rect = {
+				x = window.x,
+				y = window.y - egg.titleHeight / 2,
+				width = window.width,
+				height = window.height + egg.titleHeight / 2,
+			}
+			if not inside(withTitle, screen) then
+				error(`the egg window leaves the screen on {screen.name}`)
+			end
+			expect(window.x + window.width / 2).toBeNear(screen.width / 2)
+			expect(window.y + window.height <= result.bar.y + 0.001).toBe(true)
+			if result.portrait then
+				-- Thumbstick and jump button stay free.
+				local free = screen.height * (1 - layout.portraitBottomReserve)
+				expect(window.y + window.height <= free + 0.001).toBe(true)
+			end
+			-- Phones and tablets held sideways: between the menu and the jump button.
+			if screen.width >= screen.height * 1.25 then
+				local menuRight = result.menu.x + result.menu.width
+				expect(overlap(window, result.menu)).toBe(false)
+				expect(overlap(window, result.stats)).toBe(false)
+				expect(window.x + window.width <= screen.width - menuRight + 0.001).toBe(true)
 			end
 		end
-		-- Without pets to show there is no row.
-		expect(UiLayout.hud(layout, 844, 332, MENU_COUNT, STAT_COUNT).hatchInfo.width).toBe(0)
+	end,
+
+	["the egg window shows one row of pets sideways and two rows upright, big enough to see"] = function(expect)
+		for _, screen in SCREENS do
+			local egg = eggWindow(screen)
+			local insets = UiLayout.windowInsets(egg.titleHeight, Ui.window.paddingFactor)
+			local inner = {
+				width = egg.window.width - 2 * insets.side,
+				height = egg.window.height - insets.top - insets.bottom,
+			}
+			expect(#egg.tiles).toBe(HATCH_COUNT)
+			if UiLayout.isPortrait(screen.width, screen.height) then
+				expect(egg.rows).toBe(2)
+				expect(egg.columns).toBe(3)
+			else
+				expect(egg.rows).toBe(1)
+				expect(egg.columns).toBe(HATCH_COUNT)
+			end
+			if egg.tile < layout.eggWindow.tile.min then
+				error(`the pet tiles are only {egg.tile} pixels on {screen.name}`)
+			end
+			for index, tile in egg.tiles do
+				expect(tile.width).toBeNear(egg.tile)
+				expect(tile.height).toBeNear(egg.tile)
+				if not inside(tile, inner) then
+					error(`pet tile {index} leaves the egg window on {screen.name}`)
+				end
+				for other = index + 1, #egg.tiles do
+					if overlap(tile, egg.tiles[other]) then
+						error(`pet tiles {index} and {other} overlap on {screen.name}`)
+					end
+				end
+				-- The button row is below every tile.
+				expect(tile.y + tile.height <= egg.button.y + 0.001).toBe(true)
+			end
+			-- The tiles of a row that is not full sit in the middle.
+			local last = egg.tiles[#egg.tiles]
+			local firstOfLastRow = egg.tiles[(egg.rows - 1) * egg.columns + 1]
+			expect(firstOfLastRow.x + (last.x + last.width - firstOfLastRow.x) / 2).toBeNear(inner.width / 2)
+		end
+	end,
+
+	["HATCH is big enough for a thumb and leaves room for later buttons on its right"] = function(expect)
+		for _, screen in SCREENS do
+			local egg = eggWindow(screen)
+			local insets = UiLayout.windowInsets(egg.titleHeight, Ui.window.paddingFactor)
+			local inner = {
+				width = egg.window.width - 2 * insets.side,
+				height = egg.window.height - insets.top - insets.bottom,
+			}
+			expect(inside(egg.button, inner)).toBe(true)
+			expect(inside(egg.spare, inner)).toBe(true)
+			expect(egg.button.height >= THUMB_PIXELS).toBe(true)
+			if egg.button.width < 2 * THUMB_PIXELS then
+				error(`HATCH is only {egg.button.width} pixels wide on {screen.name}`)
+			end
+			-- The free room: right of HATCH, on the same line, wide enough for one more button.
+			expect(egg.spare.x >= egg.button.x + egg.button.width).toBe(true)
+			expect(egg.spare.y).toBe(egg.button.y)
+			expect(egg.spare.height).toBe(egg.button.height)
+			if egg.spare.width < THUMB_PIXELS then
+				error(`only {egg.spare.width} pixels stay free next to HATCH on {screen.name}`)
+			end
+		end
+		-- With the whole row for HATCH nothing stays free.
+		local whole = table.clone(layout)
+		whole.eggWindow = table.clone(layout.eggWindow)
+		whole.eggWindow.hatchWidthShare = 1
+		local full = UiLayout.eggWindow(whole, 844, 332, MENU_COUNT, STAT_COUNT, HATCH_COUNT, Ui.window.paddingFactor)
+		expect(full.spare.width).toBe(0)
+	end,
+
+	["the egg window survives broken screen sizes and odd numbers of pets"] = function(expect)
+		for _, size in { { 0, 0 }, { 0 / 0, 0 / 0 }, { -100, 500 }, { math.huge, 400 }, { 1, 1 } } do
+			local egg = UiLayout.eggWindow(
+				layout,
+				size[1],
+				size[2],
+				MENU_COUNT,
+				STAT_COUNT,
+				HATCH_COUNT,
+				Ui.window.paddingFactor
+			)
+			local rects = { egg.window, egg.button, egg.spare }
+			for _, tile in egg.tiles do
+				table.insert(rects, tile)
+			end
+			for _, rect in rects do
+				for _, value in { rect.x, rect.y, rect.width, rect.height } do
+					expect(value == value).toBe(true)
+				end
+				expect(rect.width >= 0).toBe(true)
+				expect(rect.height >= 0).toBe(true)
+			end
+		end
+		local function with(count: number): UiLayout.EggWindow
+			return UiLayout.eggWindow(layout, 390, 786, MENU_COUNT, STAT_COUNT, count, Ui.window.paddingFactor)
+		end
+		expect(#with(0).tiles).toBe(0)
+		expect(#with(0 / 0).tiles).toBe(0)
+		expect(#with(-3).tiles).toBe(0)
+		-- One pet upright: one row with one tile, not two rows.
+		expect(with(1).rows).toBe(1)
+		expect(#with(1).tiles).toBe(1)
+		expect(with(6).columns).toBe(3)
+		expect(with(7).columns).toBe(4)
+	end,
+
+	["the inner area of a window starts below its title"] = function(expect)
+		local insets = UiLayout.windowInsets(40, 0.3)
+		expect(insets.side).toBe(12)
+		expect(insets.bottom).toBe(12)
+		expect(insets.top).toBe(32)
+		local broken = UiLayout.windowInsets(0 / 0, 0 / 0)
+		expect(broken.side).toBe(0)
+		expect(broken.top).toBe(0)
 	end,
 
 	["menu buttons are squares big enough for a thumb, in two columns"] = function(expect)

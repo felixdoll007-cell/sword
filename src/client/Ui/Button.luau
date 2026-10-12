@@ -3,6 +3,7 @@
 -- border and a darker edge at the bottom that makes it look raised. Pressing sinks it by the
 -- height of that edge; with a mouse over it, it grows a little. Works with touch and mouse.
 -- The color tells what the button means (Config/Ui, colors).
+-- A button can carry a dark pill next to its caption, for a price.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -12,7 +13,9 @@ local Ui = require(Shared.Config.Ui)
 local ColorMath = require(Shared.Rules.ColorMath)
 
 local Draw = require(script.Parent.Draw)
+local Icon = require(script.Parent.Icon)
 local OutlinedText = require(script.Parent.OutlinedText)
+local Pill = require(script.Parent.Pill)
 
 export type Props = {
 	name: string,
@@ -21,12 +24,17 @@ export type Props = {
 	color: { number },
 	-- How round the corners are (default: the button corners of the style). 0.5 = a round button.
 	cornerShare: number?,
+	-- A dark pill inside the button, right of the caption (HATCH with its price): its symbol
+	-- and the color of its text. nil = a button with only a caption.
+	pill: { icon: Icon.Kind?, color: { number }? }?,
 }
 
 export type Button = {
 	-- The whole button. Give it a size and a position like any other element.
 	frame: Frame,
 	setText: (text: string) -> (),
+	-- The text in the button's pill. Does nothing on a button without a pill.
+	setPillText: (text: string) -> (),
 	setColor: (rgb: { number }) -> (),
 	-- A button that is not enabled is grey, does not move and does not call onActivated.
 	setEnabled: (enabled: boolean) -> (),
@@ -70,6 +78,19 @@ function Button.new(props: Props): Button
 	text.frame.Size = UDim2.fromScale(settings.textWidth, settings.textHeight)
 	text.frame.ZIndex = 2
 
+	local pill: Pill.Pill? = nil
+	if props.pill then
+		local places = settings.withPill
+		text.frame.Position = UDim2.fromScale(places.captionCenterX, 0.5)
+		text.frame.Size = UDim2.fromScale(places.captionWidth, settings.textHeight)
+		local made = Pill.new({ parent = face, icon = props.pill.icon, color = props.pill.color })
+		made.frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		made.frame.Position = UDim2.fromScale(places.pillCenterX, 0.5)
+		made.frame.Size = UDim2.fromScale(places.pillWidth, places.pillHeight)
+		made.frame.ZIndex = 2
+		pill = made
+	end
+
 	local function paint()
 		local shown = if enabled then rgb else Ui.colors.disabled
 		face.BackgroundColor3 = Draw.color(shown)
@@ -105,6 +126,11 @@ function Button.new(props: Props): Button
 	return {
 		frame = frame,
 		setText = text.setText,
+		setPillText = function(newText: string)
+			if pill then
+				pill.setText(newText)
+			end
+		end,
 		setColor = function(newRgb: { number })
 			rgb = newRgb
 			paint()

@@ -13,6 +13,7 @@ local Ui = require(ReplicatedStorage.Shared.Config.Ui)
 local Draw = require(script.Parent.Draw)
 local Icon = require(script.Parent.Icon)
 local OutlinedText = require(script.Parent.OutlinedText)
+local Pill = require(script.Parent.Pill)
 
 export type RowSpec = {
 	kind: "text" | "pill",
@@ -43,58 +44,27 @@ export type WorldSign = {
 }
 
 type Row = {
-	text: OutlinedText.OutlinedText,
-	icon: GuiObject?,
-	-- Puts symbol and text of a pill row where they belong.
-	arrange: (() -> ())?,
+	setText: (text: string) -> (),
+	setColor: (rgb: { number }) -> (),
+	-- Pill rows only.
+	setIconShown: ((shown: boolean) -> ())?,
 }
 
 local WorldSign = {}
 
 -- heightPerWidth: the pill's height divided by its width.
 local function makePill(spec: RowSpec, holder: Frame, heightPerWidth: number): Row
-	local settings = Ui.world.signs.pill
-	-- The symbol is a square; this is its width as a share of the pill's width.
-	local iconWidthShare = settings.iconShare * heightPerWidth
-	local pill = Draw.panel("Pill", settings.color, holder)
-	pill.AnchorPoint = Vector2.new(0.5, 0.5)
-	pill.Position = UDim2.fromScale(0.5, 0.5)
-	pill.Size = UDim2.fromScale(settings.widthShare, 1)
-	Draw.corner(pill, Ui.corners.round)
-	local border = Draw.border(pill)
-	-- The border keeps its share of the pill's height at every distance.
-	local function fitBorder()
-		border.Thickness = math.max(pill.AbsoluteSize.Y * settings.borderShare, 1)
-	end
-	pill:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitBorder)
-	fitBorder()
-
-	local icon: GuiObject? = nil
-	if spec.icon then
-		local made = Icon.new(spec.icon, pill)
-		made.AnchorPoint = Vector2.new(0, 0.5)
-		-- A square as high as the inside of the pill.
-		made.Size = UDim2.fromScale(settings.iconShare, settings.iconShare)
-		made.SizeConstraint = Enum.SizeConstraint.RelativeYY
-		made.Position = UDim2.fromScale(settings.padShare, 0.5)
-		icon = made
-	end
-
-	local text = OutlinedText.new({ name = "Text", parent = pill, text = spec.text, color = spec.color })
-	text.frame.AnchorPoint = Vector2.new(0.5, 0.5)
-	local function arrange()
-		if icon and icon.Visible then
-			-- The text takes the room right of the symbol.
-			local taken = settings.padShare + iconWidthShare
-			text.frame.Position = UDim2.fromScale(taken + (1 - taken - settings.padShare) / 2, 0.5)
-			text.frame.Size = UDim2.fromScale(1 - taken - settings.padShare, settings.textShare)
-		else
-			text.frame.Position = UDim2.fromScale(0.5, 0.5)
-			text.frame.Size = UDim2.fromScale(1 - 2 * settings.padShare, settings.textShare)
-		end
-	end
-	arrange()
-	return { text = text, icon = icon, arrange = arrange }
+	local pill = Pill.new({
+		parent = holder,
+		icon = spec.icon,
+		text = spec.text,
+		color = spec.color,
+		heightPerWidth = heightPerWidth,
+	})
+	pill.frame.AnchorPoint = Vector2.new(0.5, 0.5)
+	pill.frame.Position = UDim2.fromScale(0.5, 0.5)
+	pill.frame.Size = UDim2.fromScale(Ui.world.signs.pill.widthShare, 1)
+	return { setText = pill.setText, setColor = pill.setColor, setIconShown = pill.setIconShown }
 end
 
 function WorldSign.new(props: Props): WorldSign
@@ -139,7 +109,7 @@ function WorldSign.new(props: Props): WorldSign
 			table.insert(rows, makePill(spec, holder, props.heightStuds * spec.height / pillWidth))
 		else
 			local text = OutlinedText.new({ name = "Text", parent = holder, text = spec.text, color = spec.color })
-			table.insert(rows, { text = text, icon = nil, arrange = nil })
+			table.insert(rows, { setText = text.setText, setColor = text.setColor, setIconShown = nil })
 		end
 	end
 
@@ -147,18 +117,15 @@ function WorldSign.new(props: Props): WorldSign
 	return {
 		anchor = anchor,
 		setText = function(row: number, text: string)
-			rows[row].text.setText(text)
+			rows[row].setText(text)
 		end,
 		setColor = function(row: number, rgb: { number })
-			rows[row].text.setColor(rgb)
+			rows[row].setColor(rgb)
 		end,
 		setIconShown = function(row: number, shown: boolean)
-			local target = rows[row]
-			if target.icon then
-				target.icon.Visible = shown
-			end
-			if target.arrange then
-				target.arrange()
+			local setShown = rows[row].setIconShown
+			if setShown then
+				setShown(shown)
 			end
 		end,
 	}

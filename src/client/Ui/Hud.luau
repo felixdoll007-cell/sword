@@ -6,18 +6,18 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
-local PetConfig = require(Shared.Config.Pets)
 local Ui = require(Shared.Config.Ui)
 local UiLayout = require(Shared.Rules.UiLayout)
 
 local Draw = require(script.Parent.Draw)
 
--- Strength, Coins, Rebirths.
-local STAT_COUNT = 3
 -- Below the windows.
 local DISPLAY_ORDER = 0
 
 local Hud = {}
+
+-- Number of values shown below the menu: Strength, Coins, Rebirths.
+Hud.STAT_COUNT = 3
 
 local gui: ScreenGui? = nil
 local current: UiLayout.Hud? = nil
@@ -28,7 +28,7 @@ local function update()
 		return
 	end
 	local size = gui.AbsoluteSize
-	local layout = UiLayout.hud(Ui.layout, size.X, size.Y, #Ui.menu.entries, STAT_COUNT, #PetConfig.egg.chances)
+	local layout = UiLayout.hud(Ui.layout, size.X, size.Y, #Ui.menu.entries, Hud.STAT_COUNT)
 	current = layout
 	for _, listener in listeners do
 		listener(layout)

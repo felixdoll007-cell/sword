@@ -43,12 +43,17 @@ Vorlage nutzt, steht in `src/shared/Config/Pets.luau`.
 | `pet_panda` | Body, Accent, Nose, Eyes, EyeShine | weiß, schwarz, schwarz |
 | `pet_dragon` | Body, Accent, Nose, Eyes, EyeShine | lila, helles Türkis, gold |
 | `pet_phoenix` | Body, Glow, Nose, Eyes, EyeShine | rot-orange, gelb (Neon), gold |
+| `crystal_egg` | Shell, Band, Stars, Glow | kräftiges Türkis, gold, helles Mintgrün, helles Türkis (Neon) |
 | `pet_egg` | Shell, Spots, Nest | cremeweiß, türkis, strohgelb |
 
 Bei allen Pets sind `Eyes` schwarz und `EyeShine` weiß. Das Mesh `Nose` ist je nach Pet etwas
 anderes: beim Fuchs der dunkle Akzent, beim Drachen Hörner und Zacken, beim Phönix der
-Schnabel. Vorderseite ist bei allen -Z, der Drehpunkt liegt in der Körpermitte (beim Ei unten).
-Am Ei wackeln `Shell` und `Spots`, das `Nest` steht still.
+Schnabel. Vorderseite ist bei allen -Z, der Drehpunkt liegt in der Körpermitte.
+
+Das Ei am Stand und in der Schlüpf-Anzeige ist `crystal_egg` (importiert am 12.10.2026, Datei
+`assets/crystal-egg.glb`, 3,1 x 4,1 x 2,9 Studs). Am Stand wird es als Ganzes vergrößert
+(`Config/Ui`, world.eggStand.eggScale), die Vorlage selbst bleibt unverändert. `pet_egg` (das
+alte Ei mit Nest) liegt noch im Ort, wird aber nicht mehr verwendet und kann gelöscht werden.
 
 Fehlt eine Pet-Vorlage im Ort, zeigt das Spiel an ihrer Stelle eine graue Kugel.
 

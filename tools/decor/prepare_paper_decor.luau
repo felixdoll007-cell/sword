@@ -1,7 +1,8 @@
 -- Prepares imported models as templates (paper zone, training lane 1x, pets).
 -- Run in Roblox Studio (Edit mode) after importing models; it was run through the Studio
 -- connection on 2026-10-11 (lantern, crane, pinwheel, later the cherry tree, the straw target,
--- the hay bale, the five pets and the egg). Models that already are templates are left alone. Kept here as a record of what was done to the place.
+-- the hay bale, the five pets and the egg) and on 2026-10-12 (the egg without a nest). Models
+-- that already are templates are left alone. Kept here as a record of what was done to the place.
 --
 -- What it does, and nothing else:
 --   1. Finds the imported models in the Workspace by the name of the model inside them.
@@ -162,6 +163,19 @@ local MODELS = {
 			Nest = Color3.fromRGB(240, 196, 64),
 		},
 		neon = {},
+	},
+	-- The egg without a nest (imported on 2026-10-12). It replaces pet_egg at the egg stand and
+	-- in the hatching animation; pet_egg stays in the place but is not used any more.
+	{
+		inside = "crystal_egg",
+		template = "crystal_egg",
+		colors = {
+			Shell = Color3.fromRGB(18, 184, 196),
+			Band = GOLD,
+			Stars = Color3.fromRGB(184, 246, 214),
+			Glow = Color3.fromRGB(120, 240, 232),
+		},
+		neon = { Glow = true },
 	},
 }
 

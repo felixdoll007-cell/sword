@@ -9,6 +9,10 @@
 -- Only one window is open at a time: opening one closes the other. While a window is open the
 -- world behind it is blurred and darkened; a press next to the window closes it.
 -- Opening pops from small to big, closing is quick.
+--
+-- A floating window is the exception: it looks the same but sits where it is told, leaves the
+-- world as it is and does not take part in "only one window". The view that owns it opens and
+-- closes it (the window at the egg stand).
 
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -35,11 +39,16 @@ export type Props = {
 	title: string,
 	-- Picture for the symbol at the top left corner. nil = no symbol.
 	icon: string?,
-	-- The window never gets bigger than this, in pixels.
-	maxWidth: number,
-	maxHeight: number,
+	-- The window never gets bigger than this, in pixels. Not needed for a floating window.
+	maxWidth: number?,
+	maxHeight: number?,
 	-- Captions of the tabs on the left, from top to bottom. nil = a window without tabs.
 	tabs: { string }?,
+	-- A floating window (the one at the egg stand): it sits where `place` says instead of in
+	-- the middle, the world behind it stays as it is (not dark, not blurred) and can still be
+	-- played, and it does not count as "the open window": it neither closes another window nor
+	-- is closed by one. place: the window's edges in pixels for a screen of this size.
+	place: ((screenWidth: number, screenHeight: number) -> UiLayout.Rect)?,
 }
 
 type Tab = {
@@ -251,18 +260,34 @@ function Window.new(props: Props): Window
 
 	local listeners: { () -> () } = {}
 	local contentSize = Vector2.zero
+	local floating = props.place ~= nil
 	local isOpen = false
 	local closeToken = 0
 	local self: Window
 
 	local function resize()
 		local size = screen.AbsoluteSize
-		local layout = UiLayout.window(Ui.layout, size.X, size.Y, props.maxWidth, props.maxHeight, #tabs > 0)
+		local layout = UiLayout.window(
+			Ui.layout,
+			size.X,
+			size.Y,
+			props.maxWidth or math.huge,
+			props.maxHeight or math.huge,
+			#tabs > 0
+		)
 		local titleHeight = layout.titleHeight
-		holder.Size = UDim2.fromOffset(math.round(layout.width), math.round(layout.height))
-		-- A little below the middle, because the title sticks out at the top. With tabs a little
-		-- to the right, so window and tabs together sit in the middle.
-		holder.Position = UDim2.new(0.5, math.round(layout.offsetX), 0.5, math.round(titleHeight / 4))
+		local width, height = math.round(layout.width), math.round(layout.height)
+		if props.place then
+			local rect = props.place(size.X, size.Y)
+			width, height = math.round(rect.width), math.round(rect.height)
+			holder.Position =
+				UDim2.fromOffset(math.round(rect.x + rect.width / 2), math.round(rect.y + rect.height / 2))
+		else
+			-- A little below the middle, because the title sticks out at the top. With tabs a
+			-- little to the right, so window and tabs together sit in the middle.
+			holder.Position = UDim2.new(0.5, math.round(layout.offsetX), 0.5, math.round(titleHeight / 4))
+		end
+		holder.Size = UDim2.fromOffset(width, height)
 
 		title.frame.Position = UDim2.fromScale(0.5, 0)
 		title.frame.Size = UDim2.new(settings.titleWidth, 0, 0, math.round(titleHeight))
@@ -294,14 +319,11 @@ function Window.new(props: Props): Window
 		closeButton.frame.Position = UDim2.new(1, -closeInset, 0, closeInset)
 
 		-- The inner area starts below the title.
-		local padding = math.round(titleHeight * settings.paddingFactor)
-		local top = math.round(titleHeight / 2) + padding
-		content.Position = UDim2.fromOffset(padding, top)
-		content.Size = UDim2.new(1, -2 * padding, 1, -top - padding)
-		contentSize = Vector2.new(
-			math.max(math.round(layout.width) - 2 * padding, 0),
-			math.max(math.round(layout.height) - top - padding, 0)
-		)
+		local insets = UiLayout.windowInsets(titleHeight, settings.paddingFactor)
+		content.Position = UDim2.fromOffset(insets.side, insets.top)
+		content.Size = UDim2.new(1, -2 * insets.side, 1, -insets.top - insets.bottom)
+		contentSize =
+			Vector2.new(math.max(width - 2 * insets.side, 0), math.max(height - insets.top - insets.bottom, 0))
 
 		for _, listener in listeners do
 			listener()
@@ -335,13 +357,17 @@ function Window.new(props: Props): Window
 		if isOpen then
 			return
 		end
-		-- Only one window at a time.
-		Window.closeAll()
+		if not floating then
+			-- Only one window at a time.
+			Window.closeAll()
+			openWindow = self
+		end
 		isOpen = true
-		openWindow = self
 		closeToken += 1
 		resize()
-		setBackdrop(true)
+		if not floating then
+			setBackdrop(true)
+		end
 		scale.Scale = settings.openFromScale
 		holder.Visible = true
 		local info = TweenInfo.new(settings.openSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out)

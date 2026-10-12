@@ -4,7 +4,7 @@
 --
 -- Order of this file:
 --   1. Look: font, colors, borders, corners, stud texture, symbols
---   2. Building blocks: button, menu button, tile, progress bar, window, short message
+--   2. Building blocks: button, pill, menu button, tile, progress bar, window, short message
 --   3. Layout: what sits where and how big
 --   4. The single elements: throw button, meter, values, menu, windows, "+..." labels
 --   5. World: sky and light, the ground, floors, the throw zone and what surrounds it, the
@@ -134,6 +134,28 @@ return {
 		-- Room for the text, as a share of the face.
 		textWidth = 0.84,
 		textHeight = 0.7,
+		-- A button with a pill in it (HATCH with its price): the caption sits left, the pill
+		-- right. Where their middles are and how much room they have, as shares of the face.
+		withPill = {
+			captionCenterX = 0.25,
+			captionWidth = 0.38,
+			pillCenterX = 0.7,
+			pillWidth = 0.5,
+			pillHeight = 0.62,
+		},
+	},
+
+	-- The dark pill with a symbol and a short text (what something needs or costs). On the signs
+	-- in the world and inside buttons.
+	pill = {
+		color = { 17, 22, 32 },
+		-- Black border, as a share of the pill's height.
+		borderShare = 0.07,
+		-- Symbol and text: heights as a share of the pill's height.
+		iconShare = 0.8,
+		textShare = 0.72,
+		-- Space at both ends, as a share of the pill's width.
+		padShare = 0.07,
 	},
 
 	menuButton = {
@@ -176,6 +198,11 @@ return {
 		equippedLighten = 0.45,
 		-- Too expensive: this dark (0 to 1).
 		dimmed = 0.5,
+		-- A filled tile (the pets at the egg stand): its face has the color of the rarity, this
+		-- much darker, and its border is this much lighter than that color (0 to 1). Its value
+		-- is white.
+		filledDarken = 0.45,
+		filledBorderLighten = 0.4,
 	},
 
 	progressBar = {
@@ -284,10 +311,17 @@ return {
 			widthFactor = 1.5,
 		},
 
-		-- At the egg stand the HATCH button takes the place of the THROW button. Above it: a row
-		-- of small tiles, one per pet that can hatch. Height of a tile relative to the button.
-		hatchInfo = {
-			heightFactor = 1.25,
+		-- The window at the egg stand, bottom center above the progress bar: one square tile per
+		-- pet that can hatch, below them the HATCH button. The window is as big as what is in it.
+		eggWindow = {
+			-- Edge length of a tile. The tiles shrink if the screen has less room.
+			tile = { share = 0.26, min = 48, max = 124 },
+			-- Sideways the tiles are one row; a phone held upright has this many rows.
+			portraitRows = 2,
+			buttonHeight = { share = 0.15, min = 46, max = 90 },
+			-- HATCH sits on the left and takes this share of the row below the tiles. The rest
+			-- stays free for later buttons. 1 = HATCH takes the whole row.
+			hatchWidthShare = 0.6,
 		},
 
 		menu = {
@@ -540,8 +574,10 @@ return {
 		confirmButtonGap = 0.06,
 	},
 
-	-- At the egg stand: the HATCH button and the row of pets that can hatch.
-	eggPrompt = {
+	-- The window that opens while the player stands at the egg stand: the pets that can hatch as
+	-- tiles with their chances, and the HATCH button with the price in it. Its title is the
+	-- egg's name (Config/Pets). Its sizes are in the layout above (eggWindow).
+	eggWindow = {
 		hatchText = "HATCH",
 		-- %s: chance in percent.
 		chanceText = "%s%%",
@@ -549,36 +585,80 @@ return {
 		fullText = "Pet inventory full",
 		-- After a press, wait this long before the next press counts.
 		pressWaitSeconds = 1,
-		gapPixels = 6,
 	},
 
-	-- What is shown when an egg hatches: the egg in the middle of the screen wobbles, bursts,
-	-- and the pet appears with its name, its rarity and its bonus. A press skips ahead.
+	-- What is shown when an egg hatches. The world behind is blurred and darkened, rays turn
+	-- slowly behind the egg, and the egg in the middle wobbles more and more. A press opens it
+	-- at once, otherwise it opens by itself: a white flash, then the pet with its name, its
+	-- rarity in its color and its bonus, and the rays take the color of the rarity. A press closes.
 	hatch = {
-		-- How long the egg wobbles, and how long the pet is shown afterwards.
-		eggSeconds = 1,
-		petSeconds = 1.2,
-		-- The egg tilts this far to each side, this many times per second.
-		wobbleDegrees = 12,
-		wobblesPerSecond = 5,
-		-- The burst: the egg grows to this scale while it fades; the pet pops in.
+		-- The egg opens by itself after this many seconds.
+		eggSeconds = 3,
+		-- The pet stays until the player presses. A press sooner than petMinSeconds after the egg
+		-- opened does not count, so a double press does not skip the pet.
+		-- petSeconds: closes by itself after this many seconds; 0 = only a press closes.
+		petMinSeconds = 0.5,
+		petSeconds = 0,
+
+		-- The egg tilts to both sides, more and faster the longer it takes: how far to each side
+		-- and how many times per second, from the first moment to the last.
+		wobbleDegrees = { from = 2, to = 20 },
+		wobblesPerSecond = { from = 2, to = 6 },
+		-- Opening: the egg grows to this scale under the flash, then the pet pops in.
 		burstScale = 1.5,
-		burstSeconds = 0.15,
-		popSeconds = 0.25,
-		closeSeconds = 0.15,
-		-- The picture: edge length as a share of the screen's shorter side, and where its middle
-		-- sits (0 = top of the screen). A little above the middle, the texts come below it.
-		pictureShare = 0.46,
-		pictureCenterY = 0.42,
-		-- Darkness of the screen behind it (0 = black, 1 = not darkened).
-		dimTransparency = 0.35,
+		burstSeconds = 0.12,
+		popSeconds = 0.3,
+		-- The white flash covers the whole screen and fades within this time.
 		flashColor = { 255, 255, 255 },
+		flashSeconds = 0.45,
+
+		-- The world behind: darkness (0 = black, 1 = not darkened) and how quickly the blur
+		-- comes and goes. How strong the blur is, is the same as behind a window (window, blurSize).
+		dimColor = { 0, 0, 0 },
+		dimTransparency = 0.3,
+		blurSeconds = 0.2,
+
+		-- The rays behind the egg, from the middle of the picture outwards. Each ray is made of a
+		-- few narrow strips fanned out, so it gets wider and softer towards the outside. No picture.
+		rays = {
+			-- How many rays. An even number: every strip runs through the middle and makes two.
+			count = 12,
+			-- More strips = wider rays.
+			stripsPerRay = 4,
+			-- Thickness of one strip as a share of the screen's shorter side.
+			thickness = 0.05,
+			-- How far a ray reaches from the middle, as a share of the screen's longer side.
+			-- It fades towards its end.
+			reach = 0.75,
+			-- How see-through one strip is in the middle (0 = solid, 1 = invisible). Where
+			-- strips lie on top of each other the ray is brighter.
+			transparency = 0.84,
+			-- Color while the egg is closed. After it opened: the color of the pet's rarity.
+			color = { 150, 245, 238 },
+			-- A full turn takes this many seconds.
+			turnSeconds = 40,
+		},
+
+		-- The picture of egg and pet: edge length as a share of the screen's shorter side, and
+		-- where its middle sits (0 = top of the screen). A little above the middle, the texts
+		-- come below it.
+		pictureShare = 0.46,
+		pictureCenterY = 0.4,
 		-- Texts below the pet: heights as shares of the picture's edge length.
 		nameHeight = 0.2,
 		rarityHeight = 0.13,
 		bonusHeight = 0.15,
 		-- %s: bonus in percent.
-		bonusText = "+%s%% STRENGTH",
+		bonusText = "+%s%%",
+
+		-- The line at the bottom of the screen: what a press does now. "" = no line.
+		hatchHintText = "TAP TO HATCH",
+		closeHintText = "TAP TO CONTINUE",
+		-- Where its middle sits (0 = top of the screen), and its height and room as shares of
+		-- the screen's shorter side.
+		hintCenterY = 0.93,
+		hintHeight = 0.075,
+		hintWidth = 0.9,
 	},
 
 	-- A pet (or the egg) as a 3D model in the interface: seen from the front, a little from the
@@ -929,18 +1009,11 @@ return {
 			-- Further away than this a sign is not drawn.
 			maxDistance = 260,
 
-			-- The dark pill with a symbol and a number (what something needs or costs).
+			-- The dark pill with a symbol and a number (what something needs or costs). Its look
+			-- is the same everywhere (pill, further up).
 			pill = {
-				color = { 17, 22, 32 },
 				-- Width as a share of the sign's width.
 				widthShare = 0.62,
-				-- Black border, as a share of the pill's height.
-				borderShare = 0.07,
-				-- Symbol and text: heights as a share of the pill's height.
-				iconShare = 0.8,
-				textShare = 0.72,
-				-- Space at both ends, as a share of the pill's width.
-				padShare = 0.07,
 			},
 
 			-- Above every training lane: what it needs, whether it is open, what it gives.
@@ -983,24 +1056,35 @@ return {
 			},
 		},
 
-		-- The egg stand: a pedestal in the look of the shop pedestals, the egg on it, a sign above.
-		-- Where it stands is in Config/Pets.
+		-- The egg stand: a pedestal in the look of the shop pedestals with glowing top edges, the
+		-- egg floating above it, a sign above that. Where it stands is in Config/Pets.
 		eggStand = {
-			pedestalWidth = 5,
+			pedestalWidth = 7,
 			pedestalHeight = 2,
-			-- The egg tilts this far to each side, once in this many seconds. These parts of the
-			-- egg's model stand still.
-			wobbleDegrees = 5,
-			wobbleSeconds = 1.3,
-			stillParts = { "Nest" },
-			-- The HATCH button shows when the player is this close. Must not be more than the
-			-- server's useDistance (Config/Pets).
+			-- The top edges of the pedestal are glowing strips. They stick out of the pedestal
+			-- by `outset`, so their faces never lie in the faces of the pedestal.
+			trim = {
+				color = { 60, 232, 226 },
+				thickness = 0.4,
+				outset = 0.1,
+			},
+			-- The egg is this many times as big as its template (about twice the old egg).
+			eggScale = 1.9,
+			-- Its lowest point floats this far above the pedestal; it rises by bobHeight and
+			-- sinks again once in bobSeconds, and turns once around itself in turnSeconds.
+			hoverHeight = 1,
+			bobHeight = 0.5,
+			bobSeconds = 2.8,
+			turnSeconds = 10,
+			-- The window with the HATCH button opens when the player is this close. Must not be
+			-- more than the server's useDistance (Config/Pets).
 			promptDistance = 10,
 			-- The sign above it: the egg's name and a pill with the coin symbol and the price.
+			-- High enough to stay clear of the floating egg.
 			sign = {
 				widthStuds = 13,
 				heightStuds = 4.6,
-				heightAboveFloor = 10,
+				heightAboveFloor = 14.5,
 				nameHeight = 0.46,
 				pillHeight = 0.42,
 			},

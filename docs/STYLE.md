@@ -70,12 +70,22 @@ Noppen-Textur in etwas hellerem Ton der Grundfarbe. Eine einzige Kachel-Grafik f
   der aktive Reiter ist heller.
 - Öffnen: kurzes Aufploppen von klein nach groß. Schließen: schnell.
 - Es ist immer nur ein Fenster offen.
+- Ausnahme: das schwebende Fenster (Ei-Stand). Es sieht gleich aus, öffnet sich aber von selbst,
+  wenn man davorsteht, sitzt unten in der Mitte, und die Welt dahinter bleibt scharf und
+  bespielbar.
 
 ### Kachel für einen Gegenstand
 - Quadrat mit runden Ecken, heller Rand in der Farbe der Seltenheit.
 - Gegenstand groß in der Mitte, Wert unten ("+25%") in hellem Grün.
 - Ausgerüstet: grüner runder Haken oben rechts und hellerer Rahmen.
 - Gesperrt: abgedunkelt, kleines Schloss oben rechts.
+- Gefüllte Kachel (Pets am Ei-Stand): Fläche in der Farbe der Seltenheit, etwas dunkler, Rand
+  etwas heller, Wert unten in Weiß.
+
+### Pille
+Dunkle, ganz runde Fläche mit schwarzem Rand, links ein Symbol, rechts eine kurze Zahl in ihrer
+Farbe. Für das, was etwas kostet oder braucht: auf Schildern in der Welt und im Button
+(HATCH mit Preis: Beschriftung links, Pille rechts).
 
 ### Vorher-Nachher (Rebirth)
 Zwei gleiche Karten nebeneinander mit Pfeil dazwischen, darunter eine rote Warnzeile,

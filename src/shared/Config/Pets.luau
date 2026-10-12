@@ -50,7 +50,7 @@ return {
 			{ pet = "dragon", percent = 5 },
 			{ pet = "phoenix", percent = 1 },
 		},
-		template = "pet_egg",
+		template = "crystal_egg",
 		-- Where the stand is: center on the ground. Next to the shop pedestals.
 		position = { x = 36, z = 22 },
 	},

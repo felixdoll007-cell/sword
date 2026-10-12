@@ -146,6 +146,21 @@ nächstes Ziel ist.
 - Pets bleiben beim Rebirth erhalten und werden mit dem Rest gespeichert.
 - Der Server prüft alles: Coins, Platz, Besitz, Zahl der ausgerüsteten Pets, Nähe zum
   Ei-Stand, und dass nicht zu schnell hintereinander geschlüpft wird.
+- Der Ei-Stand: ein Sockel in dunklem Blaugrau mit Noppen, die oberen Kanten als leuchtende
+  türkise Leisten. Darüber schwebt das Ei (türkis mit goldenem Band, ohne Nest), wippt langsam
+  und dreht sich langsam. Darüber das Schild mit Name und eigenem Preis.
+- Steht man am Stand, öffnet sich unten in der Mitte ein Fenster "STARTER EGG": die fünf Pets als
+  Kacheln in der Farbe ihrer Seltenheit mit ihrer Chance, darunter der grüne HATCH-Button mit dem
+  Preis in einer Pille. Rechts neben HATCH bleibt Platz für spätere Buttons. Quer eine Reihe
+  Kacheln, im Hochformat zwei. Dieses Fenster nimmt den Bildschirm nicht für sich: Die Welt
+  bleibt scharf und man kann weiterlaufen. Geht man weg, schließt es sich; schließt man es mit
+  dem X, bleibt es zu, bis man weggeht und wiederkommt. Im Hochformat und auf sehr schmalen
+  Bildschirmen verdeckt es die linke Spalte (Menü und Werte), solange es offen ist.
+- Schlüpfen: Die Welt wird weichgezeichnet und abgedunkelt, hinter dem Ei drehen sich langsam
+  Strahlen (ohne Bild, aus schmalen Streifen), das Ei wackelt immer stärker, unten steht
+  "TAP TO HATCH". Antippen öffnet sofort, sonst öffnet es sich nach drei Sekunden. Dann ein
+  weißer Blitz, das Pet mit Name, Seltenheit in ihrer Farbe und "+N%", und die Strahlen nehmen
+  die Farbe der Seltenheit an. Das Pet bleibt stehen, bis man antippt ("TAP TO CONTINUE").
 - Die Vorlagen der Pets und des Eis liegen nur im Ort (siehe `assets/decor-templates.NOTES.md`).
 
 ## Später

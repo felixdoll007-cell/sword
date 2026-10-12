@@ -1,7 +1,8 @@
 --!strict
--- What this player sees of the egg stand: the egg on the pedestal (it wobbles a little), the
--- sign floating above it (name and this player's price), and, while the player stands at the
--- stand, the big HATCH button with a row of the pets that can hatch and their chances.
+-- What this player sees of the egg stand: the egg floating above the pedestal (it bobs and
+-- turns slowly), the sign floating above it (name and this player's price), and, while the
+-- player stands at the stand, a window with the pets that can hatch, their chances and the
+-- HATCH button with the price in it.
 -- The pedestal is made by the server (server/PetService). Pressing HATCH only tells the server
 -- "I want to hatch an egg"; coins, room and the pet are decided there.
 
@@ -41,11 +42,17 @@ local EggStandView = {}
 local player = Players.LocalPlayer
 
 local sign: WorldSign.WorldSign
+local window: Window.Window
 local hatchButton: Button.Button
-local oddsRow: Frame
 local oddsTiles: { Tile.Tile } = {}
+-- Where everything in the window sits on the current screen.
+local layout: UiLayout.EggWindow
 -- os.clock() until which presses are ignored after a press.
 local pressBlockedUntil = 0
+-- The player closed the window with its X: it stays away until they walk off and come back.
+local dismissed = false
+-- true while this view closes the window itself (and not the player).
+local closingMyself = false
 
 local function numberAttribute(name: string): number
 	local value = player:GetAttribute(name)
@@ -69,7 +76,7 @@ local function isNearStand(): boolean
 end
 
 local function onHatchPressed()
-	local settings = Ui.eggPrompt
+	local settings = Ui.eggWindow
 	if os.clock() < pressBlockedUntil or HatchView.isPlaying() then
 		return
 	end
@@ -87,36 +94,32 @@ local function onHatchPressed()
 	Remotes.EggHatchRequested:FireServer()
 end
 
--- The egg stands on the pedestal. Its shell tilts a little to both sides; the nest stands still.
+-- The egg floats above the pedestal, rises and sinks a little and turns slowly around itself.
 local function buildEgg(folder: Folder)
 	local settings = Ui.world.eggStand
 	local stand = PetConfig.egg.position
 	local egg = PetPreview.eggModel()
 	egg.Name = "Egg"
-	local base = CFrame.new(stand.x, LaneConfig.floorTopY + settings.pedestalHeight, stand.z)
-	egg:PivotTo(base)
+	egg:ScaleTo(settings.eggScale)
+	egg:PivotTo(CFrame.new())
+	-- How far the point the egg is moved by lies above its lowest point.
+	local boxFrame, boxSize = egg:GetBoundingBox()
+	local pivotAboveBottom = boxSize.Y / 2 - boxFrame.Position.Y
+	local lowest = CFrame.new(
+		stand.x,
+		LaneConfig.floorTopY + settings.pedestalHeight + settings.hoverHeight + pivotAboveBottom,
+		stand.z
+	)
+	egg:PivotTo(lowest)
 	egg.Parent = folder
 
-	local moving: { BasePart } = {}
-	local built: { CFrame } = {}
-	for _, part in egg:GetDescendants() do
-		if part:IsA("BasePart") and not table.find(settings.stillParts, part.Name) then
-			table.insert(moving, part)
-			table.insert(built, part.CFrame)
-		end
-	end
-	if #moving == 0 then
-		return
-	end
-	local frames = table.clone(built)
+	local fullTurn = 2 * math.pi
 	RunService.Heartbeat:Connect(function()
-		local swing = math.sin(os.clock() / settings.wobbleSeconds * 2 * math.pi)
-		-- Tilted around the point the egg stands on.
-		local tilt = base * CFrame.Angles(0, 0, math.rad(swing * settings.wobbleDegrees)) * base:Inverse()
-		for index, frame in built do
-			frames[index] = tilt * frame
-		end
-		Workspace:BulkMoveTo(moving, frames, Enum.BulkMoveMode.FireCFrameChanged)
+		local now = os.clock()
+		-- From the lowest point up by bobHeight and back.
+		local rise = (1 - math.cos(now / settings.bobSeconds * fullTurn)) / 2 * settings.bobHeight
+		local turn = now / settings.turnSeconds * fullTurn % fullTurn
+		egg:PivotTo(lowest * CFrame.new(0, rise, 0) * CFrame.Angles(0, turn, 0))
 	end)
 end
 
@@ -136,25 +139,65 @@ local function buildSign(folder: Folder)
 	})
 end
 
--- The price on the sign is this player's own next price.
+-- The price on the sign and in the HATCH button is this player's own next price.
 local function refreshPrice()
-	sign.setText(PRICE_ROW, NumberFormat.abbreviate(NumberFormatConfig, price()))
+	local text = NumberFormat.abbreviate(NumberFormatConfig, price())
+	sign.setText(PRICE_ROW, text)
+	hatchButton.setPillText(text)
 end
 
--- The row above the button: one small tile per pet that can hatch, with its chance.
-local function buildOdds()
-	oddsRow = Draw.box("HatchOdds", Hud.gui())
-	oddsRow.Visible = false
+-- The window: one tile per pet that can hatch, in the color of its rarity, with its chance.
+-- Below them the HATCH button; the room right of it stays free for later buttons.
+local function buildWindow()
+	local settings = Ui.eggWindow
+	local petCount = #PetConfig.egg.chances
+	window = Window.new({
+		name = "EggWindow",
+		title = PetConfig.egg.name,
+		place = function(screenWidth: number, screenHeight: number): UiLayout.Rect
+			layout = UiLayout.eggWindow(
+				Ui.layout,
+				screenWidth,
+				screenHeight,
+				#Ui.menu.entries,
+				Hud.STAT_COUNT,
+				petCount,
+				Ui.window.paddingFactor
+			)
+			return layout.window
+		end,
+	})
+
 	for _, chance in PetConfig.egg.chances do
 		local pet = Pets.get(PetConfig, chance.pet)
-		if pet then
-			local color = (Ui.rarity :: { [string]: { number } })[pet.rarity] or Ui.rarity[Ui.defaultRarity]
-			local tile = Tile.new(pet.id, color, oddsRow)
-			PetPreview.pet(pet.id, tile.content)
-			tile.setValue(string.format(Ui.eggPrompt.chanceText, tostring(chance.percent)))
-			table.insert(oddsTiles, tile)
-		end
+		local rarity = if pet then pet.rarity else Ui.defaultRarity
+		local color = (Ui.rarity :: { [string]: { number } })[rarity] or Ui.rarity[Ui.defaultRarity]
+		local tile = Tile.new(chance.pet, color, window.content, "filled")
+		PetPreview.pet(chance.pet, tile.content)
+		tile.setValue(string.format(settings.chanceText, tostring(chance.percent)))
+		table.insert(oddsTiles, tile)
 	end
+
+	hatchButton = Button.new({
+		name = "HatchButton",
+		parent = window.content,
+		text = settings.hatchText,
+		color = Ui.colors.confirm,
+		pill = { icon = "coins", color = Ui.colors.coins },
+	})
+	hatchButton.onActivated(onHatchPressed)
+
+	window.onResize(function()
+		for index, tile in oddsTiles do
+			Draw.place(tile.frame, layout.tiles[index])
+		end
+		Draw.place(hatchButton.frame, layout.button)
+	end)
+	window.onLeave(function()
+		if not closingMyself then
+			dismissed = true
+		end
+	end)
 end
 
 function EggStandView.start()
@@ -164,38 +207,28 @@ function EggStandView.start()
 	buildSign(folder)
 	folder.Parent = Workspace
 
+	buildWindow()
 	refreshPrice()
 	player:GetAttributeChangedSignal(Remotes.Attributes.EggsHatched):Connect(refreshPrice)
 
-	hatchButton = Button.new({
-		name = "HatchButton",
-		parent = Hud.gui(),
-		text = Ui.eggPrompt.hatchText,
-		color = Ui.colors.confirm,
-	})
-	hatchButton.frame.Visible = false
-	hatchButton.onActivated(onHatchPressed)
-	buildOdds()
-
-	Hud.onLayout(function(layout: UiLayout.Hud)
-		-- The HATCH button takes the place of the THROW button; the two are never there together.
-		Draw.place(hatchButton.frame, layout.throwButton)
-		Draw.place(oddsRow, layout.hatchInfo)
-		local step = layout.hatchTile + layout.gap
-		for index, tile in oddsTiles do
-			tile.frame.Position = UDim2.fromOffset(math.round((index - 1) * step), 0)
-			tile.frame.Size = UDim2.fromOffset(math.round(layout.hatchTile), math.round(layout.hatchTile))
-		end
-	end)
-
 	RunService.Heartbeat:Connect(function()
-		-- Only at the stand, and not while a throw, a window or a hatching is on screen.
-		local shown = isNearStand()
+		local near = isNearStand()
+		if not near then
+			dismissed = false
+		end
+		-- Only at the stand, and not while a throw, another window or a hatching is on screen.
+		local shown = near
+			and not dismissed
 			and not ThrowSession.isActive()
 			and not HatchView.isPlaying()
 			and not Window.anyOpen()
-		hatchButton.frame.Visible = shown
-		oddsRow.Visible = shown
+		if shown and not window.isOpen() then
+			window.open()
+		elseif not shown and window.isOpen() then
+			closingMyself = true
+			window.close()
+			closingMyself = false
+		end
 	end)
 end
 

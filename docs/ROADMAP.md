@@ -231,6 +231,17 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein.
 - Nicht gebaut (kommt später): Glück, Glückswurf, Secret, Tauschen, Verschmelzen, Robux-Käufe.
+
+### Block: Ei-Stand und Schlüpfen schöner (nur Aussehen)
+- [x] Neues Ei ohne Nest eingefärbt (Shell türkis, Band gold, Stars mintgrün, Glow helles Türkis als Neon) und als Vorlage `crystal_egg` in `ReplicatedStorage.Assets` abgelegt; das Original im Workspace ist weg, `pet_egg` wird nicht mehr verwendet
+- [x] Ständer: Ei 1,9-fach, schwebt über dem Sockel, wippt und dreht sich langsam; Sockel 7 statt 5 Studs breit mit türkisen Neon-Leisten an den oberen Kanten; Schild höher
+- [x] Übersicht beim Davorstehen: schwebendes Fenster "STARTER EGG" aus dem Fenster-Baustein, gefüllte Kacheln in der Farbe der Seltenheit mit Chance in Weiß, grüner HATCH-Button mit Preis-Pille, Platz rechts daneben frei; quer eine Reihe, hoch zwei
+- [x] Schlüpf-Anzeige: Welt weichgezeichnet und abgedunkelt, drehende Strahlen aus Streifen (kein Bild), Ei wackelt immer stärker, "TAP TO HATCH", öffnet nach drei Sekunden von selbst, weißer Blitz, Pet mit Name, Seltenheit und "+N%", Strahlen in der Farbe der Seltenheit, Antippen schließt
+- [x] Bausteine erweitert: Pille als eigener Baustein (Schilder und Button), Button mit Pille, gefüllte Kachel, schwebendes Fenster
+- [x] Alle Größen, Farben und Zeiten in `Config/Ui` (eggWindow, hatch, pill, world.eggStand, layout.eggWindow); Lage des Fensters als getestete reine Funktion
+- [ ] Von mir getestet
+- Unverändert: Preise, Chancen, Würfeln, Speichern, Server-Prüfungen.
+- Wichtig: Die Vorlage liegt nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

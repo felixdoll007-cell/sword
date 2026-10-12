@@ -139,8 +139,43 @@ local function onPetDeleteRequested(player: Player, ...: any)
 	PlayerStats.deletePet(player, uid)
 end
 
--- The pedestal of the egg stand, in the look of the shop pedestals. The egg on it is drawn by
--- each client, because it wobbles.
+-- The top edges of the pedestal as four glowing strips. They stick out a little to the sides
+-- and to the top, so none of their faces lies in a face of the pedestal.
+local function addTrim(stand: Part)
+	local settings = Ui.world.eggStand
+	local trim = settings.trim
+	local width = settings.pedestalWidth + 2 * trim.outset
+	-- From the middle of the pedestal to the middle of a strip, sideways and upwards.
+	local sideways = width / 2 - trim.thickness / 2
+	local upwards = settings.pedestalHeight / 2 + trim.outset - trim.thickness / 2
+	local function strip(size: Vector3, offset: Vector3)
+		local part = Instance.new("Part")
+		part.Name = "Trim"
+		part.Anchored = true
+		part.CanCollide = false
+		part.CanTouch = false
+		part.CanQuery = false
+		part.CastShadow = false
+		part.Material = Enum.Material.Neon
+		part.Color = WorldParts.color(trim.color)
+		part.TopSurface = Enum.SurfaceType.Smooth
+		part.BottomSurface = Enum.SurfaceType.Smooth
+		part.Size = size
+		part.Position = stand.Position + offset
+		part.Parent = stand
+	end
+	for _, side in { -1, 1 } do
+		-- Two strips over the whole width, the other two between them.
+		strip(Vector3.new(width, trim.thickness, trim.thickness), Vector3.new(0, upwards, side * sideways))
+		strip(
+			Vector3.new(trim.thickness, trim.thickness, width - 2 * trim.thickness),
+			Vector3.new(side * sideways, upwards, 0)
+		)
+	end
+end
+
+-- The pedestal of the egg stand, in the look of the shop pedestals, with glowing top edges.
+-- The egg above it is drawn by each client, because it moves.
 local function buildStand()
 	local settings = Ui.world.eggStand
 	local look = Ui.world.shop.pedestal
@@ -159,6 +194,7 @@ local function buildStand()
 	do
 		WorldParts.addFloorTile(stand, look.lightColor, look.fieldStuds, face)
 	end
+	addTrim(stand)
 	stand.Parent = Workspace
 end
 

@@ -3,6 +3,8 @@
 -- of the item's rarity. The item itself sits big in the middle (put it into `content`), its
 -- value at the bottom in light green. In use: a green check mark at the top right and a lighter
 -- border. Not owned: a small lock at the top right. Too expensive: darkened.
+-- A filled tile (the pets at the egg stand) has a face in a darker tone of the rarity's color, a
+-- border in a lighter tone of it and a white value.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -13,6 +15,8 @@ local ColorMath = require(Shared.Rules.ColorMath)
 local Draw = require(script.Parent.Draw)
 local Icon = require(script.Parent.Icon)
 local OutlinedText = require(script.Parent.OutlinedText)
+
+export type Look = "card" | "filled"
 
 export type State = {
 	equipped: boolean,
@@ -33,19 +37,28 @@ export type Tile = {
 
 local Tile = {}
 
-function Tile.new(name: string, rarityColor: { number }, parent: Instance?): Tile
+-- look: "filled" for a tile whose face has the color of the rarity (default: the dark card with a
+-- border in that color).
+function Tile.new(name: string, rarityColor: { number }, parent: Instance?, look: Look?): Tile
 	local settings = Ui.tile
 	local corner = Ui.corners.tile
+	local filled = look == "filled"
+	local faceColor = if filled then ColorMath.darken(rarityColor, settings.filledDarken) else Ui.colors.card
+	local borderColor = if filled then ColorMath.lighten(rarityColor, settings.filledBorderLighten) else rarityColor
 
 	local frame = Draw.box(name, nil)
-	local face = Draw.panel("Face", Ui.colors.card, frame)
+	local face = Draw.panel("Face", faceColor, frame)
 	Draw.corner(face, corner)
-	local border = Draw.border(face, rarityColor, Ui.accentThickness)
+	local border = Draw.border(face, borderColor, Ui.accentThickness)
 
 	local content = Draw.box("Content", frame)
 	content.ZIndex = 2
 
-	local value = OutlinedText.new({ name = "Value", parent = frame, color = Ui.colors.positive })
+	local value = OutlinedText.new({
+		name = "Value",
+		parent = frame,
+		color = if filled then Ui.text.color else Ui.colors.positive,
+	})
 	value.frame.AnchorPoint = Vector2.new(0.5, 1)
 	value.frame.Position = UDim2.fromScale(0.5, 1)
 	value.frame.Size = UDim2.fromScale(settings.valueWidth, settings.valueHeight)
@@ -91,7 +104,7 @@ function Tile.new(name: string, rarityColor: { number }, parent: Instance?): Til
 			lock.Visible = state.locked and not state.equipped
 			dim.Visible = state.dimmed
 			border.Color = Draw.color(
-				if state.equipped then ColorMath.lighten(rarityColor, settings.equippedLighten) else rarityColor
+				if state.equipped then ColorMath.lighten(borderColor, settings.equippedLighten) else borderColor
 			)
 		end,
 	}
