@@ -117,12 +117,19 @@ return {
 		expect(stand.sign.nameHeight + stand.sign.pillHeight <= 1).toBe(true)
 	end,
 
-	["the egg window names its texts and the pill fits into the HATCH button"] = function(expect)
-		local window = Ui.eggWindow
-		expect(window.hatchText).toBe("HATCH")
-		expect(string.format(window.chanceText, "50")).toBe("50%")
-		expect(#window.notEnoughText > 0 and #window.fullText > 0).toBe(true)
-		expect(window.pressWaitSeconds >= 0).toBe(true)
+	["the egg card names its texts and the pill fits into the HATCH button"] = function(expect)
+		local card = Ui.eggCard
+		expect(card.hatchText).toBe("HATCH")
+		expect(card.key).toBe("E")
+		expect(string.format(card.chanceText, "50")).toBe("50%")
+		expect(#card.notEnoughText > 0 and #card.fullText > 0).toBe(true)
+		expect(card.pressWaitSeconds >= 0).toBe(true)
+		-- Dark and half see-through, with a turquoise title.
+		expect(isColor(card.backColor)).toBe(true)
+		expect(isColor(card.titleColor)).toBe(true)
+		expect(card.backTransparency > 0 and card.backTransparency < 1).toBe(true)
+		expect(isColor(Ui.button.keyBadge.color)).toBe(true)
+		expect(Ui.button.keyBadge.size > 0 and Ui.button.keyBadge.size < 1).toBe(true)
 		-- Caption left, pill right, both on the button and not on top of each other.
 		local places = Ui.button.withPill
 		local captionRight = places.captionCenterX + places.captionWidth / 2
@@ -155,10 +162,19 @@ return {
 		-- Picture and texts fit between the top of the screen and the line at the bottom, on a
 		-- screen that is as wide as it is high or wider.
 		local textsBottom = hatch.pictureCenterY
-			+ hatch.pictureShare * (0.5 + hatch.nameHeight + hatch.rarityHeight + hatch.bonusHeight)
+			+ hatch.pictureShare / 2
+			- hatch.textOverlap
+			+ hatch.nameHeight
+			+ hatch.rarityHeight
+			+ hatch.bonusHeight
 		expect(hatch.pictureCenterY - hatch.pictureShare / 2 >= 0).toBe(true)
 		expect(textsBottom <= hatch.hintCenterY - hatch.hintHeight / 2).toBe(true)
 		expect(hatch.hintCenterY + hatch.hintHeight / 2 <= 1).toBe(true)
+		-- The glow: light, round, made of a sparing number of faint rings.
+		expect(isColor(hatch.glow.color)).toBe(true)
+		expect(hatch.glow.size > 0).toBe(true)
+		expect(hatch.glow.rings >= 4 and hatch.glow.rings <= 24).toBe(true)
+		expect(hatch.glow.ringTransparency > 0.5 and hatch.glow.ringTransparency < 1).toBe(true)
 	end,
 
 	["the rays behind the egg are an even number of faint, slowly turning rays"] = function(expect)

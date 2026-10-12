@@ -1,14 +1,15 @@
 --!strict
 -- What this player sees of the egg stand: the egg floating above the pedestal (it bobs and
 -- turns slowly), the sign floating above it (name and this player's price), and, while the
--- player stands at the stand, a window with the pets that can hatch, their chances and the
--- HATCH button with the price in it.
+-- player stands at the stand, a small card above the middle of the screen with the pets that
+-- can hatch, their chances and the HATCH button with the price in it (on a keyboard also E).
 -- The pedestal is made by the server (server/PetService). Pressing HATCH only tells the server
 -- "I want to hatch an egg"; coins, room and the pet are decided there.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -27,6 +28,7 @@ local ThrowSession = require(script.Parent.ThrowSession)
 local Button = require(script.Parent.Ui.Button)
 local Draw = require(script.Parent.Ui.Draw)
 local Hud = require(script.Parent.Ui.Hud)
+local OutlinedText = require(script.Parent.Ui.OutlinedText)
 local PetPreview = require(script.Parent.Ui.PetPreview)
 local Tile = require(script.Parent.Ui.Tile)
 local Toast = require(script.Parent.Ui.Toast)
@@ -36,23 +38,20 @@ local WorldSign = require(script.Parent.Ui.WorldSign)
 local FOLDER_NAME = "MyEggStand"
 -- The rows of the sign, from top to bottom.
 local PRICE_ROW = 2
+-- Buttons in the card's row. Later buttons (right of HATCH) share the row with it.
+local BUTTON_COUNT = 1
 
 local EggStandView = {}
 
 local player = Players.LocalPlayer
 
 local sign: WorldSign.WorldSign
-local window: Window.Window
+local card: Frame
+local title: OutlinedText.OutlinedText
 local hatchButton: Button.Button
 local oddsTiles: { Tile.Tile } = {}
--- Where everything in the window sits on the current screen.
-local layout: UiLayout.EggWindow
 -- os.clock() until which presses are ignored after a press.
 local pressBlockedUntil = 0
--- The player closed the window with its X: it stays away until they walk off and come back.
-local dismissed = false
--- true while this view closes the window itself (and not the player).
-local closingMyself = false
 
 local function numberAttribute(name: string): number
 	local value = player:GetAttribute(name)
@@ -76,7 +75,7 @@ local function isNearStand(): boolean
 end
 
 local function onHatchPressed()
-	local settings = Ui.eggWindow
+	local settings = Ui.eggCard
 	if os.clock() < pressBlockedUntil or HatchView.isPlaying() then
 		return
 	end
@@ -146,33 +145,24 @@ local function refreshPrice()
 	hatchButton.setPillText(text)
 end
 
--- The window: one tile per pet that can hatch, in the color of its rarity, with its chance.
--- Below them the HATCH button; the room right of it stays free for later buttons.
-local function buildWindow()
-	local settings = Ui.eggWindow
-	local petCount = #PetConfig.egg.chances
-	window = Window.new({
-		name = "EggWindow",
-		title = PetConfig.egg.name,
-		place = function(screenWidth: number, screenHeight: number): UiLayout.Rect
-			layout = UiLayout.eggWindow(
-				Ui.layout,
-				screenWidth,
-				screenHeight,
-				#Ui.menu.entries,
-				Hud.STAT_COUNT,
-				petCount,
-				Ui.window.paddingFactor
-			)
-			return layout.window
-		end,
-	})
+-- The card: the egg's name, one small tile per pet that can hatch in the color of its rarity
+-- with its chance, and below them the HATCH button.
+local function buildCard()
+	local settings = Ui.eggCard
+	card = Draw.panel("EggCard", settings.backColor, Hud.gui())
+	card.BackgroundTransparency = settings.backTransparency
+	card.Visible = false
+	-- Takes presses, so a press between the tiles does not turn the camera.
+	card.Active = true
+	Draw.corner(card, settings.cornerShare)
+
+	title = OutlinedText.new({ name = "Title", parent = card, text = PetConfig.egg.name, color = settings.titleColor })
 
 	for _, chance in PetConfig.egg.chances do
 		local pet = Pets.get(PetConfig, chance.pet)
 		local rarity = if pet then pet.rarity else Ui.defaultRarity
 		local color = (Ui.rarity :: { [string]: { number } })[rarity] or Ui.rarity[Ui.defaultRarity]
-		local tile = Tile.new(chance.pet, color, window.content, "filled")
+		local tile = Tile.new(chance.pet, color, card, "filled")
 		PetPreview.pet(chance.pet, tile.content)
 		tile.setValue(string.format(settings.chanceText, tostring(chance.percent)))
 		table.insert(oddsTiles, tile)
@@ -180,24 +170,31 @@ local function buildWindow()
 
 	hatchButton = Button.new({
 		name = "HatchButton",
-		parent = window.content,
+		parent = card,
 		text = settings.hatchText,
 		color = Ui.colors.confirm,
 		pill = { icon = "coins", color = Ui.colors.coins },
+		key = settings.key,
 	})
 	hatchButton.onActivated(onHatchPressed)
 
-	window.onResize(function()
+	Hud.onLayout(function()
+		local size = Hud.screenSize()
+		local layout =
+			UiLayout.eggCard(Ui.layout, size.X, size.Y, #Ui.menu.entries, Hud.STAT_COUNT, #oddsTiles, BUTTON_COUNT)
+		Draw.place(card, layout.card)
+		Draw.place(title.frame, layout.title)
 		for index, tile in oddsTiles do
 			Draw.place(tile.frame, layout.tiles[index])
 		end
-		Draw.place(hatchButton.frame, layout.button)
+		Draw.place(hatchButton.frame, layout.buttons[1])
 	end)
-	window.onLeave(function()
-		if not closingMyself then
-			dismissed = true
-		end
-	end)
+end
+
+-- The key is shown on the button unless the player uses touch.
+local function refreshKeyHint()
+	local touching = UserInputService:GetLastInputType() == Enum.UserInputType.Touch
+	hatchButton.setKeyShown(UserInputService.KeyboardEnabled and not touching)
 end
 
 function EggStandView.start()
@@ -207,28 +204,25 @@ function EggStandView.start()
 	buildSign(folder)
 	folder.Parent = Workspace
 
-	buildWindow()
+	buildCard()
 	refreshPrice()
 	player:GetAttributeChangedSignal(Remotes.Attributes.EggsHatched):Connect(refreshPrice)
 
-	RunService.Heartbeat:Connect(function()
-		local near = isNearStand()
-		if not near then
-			dismissed = false
+	refreshKeyHint()
+	UserInputService.LastInputTypeChanged:Connect(refreshKeyHint)
+	local key = (Enum.KeyCode :: any)[Ui.eggCard.key]
+	UserInputService.InputBegan:Connect(function(input: InputObject, typingInTextBox: boolean)
+		if not typingInTextBox and input.KeyCode == key and card.Visible then
+			onHatchPressed()
 		end
-		-- Only at the stand, and not while a throw, another window or a hatching is on screen.
-		local shown = near
-			and not dismissed
+	end)
+
+	RunService.Heartbeat:Connect(function()
+		-- Only at the stand, and not while a throw, a window or a hatching is on screen.
+		card.Visible = isNearStand()
 			and not ThrowSession.isActive()
 			and not HatchView.isPlaying()
 			and not Window.anyOpen()
-		if shown and not window.isOpen() then
-			window.open()
-		elseif not shown and window.isOpen() then
-			closingMyself = true
-			window.close()
-			closingMyself = false
-		end
 	end)
 end
 

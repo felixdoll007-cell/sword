@@ -1,6 +1,7 @@
 --!strict
--- What a player sees when their egg hatches. The world behind is blurred and darkened. Rays
--- turn slowly behind the egg, which sits big in the middle and wobbles more and more. A press
+-- What a player sees when their egg hatches. The world behind is blurred and darkened, the rest
+-- of the interface is hidden. A soft glow and slowly turning rays lie behind the egg, which
+-- sits big in the middle and wobbles more and more. A press
 -- opens it at once, otherwise it opens by itself after a few seconds: a white flash, then the
 -- pet with its name, its rarity in its color and its bonus, and the rays take the color of the
 -- rarity. A press closes.
@@ -19,8 +20,10 @@ local Ui = require(Shared.Config.Ui)
 local Pets = require(Shared.Rules.Pets)
 
 local Draw = require(script.Parent.Ui.Draw)
+local Hud = require(script.Parent.Ui.Hud)
 local OutlinedText = require(script.Parent.Ui.OutlinedText)
 local PetPreview = require(script.Parent.Ui.PetPreview)
+local Window = require(script.Parent.Ui.Window)
 
 -- Above the windows and the short messages.
 local DISPLAY_ORDER = 30
@@ -29,10 +32,11 @@ local DISPLAY_ORDER = 30
 local BACKDROP_SCREENS = 2
 -- Layers from back to front.
 local Z_RAYS = 2
-local Z_PICTURE = 3
-local Z_TEXT = 4
-local Z_FLASH = 5
-local Z_PRESS = 6
+local Z_GLOW = 3
+local Z_PICTURE = 4
+local Z_TEXT = 5
+local Z_FLASH = 6
+local Z_PRESS = 7
 local FULL_TURN = 360
 
 type Step = "idle" | "egg" | "pet"
@@ -53,6 +57,7 @@ local HatchView = {}
 local gui: ScreenGui
 local blur: BlurEffect
 local picture: Frame
+local glow: Frame
 local eggHolder: Frame
 local eggScale: UIScale
 local petHolder: Frame
@@ -143,7 +148,9 @@ local function resize()
 	local short = math.min(size.X, size.Y)
 	local edge = math.round(short * settings.pictureShare)
 	picture.Size = UDim2.fromOffset(edge, edge)
-	local y = edge
+	local glowSize = math.round(edge * settings.glow.size)
+	glow.Size = UDim2.fromOffset(glowSize, glowSize)
+	local y = edge - math.round(short * settings.textOverlap)
 	for _, entry in
 		{
 			{ text = nameText, height = settings.nameHeight },
@@ -151,10 +158,9 @@ local function resize()
 			{ text = bonusText, height = settings.bonusHeight },
 		}
 	do
-		local height = math.round(edge * entry.height)
+		local height = math.round(short * entry.height)
 		entry.text.frame.Position = UDim2.new(0.5, 0, 0, y)
-		-- Wider than the picture, so long names fit.
-		entry.text.frame.Size = UDim2.fromOffset(edge * 2, height)
+		entry.text.frame.Size = UDim2.fromOffset(math.round(short * settings.hintWidth), height)
 		y += height
 	end
 	hintText.frame.Size =
@@ -179,6 +185,7 @@ local function close()
 	token += 1
 	gui.Enabled = false
 	setBlur(false)
+	Hud.setShown(true)
 end
 
 -- The egg opens: a white flash, then the pet pops in.
@@ -265,6 +272,9 @@ function HatchView.play(petId: string)
 	gui.Enabled = true
 	if wasIdle then
 		setBlur(true)
+		-- Nothing else on screen meanwhile: no menu, values, bar or buttons, no window.
+		Window.closeAll()
+		Hud.setShown(false)
 	end
 end
 
@@ -295,6 +305,21 @@ function HatchView.start()
 	cover(dim)
 
 	buildRays()
+
+	-- The soft glow behind egg and pet: rings on top of each other, smaller and smaller.
+	glow = Draw.box("Glow", gui)
+	glow.AnchorPoint = Vector2.new(0.5, 0.5)
+	glow.Position = UDim2.fromScale(0.5, settings.pictureCenterY)
+	glow.ZIndex = Z_GLOW
+	local rings = math.max(math.floor(settings.glow.rings), 1)
+	for index = 1, rings do
+		local ring = Draw.panel("Ring", settings.glow.color, glow)
+		ring.AnchorPoint = Vector2.new(0.5, 0.5)
+		ring.Position = UDim2.fromScale(0.5, 0.5)
+		ring.Size = UDim2.fromScale(index / rings, index / rings)
+		ring.BackgroundTransparency = settings.glow.ringTransparency
+		Draw.corner(ring, Ui.corners.round)
+	end
 
 	-- The square in the middle for egg and pet, a little above the middle to leave room for the texts.
 	picture = Draw.box("Picture", gui)

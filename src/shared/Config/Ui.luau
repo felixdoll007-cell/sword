@@ -143,6 +143,17 @@ return {
 			pillWidth = 0.5,
 			pillHeight = 0.62,
 		},
+		-- The key that also presses the button, as a small dark badge on its top left corner.
+		-- Size as a share of the button's height; where its middle sits (0, 0 = top left corner
+		-- of the button, 1, 1 = bottom right corner).
+		keyBadge = {
+			size = 0.42,
+			x = 0.04,
+			y = 0.08,
+			color = { 17, 22, 32 },
+			cornerShare = 0.25,
+			textHeight = 0.8,
+		},
 	},
 
 	-- The dark pill with a symbol and a short text (what something needs or costs). On the signs
@@ -311,17 +322,18 @@ return {
 			widthFactor = 1.5,
 		},
 
-		-- The window at the egg stand, bottom center above the progress bar: one square tile per
-		-- pet that can hatch, below them the HATCH button. The window is as big as what is in it.
-		eggWindow = {
+		-- The small card at the egg stand: a small title, one small square tile per pet that can
+		-- hatch, below them the row of buttons. The card is as big as what is in it and sits above
+		-- the middle of the screen, right of the menu.
+		eggCard = {
 			-- Edge length of a tile. The tiles shrink if the screen has less room.
-			tile = { share = 0.26, min = 48, max = 124 },
-			-- Sideways the tiles are one row; a phone held upright has this many rows.
-			portraitRows = 2,
-			buttonHeight = { share = 0.15, min = 46, max = 90 },
-			-- HATCH sits on the left and takes this share of the row below the tiles. The rest
-			-- stays free for later buttons. 1 = HATCH takes the whole row.
-			hatchWidthShare = 0.6,
+			tile = { share = 0.13, min = 40, max = 62 },
+			columns = 3,
+			titleHeight = { share = 0.055, min = 15, max = 26 },
+			buttonHeight = { share = 0.13, min = 46, max = 62 },
+			-- Where the card's lower edge sits (0 = top of the screen, 0.5 = the middle). On a low
+			-- screen the card reaches further down.
+			bottomY = 0.46,
 		},
 
 		menu = {
@@ -574,17 +586,25 @@ return {
 		confirmButtonGap = 0.06,
 	},
 
-	-- The window that opens while the player stands at the egg stand: the pets that can hatch as
-	-- tiles with their chances, and the HATCH button with the price in it. Its title is the
-	-- egg's name (Config/Pets). Its sizes are in the layout above (eggWindow).
-	eggWindow = {
+	-- The small card that shows while the player stands at the egg stand: the egg's name
+	-- (Config/Pets), the pets that can hatch as tiles with their chances, and the HATCH button
+	-- with the price in it. Its sizes are in the layout above (eggCard).
+	eggCard = {
 		hatchText = "HATCH",
+		-- Extra shortcut on keyboards, shown on the button unless the player uses touch.
+		-- Touch always works through the button.
+		key = "E",
 		-- %s: chance in percent.
 		chanceText = "%s%%",
 		notEnoughText = "Not enough Coins",
 		fullText = "Pet inventory full",
 		-- After a press, wait this long before the next press counts.
 		pressWaitSeconds = 1,
+		-- The surface behind it: dark, half see-through, round corners, no border.
+		backColor = { 17, 22, 32 },
+		backTransparency = 0.4,
+		cornerShare = 0.08,
+		titleColor = { 60, 232, 226 },
 	},
 
 	-- What is shown when an egg hatches. The world behind is blurred and darkened, rays turn
@@ -632,22 +652,36 @@ return {
 			reach = 0.75,
 			-- How see-through one strip is in the middle (0 = solid, 1 = invisible). Where
 			-- strips lie on top of each other the ray is brighter.
-			transparency = 0.84,
+			transparency = 0.74,
 			-- Color while the egg is closed. After it opened: the color of the pet's rarity.
 			color = { 150, 245, 238 },
 			-- A full turn takes this many seconds.
 			turnSeconds = 40,
 		},
 
+		-- A soft, light, round glow right behind the egg and the pet. No picture: rings of the
+		-- same faint color lie on top of each other, each smaller than the one before, so the
+		-- glow is brightest in the middle.
+		glow = {
+			color = { 255, 255, 235 },
+			-- Across, as a share of the picture's edge length.
+			size = 1.25,
+			rings = 16,
+			-- How see-through one ring is (0 = solid, 1 = invisible).
+			ringTransparency = 0.94,
+		},
+
 		-- The picture of egg and pet: edge length as a share of the screen's shorter side, and
 		-- where its middle sits (0 = top of the screen). A little above the middle, the texts
 		-- come below it.
-		pictureShare = 0.46,
-		pictureCenterY = 0.4,
-		-- Texts below the pet: heights as shares of the picture's edge length.
-		nameHeight = 0.2,
-		rarityHeight = 0.13,
-		bonusHeight = 0.15,
+		pictureShare = 0.66,
+		pictureCenterY = 0.39,
+		-- Texts below the pet: heights as shares of the screen's shorter side. They reach into
+		-- the lower edge of the picture by textOverlap (there is nothing of the pet down there).
+		nameHeight = 0.092,
+		rarityHeight = 0.06,
+		bonusHeight = 0.069,
+		textOverlap = 0.04,
 		-- %s: bonus in percent.
 		bonusText = "+%s%%",
 
@@ -656,8 +690,8 @@ return {
 		closeHintText = "TAP TO CONTINUE",
 		-- Where its middle sits (0 = top of the screen), and its height and room as shares of
 		-- the screen's shorter side.
-		hintCenterY = 0.93,
-		hintHeight = 0.075,
+		hintCenterY = 0.95,
+		hintHeight = 0.06,
 		hintWidth = 0.9,
 	},
 
@@ -1076,7 +1110,7 @@ return {
 			bobHeight = 0.5,
 			bobSeconds = 2.8,
 			turnSeconds = 10,
-			-- The window with the HATCH button opens when the player is this close. Must not be
+			-- The card with the HATCH button shows when the player is this close. Must not be
 			-- more than the server's useDistance (Config/Pets).
 			promptDistance = 10,
 			-- The sign above it: the egg's name and a pill with the coin symbol and the price.

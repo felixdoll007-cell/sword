@@ -27,6 +27,9 @@ export type Props = {
 	-- A dark pill inside the button, right of the caption (HATCH with its price): its symbol
 	-- and the color of its text. nil = a button with only a caption.
 	pill: { icon: Icon.Kind?, color: { number }? }?,
+	-- The key that also presses the button ("E"), as a small badge on its top left corner.
+	-- Only the badge: listening to the key is up to whoever makes the button. Hidden at first.
+	key: string?,
 }
 
 export type Button = {
@@ -35,6 +38,8 @@ export type Button = {
 	setText: (text: string) -> (),
 	-- The text in the button's pill. Does nothing on a button without a pill.
 	setPillText: (text: string) -> (),
+	-- Shows or hides the badge with the key. Does nothing on a button without a key.
+	setKeyShown: (shown: boolean) -> (),
 	setColor: (rgb: { number }) -> (),
 	-- A button that is not enabled is grey, does not move and does not call onActivated.
 	setEnabled: (enabled: boolean) -> (),
@@ -91,6 +96,26 @@ function Button.new(props: Props): Button
 		pill = made
 	end
 
+	local keyBadge: Frame? = nil
+	if props.key then
+		local look = settings.keyBadge
+		local badge = Draw.panel("Key", look.color, face)
+		badge.AnchorPoint = Vector2.new(0.5, 0.5)
+		badge.Position = UDim2.fromScale(look.x, look.y)
+		-- A square, sized by the button's height.
+		badge.Size = UDim2.fromScale(look.size, look.size)
+		badge.SizeConstraint = Enum.SizeConstraint.RelativeYY
+		badge.ZIndex = 3
+		badge.Visible = false
+		Draw.corner(badge, look.cornerShare)
+		Draw.border(badge, nil, Ui.borderThickness - 1)
+		local letter = OutlinedText.new({ name = "Letter", parent = badge, text = props.key, shadow = false })
+		letter.frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		letter.frame.Position = UDim2.fromScale(0.5, 0.5)
+		letter.frame.Size = UDim2.fromScale(look.textHeight, look.textHeight)
+		keyBadge = badge
+	end
+
 	local function paint()
 		local shown = if enabled then rgb else Ui.colors.disabled
 		face.BackgroundColor3 = Draw.color(shown)
@@ -129,6 +154,11 @@ function Button.new(props: Props): Button
 		setPillText = function(newText: string)
 			if pill then
 				pill.setText(newText)
+			end
+		end,
+		setKeyShown = function(shown: boolean)
+			if keyBadge then
+				keyBadge.Visible = shown
 			end
 		end,
 		setColor = function(newRgb: { number })

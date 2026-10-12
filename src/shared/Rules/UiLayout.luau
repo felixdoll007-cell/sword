@@ -23,7 +23,7 @@ export type LayoutConfig = {
 	throwButton: { height: Scaled, aspectRatio: number },
 	meter: { heightFactor: number, aspectRatio: number, minWidth: number, maxWidth: number, gapFactor: number },
 	factorLabel: { heightFactor: number, widthFactor: number },
-	eggWindow: { tile: Scaled, portraitRows: number, buttonHeight: Scaled, hatchWidthShare: number },
+	eggCard: { tile: Scaled, columns: number, titleHeight: Scaled, buttonHeight: Scaled, bottomY: number },
 	menu: { cell: Scaled, columns: number, minCell: number },
 	stats: { sizeFactor: number, rowHeight: Scaled, rowGap: number },
 	window: {
@@ -67,23 +67,19 @@ export type Window = {
 	offsetX: number,
 }
 
--- How far the inner area of a window sits inside the window's edges.
-export type Insets = { side: number, top: number, bottom: number }
-
-export type EggWindow = {
-	-- The window on the screen. Half its title sticks out above it.
-	window: Rect,
-	titleHeight: number,
+export type EggCard = {
+	-- The card on the screen.
+	card: Rect,
 	rows: number,
 	columns: number,
 	-- Edge length of one square tile.
 	tile: number,
-	-- Everything below is measured from the top left of the window's inner area.
+	-- Everything below is measured from the top left of the card.
+	title: Rect,
 	-- One tile per pet, in their order: row by row, a last row that is not full is centered.
 	tiles: { Rect },
-	-- The HATCH button, and the room right of it that stays free for later buttons.
-	button: Rect,
-	spare: Rect,
+	-- The buttons below the tiles, side by side, sharing the whole row.
+	buttons: { Rect },
 }
 
 export type Grid = {
@@ -248,71 +244,62 @@ function UiLayout.window(
 	}
 end
 
--- Where the inner area of a window starts. The title sticks out over the top edge, so the inner
--- area starts below it.
--- paddingFactor: space between the window's edge and its inner area, as a share of the title height.
-function UiLayout.windowInsets(titleHeight: number, paddingFactor: number): Insets
-	local title = safe(titleHeight)
-	local padding = math.round(title * math.max(safe(paddingFactor), 0))
-	return { side = padding, top = math.round(title / 2) + padding, bottom = padding }
-end
-
--- The window at the egg stand: the pets that can hatch as square tiles (sideways one row, a
--- phone held upright several rows), below them the HATCH button on the left and free room for
--- later buttons right of it. The window is as big as what is in it and sits in the bottom
--- center, right above the progress bar.
--- Sideways it stays between the menu on the left and the jump button on the right. Where that
--- leaves too little room (a phone held upright, a square screen) it takes the whole width and
--- covers the left column while it is open.
+-- The small card at the egg stand: a small title, the pets that can hatch as square tiles in a
+-- grid, below them a row of buttons that share its whole width (for now only HATCH).
+-- The card is as big as what is in it. It sits above the middle of the screen, so the egg and
+-- its stand below stay visible, and always right of the left column: it never covers the menu
+-- or the values. Where the screen is wide enough it sits in the middle of the screen, otherwise
+-- in the middle of the room right of the column.
 -- menuCount, statCount: as for the always visible interface. tileCount: number of pets shown.
--- paddingFactor: space between a window's edge and its inner area (see windowInsets).
-function UiLayout.eggWindow(
+-- buttonCount: number of buttons in the row.
+function UiLayout.eggCard(
 	config: LayoutConfig,
 	screenWidth: number,
 	screenHeight: number,
 	menuCount: number,
 	statCount: number,
 	tileCount: number,
-	paddingFactor: number
-): EggWindow
-	local settings = config.eggWindow
+	buttonCount: number
+): EggCard
+	local settings = config.eggCard
 	local width, height = safe(screenWidth), safe(screenHeight)
 	local short = math.min(width, height)
 	local hud = UiLayout.hud(config, width, height, menuCount, statCount)
 	local margin, gap = hud.margin, hud.gap
-	local titleHeight = UiLayout.scaled(config.window.title, short)
-	local insets = UiLayout.windowInsets(titleHeight, paddingFactor)
 
 	local count = math.max(math.floor(safe(tileCount)), 0)
-	local rows = if hud.portrait then math.max(math.floor(settings.portraitRows), 1) else 1
-	rows = math.min(rows, math.max(count, 1))
-	local columns = math.max(math.ceil(count / rows), 1)
-
-	-- The room on the screen: from the top (the title sticks out) down to the progress bar.
-	local bottom = hud.bar.y - gap
-	local top = margin + titleHeight / 2
+	local columns = math.clamp(math.floor(settings.columns), 1, math.max(count, 1))
+	local rows = math.max(math.ceil(count / columns), 1)
+	local titleHeight = UiLayout.scaled(settings.titleHeight, short)
 	local buttonHeight = UiLayout.scaled(settings.buttonHeight, short)
-	-- What the window needs around its tiles: its edges, and a gap around and between
-	-- everything in the inner area.
-	local aroundX = 2 * insets.side + 2 * gap
-	local aroundY = insets.top + insets.bottom + 3 * gap + buttonHeight
-	local function fittingTile(roomWidth: number): number
-		local byWidth = (roomWidth - aroundX - (columns - 1) * gap) / columns
-		local byHeight = (bottom - top - aroundY - (rows - 1) * gap) / rows
-		return math.max(math.min(UiLayout.scaled(settings.tile, short), byWidth, byHeight), 0)
-	end
-	local menuRight = hud.menu.x + hud.menu.width
-	local tile = fittingTile(2 * (width / 2 - menuRight - gap))
-	if hud.portrait or tile < settings.tile.min then
-		tile = fittingTile(width - 2 * margin)
-	end
 
-	local contentWidth = columns * tile + (columns + 1) * gap
+	-- The room on the screen: right of the left column, above the progress bar.
+	local left = hud.menu.x + hud.menu.width + gap
+	local roomWidth = math.max(width - margin - left, 0)
+	local roomHeight = math.max(hud.bar.y - gap - margin, 0)
+	-- Around and between everything in the card there is one gap.
+	local aroundY = titleHeight + buttonHeight + 4 * gap
+	local tile = math.min(
+		UiLayout.scaled(settings.tile, short),
+		(roomWidth - (columns + 1) * gap) / columns,
+		(roomHeight - aroundY - (rows - 1) * gap) / rows
+	)
+	tile = math.max(tile, 0)
+
+	local cardWidth = columns * tile + (columns + 1) * gap
 	local tilesHeight = rows * tile + (rows - 1) * gap
-	local contentHeight = tilesHeight + buttonHeight + 3 * gap
-	local windowWidth = contentWidth + 2 * insets.side
-	local windowHeight = contentHeight + insets.top + insets.bottom
+	local cardHeight = tilesHeight + aroundY
+	-- In the middle of the screen if that keeps it clear of the left column.
+	local x = (width - cardWidth) / 2
+	if x < left then
+		x = left + math.max(roomWidth - cardWidth, 0) / 2
+	end
+	-- Its lower edge sits above the middle of the screen; on a low screen it moves down as far
+	-- as it must to stay on the screen.
+	local y = math.max(height * settings.bottomY - cardHeight, margin)
 
+	local inner = cardWidth - 2 * gap
+	local tilesTop = titleHeight + 2 * gap
 	local tiles: { Rect } = {}
 	for index = 1, count do
 		local row = math.floor((index - 1) / columns)
@@ -320,37 +307,33 @@ function UiLayout.eggWindow(
 		local inRow = math.min(count - row * columns, columns)
 		local rowWidth = inRow * tile + (inRow - 1) * gap
 		table.insert(tiles, {
-			x = (contentWidth - rowWidth) / 2 + column * (tile + gap),
-			y = gap + row * (tile + gap),
+			x = (cardWidth - rowWidth) / 2 + column * (tile + gap),
+			y = tilesTop + row * (tile + gap),
 			width = tile,
 			height = tile,
 		})
 	end
 
-	local buttonRow = contentWidth - 2 * gap
-	local buttonY = tilesHeight + 2 * gap
-	local share = settings.hatchWidthShare
-	local buttonWidth = buttonRow * (if share ~= share then 1 else math.clamp(share, 0, 1))
-	local spareX = gap + buttonWidth + gap
+	local buttonTotal = math.max(math.floor(safe(buttonCount)), 0)
+	local buttonWidth = if buttonTotal > 0 then math.max(inner - (buttonTotal - 1) * gap, 0) / buttonTotal else 0
+	local buttons: { Rect } = {}
+	for index = 1, buttonTotal do
+		table.insert(buttons, {
+			x = gap + (index - 1) * (buttonWidth + gap),
+			y = tilesTop + tilesHeight + gap,
+			width = buttonWidth,
+			height = buttonHeight,
+		})
+	end
+
 	return {
-		window = {
-			x = (width - windowWidth) / 2,
-			y = math.max(bottom - windowHeight, 0),
-			width = windowWidth,
-			height = windowHeight,
-		},
-		titleHeight = titleHeight,
+		card = { x = x, y = y, width = cardWidth, height = cardHeight },
 		rows = rows,
 		columns = columns,
 		tile = tile,
+		title = { x = gap, y = gap, width = inner, height = titleHeight },
 		tiles = tiles,
-		button = { x = gap, y = buttonY, width = buttonWidth, height = buttonHeight },
-		spare = {
-			x = spareX,
-			y = buttonY,
-			width = math.max(contentWidth - gap - spareX, 0),
-			height = buttonHeight,
-		},
+		buttons = buttons,
 	}
 end
 

@@ -149,15 +149,18 @@ nächstes Ziel ist.
 - Der Ei-Stand: ein Sockel in dunklem Blaugrau mit Noppen, die oberen Kanten als leuchtende
   türkise Leisten. Darüber schwebt das Ei (türkis mit goldenem Band, ohne Nest), wippt langsam
   und dreht sich langsam. Darüber das Schild mit Name und eigenem Preis.
-- Steht man am Stand, öffnet sich unten in der Mitte ein Fenster "STARTER EGG": die fünf Pets als
-  Kacheln in der Farbe ihrer Seltenheit mit ihrer Chance, darunter der grüne HATCH-Button mit dem
-  Preis in einer Pille. Rechts neben HATCH bleibt Platz für spätere Buttons. Quer eine Reihe
-  Kacheln, im Hochformat zwei. Dieses Fenster nimmt den Bildschirm nicht für sich: Die Welt
-  bleibt scharf und man kann weiterlaufen. Geht man weg, schließt es sich; schließt man es mit
-  dem X, bleibt es zu, bis man weggeht und wiederkommt. Im Hochformat und auf sehr schmalen
-  Bildschirmen verdeckt es die linke Spalte (Menü und Werte), solange es offen ist.
-- Schlüpfen: Die Welt wird weichgezeichnet und abgedunkelt, hinter dem Ei drehen sich langsam
-  Strahlen (ohne Bild, aus schmalen Streifen), das Ei wackelt immer stärker, unten steht
+- Steht man am Stand, erscheint oberhalb der Bildmitte ein kompaktes Kärtchen: dunkler, halb
+  durchsichtiger Hintergrund mit runden Ecken, ohne Rahmen und ohne X. Oben klein "STARTER EGG"
+  in Türkis, darunter die fünf Pets als kleine Kacheln in der Farbe ihrer Seltenheit mit ihrer
+  Chance (drei oben, zwei unten), darunter der grüne HATCH-Button mit dem Preis in einer Pille.
+  HATCH ist so breit wie die Reihe; spätere Buttons teilen sich die Reihe mit ihm. Mit Tastatur
+  steht "E" am Button und E schlüpft auch, auf Touch wird keine Taste gezeigt. Das Kärtchen
+  sitzt fest auf dem Bildschirm (nicht in der Welt), immer rechts vom Menü: Es verdeckt weder
+  Menü noch Werte, und Ei und Stand darunter bleiben sichtbar. Geht man weg, verschwindet es.
+- Schlüpfen: Die Welt wird weichgezeichnet und abgedunkelt, die übrige Oberfläche (Menü,
+  Werte, Balken, Buttons) ist währenddessen ausgeblendet. Hinter dem großen Ei liegt ein
+  weicher heller Schein, dahinter drehen sich langsam Strahlen (beides ohne Bild, aus Ringen
+  und schmalen Streifen), das Ei wackelt immer stärker, unten steht
   "TAP TO HATCH". Antippen öffnet sofort, sonst öffnet es sich nach drei Sekunden. Dann ein
   weißer Blitz, das Pet mit Name, Seltenheit in ihrer Farbe und "+N%", und die Strahlen nehmen
   die Farbe der Seltenheit an. Das Pet bleibt stehen, bis man antippt ("TAP TO CONTINUE").

@@ -70,9 +70,8 @@ Noppen-Textur in etwas hellerem Ton der Grundfarbe. Eine einzige Kachel-Grafik f
   der aktive Reiter ist heller.
 - Öffnen: kurzes Aufploppen von klein nach groß. Schließen: schnell.
 - Es ist immer nur ein Fenster offen.
-- Ausnahme: das schwebende Fenster (Ei-Stand). Es sieht gleich aus, öffnet sich aber von selbst,
-  wenn man davorsteht, sitzt unten in der Mitte, und die Welt dahinter bleibt scharf und
-  bespielbar.
+- Kein Fenster ist das Kärtchen am Ei-Stand: klein, dunkel und halb durchsichtig, runde Ecken,
+  kein Rahmen, kein X, kleiner Titel in Türkis. Es zeigt sich von selbst, wenn man davorsteht.
 
 ### Kachel für einen Gegenstand
 - Quadrat mit runden Ecken, heller Rand in der Farbe der Seltenheit.

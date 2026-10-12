@@ -50,6 +50,13 @@ function Hud.gui(): ScreenGui
 	return gui :: ScreenGui
 end
 
+-- Hides or shows the whole always visible interface (hidden while an egg hatches).
+function Hud.setShown(shown: boolean)
+	if gui then
+		gui.Enabled = shown
+	end
+end
+
 -- Size of the usable screen in pixels.
 function Hud.screenSize(): Vector2
 	return if gui then gui.AbsoluteSize else Vector2.zero
