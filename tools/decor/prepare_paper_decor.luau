@@ -91,32 +91,32 @@ local MODELS = {
 		},
 		neon = {},
 	},
-	-- Pets and the egg. All pets: Eyes black, EyeShine white. The mesh "Nose" is the nose of the
-	-- bunny and the panda, the dark accent of the fox, horns and spikes of the dragon and the
-	-- beak of the phoenix.
+	-- Pets (second version, imported on 2026-10-12) and the egg. All pets: EyeWhite white, Pupil
+	-- very dark brown, EyeShine white and glowing. AccentPink of the panda is a small pink detail on its face.
 	{
 		inside = "bunny_pet",
 		template = "pet_bunny",
 		colors = {
 			Body = Color3.fromRGB(250, 250, 250),
 			Accent = Color3.fromRGB(255, 150, 190),
-			Nose = Color3.fromRGB(255, 150, 190),
-			Eyes = Color3.fromRGB(20, 20, 24),
-			EyeShine = Color3.fromRGB(250, 250, 250),
+			EyeWhite = Color3.fromRGB(250, 250, 250),
+			Pupil = Color3.fromRGB(46, 28, 18),
+			EyeShine = Color3.fromRGB(255, 255, 255),
 		},
-		neon = {},
+		neon = { EyeShine = true },
 	},
 	{
 		inside = "fox_pet",
 		template = "pet_fox",
 		colors = {
 			Body = Color3.fromRGB(255, 122, 31),
-			Accent = Color3.fromRGB(250, 250, 250),
-			Nose = Color3.fromRGB(74, 48, 32),
-			Eyes = Color3.fromRGB(20, 20, 24),
-			EyeShine = Color3.fromRGB(250, 250, 250),
+			AccentWhite = Color3.fromRGB(250, 250, 250),
+			AccentDark = Color3.fromRGB(74, 48, 32),
+			EyeWhite = Color3.fromRGB(250, 250, 250),
+			Pupil = Color3.fromRGB(46, 28, 18),
+			EyeShine = Color3.fromRGB(255, 255, 255),
 		},
-		neon = {},
+		neon = { EyeShine = true },
 	},
 	{
 		inside = "panda_pet",
@@ -124,11 +124,12 @@ local MODELS = {
 		colors = {
 			Body = Color3.fromRGB(250, 250, 250),
 			Accent = Color3.fromRGB(20, 20, 24),
-			Nose = Color3.fromRGB(20, 20, 24),
-			Eyes = Color3.fromRGB(20, 20, 24),
-			EyeShine = Color3.fromRGB(250, 250, 250),
+			AccentPink = Color3.fromRGB(255, 150, 190),
+			EyeWhite = Color3.fromRGB(250, 250, 250),
+			Pupil = Color3.fromRGB(46, 28, 18),
+			EyeShine = Color3.fromRGB(255, 255, 255),
 		},
-		neon = {},
+		neon = { EyeShine = true },
 	},
 	{
 		inside = "dragon_pet",
@@ -136,11 +137,12 @@ local MODELS = {
 		colors = {
 			Body = Color3.fromRGB(150, 70, 230),
 			Accent = Color3.fromRGB(120, 235, 225),
-			Nose = GOLD,
-			Eyes = Color3.fromRGB(20, 20, 24),
-			EyeShine = Color3.fromRGB(250, 250, 250),
+			Gold = GOLD,
+			EyeWhite = Color3.fromRGB(250, 250, 250),
+			Pupil = Color3.fromRGB(46, 28, 18),
+			EyeShine = Color3.fromRGB(255, 255, 255),
 		},
-		neon = {},
+		neon = { EyeShine = true },
 	},
 	{
 		inside = "phoenix_pet",
@@ -148,11 +150,12 @@ local MODELS = {
 		colors = {
 			Body = Color3.fromRGB(255, 84, 30),
 			Glow = Color3.fromRGB(255, 220, 70),
-			Nose = GOLD,
-			Eyes = Color3.fromRGB(20, 20, 24),
-			EyeShine = Color3.fromRGB(250, 250, 250),
+			Gold = GOLD,
+			EyeWhite = Color3.fromRGB(250, 250, 250),
+			Pupil = Color3.fromRGB(46, 28, 18),
+			EyeShine = Color3.fromRGB(255, 255, 255),
 		},
-		neon = { Glow = true },
+		neon = { Glow = true, EyeShine = true },
 	},
 	{
 		inside = "pet_egg",

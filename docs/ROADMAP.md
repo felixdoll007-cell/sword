@@ -242,6 +242,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Nachbesserung: Übersicht als kompaktes Kärtchen statt Fenster (halb durchsichtig, ohne X und Rahmen, Titel klein in Türkis, kleine Kacheln in drei Spalten, HATCH so breit wie die Reihe, am PC mit Taste E), fest oberhalb der Bildmitte und rechts vom Menü
 - [x] Nachbesserung: Beim Schlüpfen ist die übrige Oberfläche ausgeblendet; Ei und Pet rund 1,4-mal so groß; weicher heller Schein hinter dem Ei, Strahlen kräftiger
 - [x] Altes `pet_egg` aus dem Ort gelöscht
+- [x] Fünf Pets durch die zweite Fassung mit großen Augen ersetzt (gleiche Vorlagen-Namen, Form und Größe unverändert), alte Vorlagen gelöscht
 - [ ] Von mir getestet
 - Unverändert: Preise, Chancen, Würfeln, Speichern, Server-Prüfungen.
 - Wichtig: Die Vorlage liegt nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).

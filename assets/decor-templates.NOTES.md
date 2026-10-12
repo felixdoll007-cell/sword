@@ -30,7 +30,7 @@ Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.
 Die Farben wurden einmalig mit `tools/decor/prepare_paper_decor.luau` gesetzt (Form und Größe
 unverändert). Das Skript hat außerdem alle Teile verankert und ihnen die Kollision genommen.
 
-## Vorlagen der Pets (importiert am 11.10.2026)
+## Vorlagen der Pets (zweite Fassung, importiert am 12.10.2026)
 
 Pets und das Ei baut jeder Client selbst (`src/client/Ui/PetPreview.luau`): als Bild in der
 Oberfläche, als Begleiter hinter der Figur und als Ei auf dem Ei-Stand. Welches Pet welche
@@ -38,16 +38,17 @@ Vorlage nutzt, steht in `src/shared/Config/Pets.luau`.
 
 | Vorlage | Teile (Mesh-Namen) | Farben |
 |---|---|---|
-| `pet_bunny` | Body, Accent, Nose, Eyes, EyeShine | weiß, rosa, rosa |
-| `pet_fox` | Body, Accent, Nose, Eyes, EyeShine | orange, weiß, dunkelbraun |
-| `pet_panda` | Body, Accent, Nose, Eyes, EyeShine | weiß, schwarz, schwarz |
-| `pet_dragon` | Body, Accent, Nose, Eyes, EyeShine | lila, helles Türkis, gold |
-| `pet_phoenix` | Body, Glow, Nose, Eyes, EyeShine | rot-orange, gelb (Neon), gold |
+| `pet_bunny` | Body, Accent | weiß, rosa |
+| `pet_fox` | Body, AccentWhite, AccentDark | kräftiges Orange, weiß, dunkelbraun |
+| `pet_panda` | Body, Accent, AccentPink | weiß, schwarz, rosa |
+| `pet_dragon` | Body, Accent, Gold | kräftiges Lila, helles Türkis, gold |
+| `pet_phoenix` | Body, Glow, Gold | rot-orange, gelb (Neon), gold |
 | `crystal_egg` | Shell, Band, Stars, Glow | kräftiges Türkis, gold, helles Mintgrün, helles Türkis (Neon) |
 
-Bei allen Pets sind `Eyes` schwarz und `EyeShine` weiß. Das Mesh `Nose` ist je nach Pet etwas
-anderes: beim Fuchs der dunkle Akzent, beim Drachen Hörner und Zacken, beim Phönix der
-Schnabel. Vorderseite ist bei allen -Z, der Drehpunkt liegt in der Körpermitte.
+Alle Pets haben dazu große Augen aus drei Meshes: `EyeWhite` weiß, `Pupil` sehr dunkles Braun,
+`EyeShine` weiß (Neon). Vorderseite ist bei allen -Z, der Drehpunkt liegt in der Körpermitte.
+Die Dateien sind `assets/*-pet-v2.glb`. Die erste Fassung (`assets/*-pet.glb`, mit `Eyes` und
+`Nose`) wurde am 12.10.2026 unter denselben Namen ersetzt und aus dem Ort gelöscht.
 
 Das Ei am Stand und in der Schlüpf-Anzeige ist `crystal_egg` (importiert am 12.10.2026, Datei
 `assets/crystal-egg.glb`, 3,1 x 4,1 x 2,9 Studs). Am Stand wird es als Ganzes vergrößert
