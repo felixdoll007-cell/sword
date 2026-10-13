@@ -188,6 +188,7 @@ function ThrowSession.start(throwPower: number, perWall: { Rewards.WallReward }?
 
 		if not scratched and plan.bounceWallIndex and time >= plan.flightSeconds then
 			WallEffects.addScratch(plan.bounceWallIndex)
+			LaneView.hitWall(plan.bounceWallIndex)
 			scratched = true
 		end
 

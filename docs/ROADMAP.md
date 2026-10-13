@@ -261,6 +261,17 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 11.
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 
+### Block: Bambus-Wände als Modell (Vorgriff auf Version 4, nur Aussehen)
+- [x] Vorlage `bamboo_wall` eingefärbt und in `ReplicatedStorage.Assets` abgelegt (1464 Dreiecke)
+- [x] Wände 6 bis 10: die Wand bleibt unsichtbar an ihrem Platz, das Modell steht auf dem Client an derselben Stelle, ohne Kollision, und bedeckt sie ganz
+- [x] Kein Kratzer an Modell-Wänden: beim Abprallen wackelt das Modell kurz und ist bis zum Ende des Wurfs dunkler; beim Durchbrechen verschwindet es mit der Wand, Bruchstücke in Bambusgrün
+- [x] Aufgemalte Streifen und Band der Bambus-Wände entfernt
+- [x] Pro Zone in der Config: Wand-Modell (oder keins) und Kratzer an/aus
+- [ ] Von mir getestet
+- Offen, weil es im Spiel keinen wachsenden Schaden an einer Wand gibt: "schrittweise dunkler". Gebaut ist eine Stufe beim Abprallen.
+- Unverändert: Treffer, Schaden, Coins, Server, wer welche Wände sieht.
+- Wichtig: Die Vorlage liegt nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

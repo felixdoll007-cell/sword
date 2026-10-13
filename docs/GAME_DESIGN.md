@@ -213,15 +213,20 @@ liegt (wenige große Teile statt vieler kleiner). Farben und Größen stehen in 
 (world). Die Papier-Zone (Wurflinie bis Wand 5) ist das Muster für die Zonen der Bahn: Boden in
 zwei Cremetönen, cremeweiße Wände mit dünnem dunkelrotem Rahmen, und am Ende schwebt der
 Name der nächsten Zone ("BAMBOO") über der Bahn. Jede weitere Zone braucht nur einen Eintrag
-mit Farben, Namen, Wandmuster und Deko-Liste in `Config/Ui` (world.lane.zones). Eine Zone
+mit Farben, Namen, Wand (Farbe, Muster oder Modell, Kratzer an/aus) und Deko-Liste in
+`Config/Ui` (world.lane.zones). Eine Zone
 endet an ihrer letzten Wand; das Stück bis zur ersten Wand der nächsten Zone gehört zur
 nächsten Zone. Hinter Wand 10 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
 
 Die Bambus-Zone (Wand 6 bis 10) ist die zweite fertige Zone: Boden in zwei Tönen hellem,
 frischem Grün, Gehwege in zwei Tönen warmem Steingrau mit dunkel bambusgrüner Kante, und
-Bambuswände: grün, mit fünf etwas dunkleren senkrechten Streifen wie Rohre und einem braunen
-Band in der oberen Hälfte wie eine Schnur. Streifen und Band sind ein Bild auf der Wand, keine
-zusätzlichen Teile. Hinter ihr schwebt "WOOD" in Holzbraun. Ihre Deko: am Anfang zwei
+Bambuswände als Modell (Rohre mit Schnur auf einem Fußbalken). Die eigentliche Wand steht
+unverändert an ihrem Platz, ist aber unsichtbar und entscheidet weiter alles; das Modell ist
+nur die sichtbare Hülle, ohne Kollision, gleichmäßig so weit vergrößert, dass es die Wand ganz
+bedeckt. Eine Modell-Wand bekommt keinen Kratzer: Prallt die Waffe ab, wackelt das Modell kurz
+und ist bis zum Ende des Wurfs etwas dunkler. Beim Durchbrechen verschwindet es mit der Wand,
+die Bruchstücke fliegen in Bambusgrün. Die Papierwände behalten ihren Kratzer. Hinter der
+Bambus-Zone schwebt "WOOD" in Holzbraun. Ihre Deko: am Anfang zwei
 Steinlaternen als Tor, ganz außen vier Bambusgruppen (eine bis 20 % größer), dazwischen eine
 Taiko-Trommel, zwei Wasserspiele und eine weitere Steinlaterne, zusammen zehn Teile.
 Laterne, Trommel und Wasserspiel stehen 1,8-mal so groß wie modelliert, Bambus 1,4-mal. Die

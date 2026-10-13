@@ -1029,6 +1029,17 @@ return {
 			--     (band: its color, where its middle sits, 0 = top of the wall and 1 = bottom,
 			--     and its height as a share of the wall's height). All three are drawn on the
 			--     wall, they are not extra parts.
+			--     scratch: true = the wall the weapon bounces off gets a dark scratch.
+			--     model: a model shown instead of the plain wall (leave it out for none). The
+			--       wall itself stays where it is, invisible, and still decides everything; the
+			--       model is only what the player sees. It is made evenly bigger until the part
+			--       of it that has to hide the wall (coverWidth x coverHeight x coverDepth, in
+			--       studs as modelled) covers the whole wall, its front level with the wall's
+			--       front. sinkStuds: it stands this far in the floor, so a foot beam that
+			--       reaches into the walkway's edge does not lie level with it.
+			--       hit: what the model does when the weapon bounces off it: it rocks by up to
+			--       wobbleDegrees, wobbleSwings times within wobbleSeconds, calming down, and it
+			--       turns darker by darken (0.3 = 30 %) until the throw is over.
 			--   decor: see the paper zone.
 			zones = {
 				Paper = {
@@ -1043,7 +1054,7 @@ return {
 						curbColor = { 140, 28, 40 },
 					},
 					-- Cream white with a dark red frame, like a paper wall.
-					wall = { color = { 250, 245, 230 }, frameColor = { 140, 28, 40 } },
+					wall = { color = { 250, 245, 230 }, frameColor = { 140, 28, 40 }, scratch = true },
 					-- Decoration: scenery on the outer step of the walkways. A fixed list, set by hand,
 					-- so it does not look lined up. For every piece:
 					--   model: a name from decor.models below.
@@ -1160,12 +1171,25 @@ return {
 						lightColor = { 168, 161, 149 },
 						curbColor = { 44, 96, 52 },
 					},
-					-- A bamboo wall: green, with darker upright stripes like canes and a brown
-					-- band in the upper half like a cord.
+					-- A bamboo wall as a model: canes tied with a cord on a foot beam. color is
+					-- the color of its pieces when it breaks.
 					wall = {
 						color = { 116, 180, 76 },
-						stripes = { count = 5, color = { 86, 150, 58 }, widthShare = 0.09 },
-						band = { color = { 132, 88, 48 }, centerY = 0.3, heightShare = 0.06 },
+						scratch = false,
+						model = {
+							template = "bamboo_wall",
+							-- The row of canes.
+							coverWidth = 19.9,
+							coverHeight = 12,
+							coverDepth = 2.4,
+							sinkStuds = 0.2,
+							hit = {
+								wobbleDegrees = 4,
+								wobbleSeconds = 0.5,
+								wobbleSwings = 3,
+								darken = 0.3,
+							},
+						},
 					},
 					decor = {
 						pieces = {

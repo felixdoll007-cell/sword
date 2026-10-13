@@ -22,7 +22,30 @@ export type Stripes = { count: number, color: { number }, widthShare: number }
 -- as a share of the wall's height.
 export type Band = { color: { number }, centerY: number, heightShare: number }
 
-export type WallStyle = { color: { number }, frameColor: { number }?, stripes: Stripes?, band: Band? }
+-- What a wall model does when the weapon bounces off it.
+export type WallHit = { wobbleDegrees: number, wobbleSeconds: number, wobbleSwings: number, darken: number }
+-- A model shown instead of the plain wall. cover...: the modelled size of the part of it that
+-- has to hide the wall.
+export type WallModel = {
+	template: string,
+	coverWidth: number,
+	coverHeight: number,
+	coverDepth: number,
+	sinkStuds: number?,
+	hit: WallHit?,
+}
+-- How a wall model is set onto its wall: how many times as big as modelled, how far its foot
+-- stands below the floor, and how far its middle lies from the wall's middle towards the thrower.
+export type ModelPlace = { scale: number, sinkStuds: number, towardsThrower: number }
+
+export type WallStyle = {
+	color: { number },
+	frameColor: { number }?,
+	stripes: Stripes?,
+	band: Band?,
+	scratch: boolean?,
+	model: WallModel?,
+}
 
 -- A rectangle on the face of a wall, in shares of the face: x and y of its top left corner
 -- (0, 0 = top left of the wall), width and height.
@@ -287,6 +310,65 @@ function ZoneLook.wallPattern(look: LookConfig, material: string): { FaceRect }
 		end
 	end
 	return rects
+end
+
+local function isNumber(value: any): boolean
+	return typeof(value) == "number" and value == value and math.abs(value) ~= math.huge
+end
+
+-- Whether the wall the weapon bounces off gets a scratch. Yes, unless its zone says no.
+function ZoneLook.wallScratch(look: LookConfig, material: string): boolean
+	local zoneStyle = style(look, material)
+	return not (zoneStyle and zoneStyle.wall and zoneStyle.wall.scratch == false)
+end
+
+-- The model shown instead of the plain walls of this material, or nil if they have none.
+function ZoneLook.wallModel(look: LookConfig, material: string): WallModel?
+	local zoneStyle = style(look, material)
+	return if zoneStyle and zoneStyle.wall then zoneStyle.wall.model else nil
+end
+
+-- How a wall model is set onto a wall of this size: evenly bigger until its covering part hides
+-- the whole wall, its front level with the wall's front. nil if the model's sizes are broken.
+function ZoneLook.wallModelPlace(
+	model: WallModel,
+	wallWidth: number,
+	wallHeight: number,
+	wallThickness: number
+): ModelPlace?
+	for _, value in { model.coverWidth, model.coverHeight, model.coverDepth } do
+		if not isNumber(value) or value <= 0 then
+			return nil
+		end
+	end
+	local scale = math.max(wallWidth / model.coverWidth, wallHeight / model.coverHeight)
+	local sink = if isNumber(model.sinkStuds) then math.max(model.sinkStuds :: number, 0) else 0
+	-- Sunk into the floor it must still reach the top of the wall.
+	scale = math.max(scale, (wallHeight + sink) / model.coverHeight)
+	return {
+		scale = scale,
+		sinkStuds = sink,
+		towardsThrower = wallThickness / 2 - model.coverDepth * scale / 2,
+	}
+end
+
+-- How far a wall model leans at this time after a hit, in degrees: it rocks there and back and
+-- calms down. 0 before the hit and once it is over.
+function ZoneLook.wobbleDegrees(hit: WallHit, time: number): number
+	if not isNumber(time) or not isNumber(hit.wobbleSeconds) or not isNumber(hit.wobbleDegrees) then
+		return 0
+	end
+	if time <= 0 or time >= hit.wobbleSeconds then
+		return 0
+	end
+	local swings = if isNumber(hit.wobbleSwings) then math.max(hit.wobbleSwings, 0) else 0
+	local progress = time / hit.wobbleSeconds
+	return hit.wobbleDegrees * (1 - progress) * math.sin(progress * swings * 2 * math.pi)
+end
+
+-- How much darker a wall model is after a hit: 0 = unchanged, 1 = black.
+function ZoneLook.hitDarken(hit: WallHit): number
+	return if isNumber(hit.darken) then math.clamp(hit.darken, 0, 1) else 0
 end
 
 return ZoneLook

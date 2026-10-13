@@ -337,20 +337,16 @@ return {
 		expect(look.wallFrame.widthStuds * 10 <= LaneConfig.wallHeight).toBe(true)
 	end,
 
-	["bamboo walls are green with four or five darker canes and a brown cord in the upper half"] = function(expect)
-		local wall = look.zones.Bamboo.wall
-		expect(ZoneLook.wallColor(LaneConfig, look, "Bamboo")).toBe(wall.color)
-		local pattern = ZoneLook.wallPattern(look, "Bamboo")
+	["a wall can carry upright stripes and a level band on top of them"] = function(expect)
+		local wall = {
+			color = { 116, 180, 76 },
+			stripes = { count = 5, color = { 86, 150, 58 }, widthShare = 0.09 },
+			band = { color = { 132, 88, 48 }, centerY = 0.3, heightShare = 0.06 },
+		}
+		local own = { walk = look.walk, sign = look.sign, zones = { Paper = { wall = wall } } }
+		local pattern = ZoneLook.wallPattern(own, "Paper")
 		local count = wall.stripes.count
-		expect(count >= 4 and count <= 5).toBe(true)
 		expect(#pattern).toBe(count + 1)
-		-- Green, and the canes a little darker than the wall.
-		expect(wall.color[2] > wall.color[1] and wall.color[2] > wall.color[3]).toBe(true)
-		local function brightness(rgb: { number }): number
-			return rgb[1] + rgb[2] + rgb[3]
-		end
-		expect(brightness(wall.stripes.color) < brightness(wall.color)).toBe(true)
-		expect(brightness(wall.stripes.color) > brightness(wall.color) * 0.6).toBe(true)
 		for index = 1, count do
 			local stripe = pattern[index]
 			-- Upright over the whole height, on the wall, apart from each other.
@@ -366,13 +362,122 @@ return {
 			local mirror = pattern[count + 1 - index]
 			expect(stripe.x).toBeNear(1 - mirror.x - mirror.width)
 		end
-		-- The cord: level, across the whole wall, in the upper half, in front of the canes.
+		-- The band: level, across the whole wall, in the upper half, in front of the stripes.
 		local band = pattern[count + 1]
 		expect(band.color).toBe(wall.band.color)
 		expect(band.x).toBe(0)
 		expect(band.width).toBe(1)
 		expect(band.y > 0 and band.y + band.height < 0.5).toBe(true)
-		expect(band.color[1] > band.color[2] and band.color[2] > band.color[3]).toBe(true)
+	end,
+
+	["bamboo walls are a model without scratch, the other walls are plain and get a scratch"] = function(expect)
+		local wall = look.zones.Bamboo.wall
+		-- Its pieces are bamboo green.
+		expect(ZoneLook.wallColor(LaneConfig, look, "Bamboo")).toBe(wall.color)
+		expect(wall.color[2] > wall.color[1] and wall.color[2] > wall.color[3]).toBe(true)
+		expect(ZoneLook.wallModel(look, "Bamboo")).toBe(wall.model)
+		expect(wall.model.template).toBe("bamboo_wall")
+		expect(ZoneLook.wallScratch(look, "Bamboo")).toBe(false)
+		-- Nothing is drawn on it any more.
+		expect(#ZoneLook.wallPattern(look, "Bamboo")).toBe(0)
+		expect(ZoneLook.wallFrameColor(look, "Bamboo")).toBe(nil)
+		for _, material in WallConfig.materials do
+			if material ~= "Bamboo" then
+				expect(ZoneLook.wallModel(look, material)).toBe(nil)
+				expect(ZoneLook.wallScratch(look, material)).toBe(true)
+			end
+		end
+		expect(ZoneLook.wallModel(look, "Cheese")).toBe(nil)
+		expect(ZoneLook.wallScratch(look, "Cheese")).toBe(true)
+	end,
+
+	["a wall model is made evenly bigger until it hides the whole wall, front on front"] = function(expect)
+		local model = look.zones.Bamboo.wall.model
+		local width, height, thickness = LaneConfig.laneWidth, LaneConfig.wallHeight, LaneConfig.wallThickness
+		local place = ZoneLook.wallModelPlace(model, width, height, thickness)
+		expect(place ~= nil).toBe(true)
+		if place then
+			expect(model.coverWidth * place.scale >= width - 1e-9).toBe(true)
+			-- Also when it stands a little in the floor.
+			expect(model.coverHeight * place.scale - place.sinkStuds >= height - 1e-9).toBe(true)
+			-- Not bigger than needed.
+			local needed = math.max(width / model.coverWidth, (height + place.sinkStuds) / model.coverHeight)
+			expect(place.scale).toBeNear(needed)
+			-- Its front lies level with the wall's front.
+			expect(place.towardsThrower + model.coverDepth * place.scale / 2).toBeNear(thickness / 2)
+			expect(place.sinkStuds >= 0 and place.sinkStuds <= 0.5).toBe(true)
+		end
+		-- A tall, narrow wall: the height decides.
+		local tall =
+			ZoneLook.wallModelPlace({ template = "x", coverWidth = 10, coverHeight = 10, coverDepth = 2 }, 10, 30, 2)
+		expect(tall ~= nil and tall.scale == 3 and tall.sinkStuds == 0).toBe(true)
+		expect(tall ~= nil and tall.towardsThrower == -2).toBe(true)
+		-- Broken sizes: no model.
+		for _, broken in { 0, -4, 0 / 0, math.huge } do
+			expect(
+				ZoneLook.wallModelPlace(
+					{ template = "x", coverWidth = broken, coverHeight = 10, coverDepth = 2 },
+					10,
+					30,
+					2
+				)
+			).toBe(nil)
+			expect(
+				ZoneLook.wallModelPlace(
+					{ template = "x", coverWidth = 10, coverHeight = broken, coverDepth = 2 },
+					10,
+					30,
+					2
+				)
+			).toBe(nil)
+			expect(
+				ZoneLook.wallModelPlace(
+					{ template = "x", coverWidth = 10, coverHeight = 10, coverDepth = broken },
+					10,
+					30,
+					2
+				)
+			).toBe(nil)
+		end
+		local negativeSink = ZoneLook.wallModelPlace(
+			{ template = "x", coverWidth = 10, coverHeight = 10, coverDepth = 2, sinkStuds = -3 },
+			10,
+			10,
+			2
+		)
+		expect(negativeSink ~= nil and negativeSink.sinkStuds == 0).toBe(true)
+	end,
+
+	["a hit wall model rocks briefly, calms down and turns a little darker"] = function(expect)
+		local hit = look.zones.Bamboo.wall.model.hit
+		-- Short and slight.
+		expect(hit.wobbleSeconds > 0 and hit.wobbleSeconds <= 1).toBe(true)
+		expect(hit.wobbleDegrees > 0 and hit.wobbleDegrees <= 8).toBe(true)
+		expect(hit.wobbleSwings >= 1).toBe(true)
+		expect(ZoneLook.hitDarken(hit) > 0 and ZoneLook.hitDarken(hit) <= 0.5).toBe(true)
+		expect(ZoneLook.wobbleDegrees(hit, 0)).toBe(0)
+		expect(ZoneLook.wobbleDegrees(hit, -1)).toBe(0)
+		expect(ZoneLook.wobbleDegrees(hit, hit.wobbleSeconds)).toBe(0)
+		expect(ZoneLook.wobbleDegrees(hit, 100)).toBe(0)
+		local biggest, late = 0, 0
+		for step = 1, 99 do
+			local time = hit.wobbleSeconds * step / 100
+			local lean = math.abs(ZoneLook.wobbleDegrees(hit, time))
+			expect(lean <= hit.wobbleDegrees).toBe(true)
+			biggest = math.max(biggest, lean)
+			if step > 80 then
+				late = math.max(late, lean)
+			end
+		end
+		expect(biggest > hit.wobbleDegrees * 0.5).toBe(true)
+		expect(late < biggest / 2).toBe(true)
+		-- Broken values: it stands still and keeps its color.
+		expect(ZoneLook.wobbleDegrees(hit, 0 / 0)).toBe(0)
+		local broken = { wobbleDegrees = 0 / 0, wobbleSeconds = 0.5, wobbleSwings = 3, darken = 0 / 0 }
+		expect(ZoneLook.wobbleDegrees(broken, 0.1)).toBe(0)
+		expect(ZoneLook.hitDarken(broken)).toBe(0)
+		expect(ZoneLook.hitDarken({ wobbleDegrees = 1, wobbleSeconds = 1, wobbleSwings = 1, darken = 7 })).toBe(1)
+		expect(ZoneLook.hitDarken({ wobbleDegrees = 1, wobbleSeconds = 1, wobbleSwings = 1, darken = -7 })).toBe(0)
 	end,
 
 	["a wall pattern stays on the wall whatever the config says"] = function(expect)

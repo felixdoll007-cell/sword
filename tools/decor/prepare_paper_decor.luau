@@ -217,6 +217,19 @@ local MODELS = {
 		},
 		neon = {},
 	},
+	-- The wall of the bamboo zone (imported on 2026-10-13). Its pivot is also set to the middle
+	-- of its foot by hand.
+	{
+		inside = "bamboo_wall",
+		template = "bamboo_wall",
+		colors = {
+			Stalks = Color3.fromRGB(96, 176, 62),
+			Nodes = Color3.fromRGB(52, 110, 44),
+			Rope = Color3.fromRGB(150, 98, 52),
+			Beam = Color3.fromRGB(84, 58, 38),
+		},
+		neon = {},
+	},
 	-- The egg without a nest (imported on 2026-10-12). It replaces pet_egg at the egg stand and
 	-- in the hatching animation; pet_egg stays in the place but is not used any more.
 	{

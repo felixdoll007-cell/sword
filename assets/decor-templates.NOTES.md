@@ -43,6 +43,17 @@ kippt es von dort nach vorn unten (Werte in `Config/Ui`, world.decor.models.shis
 Die Vorlagen bleiben so groß wie modelliert. Im Spiel stehen Laterne, Trommel und Wasserspiel
 1,8-mal so groß, Bambus 1,4-mal (`size` in `Config/Ui`, world.decor.models).
 
+## Wand-Modell der Bambus-Zone (importiert am 13.10.2026)
+
+| Vorlage | Datei | Dreiecke | Teile (Mesh-Namen) | Größe wie modelliert |
+|---|---|---|---|---|
+| `bamboo_wall` | `assets/bamboo-wall.glb` | 1464 | Stalks, Nodes, Rope, Beam | 21,2 x 12 x 3,6 Studs (Rohre allein 19,9 x 11,2 x 2,4) |
+
+Farben: Stalks kräftiges Bambusgrün, Nodes dunkelgrün, Rope warmes Braun, Beam dunkelbraun.
+Der Drehpunkt der Vorlage ist die Mitte ihres Fußes. Im Spiel wird sie gleichmäßig etwa
+1,5-mal vergrößert, damit die Rohre die 30 Studs breite Wand ganz bedecken (Werte in
+`Config/Ui`, world.lane.zones.Bamboo.wall.model).
+
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 
 Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.

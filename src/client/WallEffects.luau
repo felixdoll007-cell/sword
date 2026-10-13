@@ -98,9 +98,14 @@ function WallEffects.spawnPieces(index: number)
 	)
 end
 
--- Dark scratch on the front of the wall, at the height where the sword hit it.
+-- Dark scratch on the front of the wall, at the height where the sword hit it. Not on walls
+-- whose zone has switched it off (walls shown as a model).
 function WallEffects.addScratch(index: number)
 	WallEffects.clearScratch()
+	local wall = Walls.get(WallConfig, index)
+	if not wall or not ZoneLook.wallScratch(Ui.world.lane, wall.material) then
+		return
+	end
 	local v = ThrowVisuals
 	local part = Instance.new("Part")
 	part.Name = "Scratch"
