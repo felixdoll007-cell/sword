@@ -1154,10 +1154,10 @@ return {
 					nameColor = { 124, 196, 84 },
 					-- Two tones of light, fresh green.
 					floor = { darkColor = { 166, 212, 118 }, lightColor = { 184, 226, 136 } },
-					-- Walkways: two tones of light stone grey, dark bamboo green edge towards the lane.
+					-- Walkways: two tones of warm stone grey, dark bamboo green edge towards the lane.
 					walk = {
-						darkColor = { 192, 196, 194 },
-						lightColor = { 208, 212, 210 },
+						darkColor = { 150, 143, 132 },
+						lightColor = { 168, 161, 149 },
 						curbColor = { 44, 96, 52 },
 					},
 					-- A bamboo wall: green, with darker upright stripes like canes and a brown
@@ -1173,33 +1173,33 @@ return {
 							{
 								model = "stone_lantern",
 								side = "left",
-								along = 5,
-								across = 0.25,
+								along = 6,
+								across = 0.5,
 								turnDegrees = 6,
-								scale = 1.1,
+								scale = 1.05,
 							},
 							{
 								model = "stone_lantern",
 								side = "right",
-								along = 5,
-								across = 0.25,
+								along = 6,
+								across = 0.5,
 								turnDegrees = -8,
-								scale = 1.1,
+								scale = 1.05,
 							},
 							-- Left side.
 							{
 								model = "shishi_odoshi",
 								side = "left",
 								along = 31,
-								across = 0.3,
+								across = 0.5,
 								turnDegrees = 14,
-								scale = 1.1,
+								scale = 1.05,
 							},
 							{
 								model = "stone_lantern",
 								side = "left",
 								along = 77,
-								across = 0.4,
+								across = 0.55,
 								turnDegrees = 9,
 								scale = 0.95,
 							},
@@ -1208,15 +1208,15 @@ return {
 								model = "taiko_drum",
 								side = "right",
 								along = 52,
-								across = 0.3,
+								across = 0.55,
 								turnDegrees = -12,
-								scale = 1.1,
+								scale = 1.05,
 							},
 							{
 								model = "shishi_odoshi",
 								side = "right",
 								along = 115,
-								across = 0.38,
+								across = 0.55,
 								turnDegrees = -18,
 								scale = 1,
 							},
@@ -1224,8 +1224,8 @@ return {
 							{
 								model = "bamboo_cluster",
 								side = "left",
-								along = 46,
-								across = 0.88,
+								along = 48,
+								across = 0.85,
 								turnDegrees = 30,
 								scale = 1.2,
 							},
@@ -1233,7 +1233,7 @@ return {
 								model = "bamboo_cluster",
 								side = "left",
 								along = 109,
-								across = 0.84,
+								across = 0.8,
 								turnDegrees = -65,
 								scale = 0.95,
 							},
@@ -1241,7 +1241,7 @@ return {
 								model = "bamboo_cluster",
 								side = "right",
 								along = 24,
-								across = 0.9,
+								across = 0.85,
 								turnDegrees = 110,
 								scale = 1.05,
 							},
@@ -1249,7 +1249,7 @@ return {
 								model = "bamboo_cluster",
 								side = "right",
 								along = 86,
-								across = 0.85,
+								across = 0.8,
 								turnDegrees = -20,
 								scale = 1,
 							},
@@ -1505,6 +1505,8 @@ return {
 		--   front: which direction of the model is its front, in the model's own space. The
 		--     front is turned towards the lane.
 		--   turnTowardsThrowZoneDegrees: 0 = looks straight at the lane, 90 = looks at the throw zone.
+		--   size: the model is shown this many times as big as it was modelled (left out = 1).
+		--     A piece's own scale in a zone's list comes on top of it.
 		--   maxScaleChange: for a model that may differ more in size than the others (below).
 		--   light, float, spin, sway, tip: its small movement. Leave them out and the model
 		--     stands still.
@@ -1572,6 +1574,7 @@ return {
 					template = "bamboo_cluster",
 					front = { x = 0, z = -1 },
 					turnTowardsThrowZoneDegrees = 0,
+					size = 1.4,
 					-- One group may be up to 20 % bigger.
 					maxScaleChange = 0.2,
 					-- The named part rocks very slightly around its own middle: this many degrees
@@ -1586,11 +1589,12 @@ return {
 					template = "stone_lantern",
 					front = { x = 0, z = -1 },
 					turnTowardsThrowZoneDegrees = 0,
+					size = 1.8,
 					light = {
 						part = "Glow",
 						color = { 255, 200, 120 },
 						brightness = 0.8,
-						range = 10,
+						range = 14,
 						flickerStrength = 0.12,
 						flickerSpeed = 2.2,
 					},
@@ -1600,21 +1604,26 @@ return {
 					template = "taiko_drum",
 					front = { x = 1, z = 0 },
 					turnTowardsThrowZoneDegrees = 35,
+					size = 1.8,
 				},
 				shishi_odoshi = {
 					template = "shishi_odoshi",
 					front = { x = 0, z = -1 },
 					turnTowardsThrowZoneDegrees = 20,
-					-- The named part (the cane) tips around its own middle: every everySeconds it
-					-- sinks forward by this many degrees within downSeconds, stays down for
-					-- holdSeconds and comes back within backSeconds.
+					size = 1.8,
+					-- The named part (the cane) tips around its own middle. The cane was modelled
+					-- pouring, its open end 16 degrees below level. At rest it is turned back by
+					-- restDegrees, so the open end points slightly up and fills. Every everySeconds
+					-- it sinks forward by degrees within downSeconds (pours out), stays down for
+					-- holdSeconds and swings back within backSeconds.
 					tip = {
 						part = "Rocker",
-						degrees = 16,
+						restDegrees = 26,
+						degrees = 28,
 						everySeconds = 7,
-						downSeconds = 1.8,
-						holdSeconds = 0.5,
-						backSeconds = 0.7,
+						downSeconds = 1.2,
+						holdSeconds = 0.6,
+						backSeconds = 0.9,
 					},
 				},
 			},

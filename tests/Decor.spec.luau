@@ -317,10 +317,12 @@ return {
 						expect(fromLane(placement) > fromLane(other)).toBe(true)
 					end
 				end
-				-- At most 20 percent bigger than modelled.
-				expect(placement.scale <= 1.2 + 1e-9 and placement.scale >= 0.8 - 1e-9).toBe(true)
+				-- At most 20 percent away from the model's size.
+				local own = placement.scale / models[placement.model].size
+				expect(own <= 1.2 + 1e-9 and own >= 0.8 - 1e-9).toBe(true)
 			else
-				expect(placement.scale >= 0.85 - 1e-9 and placement.scale <= 1.15 + 1e-9).toBe(true)
+				local own = placement.scale / models[placement.model].size
+				expect(own >= 0.85 - 1e-9 and own <= 1.15 + 1e-9).toBe(true)
 			end
 		end
 		expect(groups >= 3 and groups <= 4).toBe(true)
@@ -371,8 +373,41 @@ return {
 		expect(Decor.scale(limits, 1.2, -1)).toBe(1)
 	end,
 
+	["a model's size comes on top of a piece's own scale"] = function(expect)
+		expect(models[BAMBOO_GROUP].size).toBe(1.4)
+		expect(models[STONE_LANTERN].size).toBe(1.8)
+		expect(models.taiko_drum.size).toBe(1.8)
+		expect(models.shishi_odoshi.size).toBe(1.8)
+		expect(Decor.modelSize(1.8)).toBe(1.8)
+		expect(Decor.modelSize(nil)).toBe(1)
+		expect(Decor.modelSize(0)).toBe(1)
+		expect(Decor.modelSize(-2)).toBe(1)
+		expect(Decor.modelSize(0 / 0)).toBe(1)
+		expect(Decor.modelSize(math.huge)).toBe(1)
+		for index, placement in bambooPlacements() do
+			local piece = bambooDecor.pieces[index]
+			expect(placement.scale).toBeNear(models[piece.model].size * piece.scale)
+		end
+		-- The paper zone's models keep their modelled size.
+		expect(models[LANTERN].size).toBe(nil)
+	end,
+
+	["a water feature rests with its open end up and pours forward below the modelled position"] = function(expect)
+		local tip = models.shishi_odoshi.tip
+		-- At rest: lifted, so the open end points up (the cane was modelled 16 degrees down).
+		expect(Decor.tipDegrees(tip, tip.everySeconds - 0.01) > 16).toBe(true)
+		expect(Decor.tipDegrees(tip, 0)).toBeNear(tip.restDegrees)
+		-- Down: at or below the modelled position.
+		expect(Decor.tipDegrees(tip, tip.downSeconds) <= 0).toBe(true)
+		expect(Decor.tipDegrees(tip, tip.downSeconds)).toBeNear(tip.restDegrees - tip.degrees)
+		local plain = { degrees = 10, everySeconds = 10, downSeconds = 2, holdSeconds = 1, backSeconds = 1 }
+		expect(Decor.tipDegrees(plain, 0)).toBe(0)
+		expect(Decor.tipDegrees(plain, 2)).toBeNear(-10)
+		expect(Decor.tipDegrees(plain, 0 / 0)).toBe(0)
+	end,
+
 	["a tipping part goes down slowly, stays down briefly, comes back and then rests"] = function(expect)
-		local tip = { everySeconds = 10, downSeconds = 2, holdSeconds = 1, backSeconds = 1 }
+		local tip = { degrees = 10, everySeconds = 10, downSeconds = 2, holdSeconds = 1, backSeconds = 1 }
 		expect(Decor.tipProgress(tip, 0)).toBe(0)
 		expect(Decor.tipProgress(tip, 1)).toBeNear(0.5)
 		expect(Decor.tipProgress(tip, 2)).toBe(1)
@@ -394,8 +429,10 @@ return {
 		-- Broken values: it rests.
 		expect(Decor.tipProgress(tip, 0 / 0)).toBe(0)
 		expect(Decor.tipProgress(tip, math.huge)).toBe(0)
-		expect(Decor.tipProgress({ everySeconds = 0, downSeconds = 1, holdSeconds = 1, backSeconds = 1 }, 3)).toBe(0)
-		local instant = { everySeconds = 5, downSeconds = 0, holdSeconds = 1, backSeconds = 0 }
+		expect(
+			Decor.tipProgress({ degrees = 10, everySeconds = 0, downSeconds = 1, holdSeconds = 1, backSeconds = 1 }, 3)
+		).toBe(0)
+		local instant = { degrees = 10, everySeconds = 5, downSeconds = 0, holdSeconds = 1, backSeconds = 0 }
 		expect(Decor.tipProgress(instant, 0.5)).toBe(1)
 		expect(Decor.tipProgress(instant, 2)).toBe(0)
 	end,

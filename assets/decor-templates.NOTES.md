@@ -35,8 +35,13 @@ Kiesel hellgrau; `Water` ist türkis, 30 % durchsichtig und spiegelt leicht (Smo
 Reflectance 0,25). Das Skript `tools/decor/prepare_paper_decor.luau` setzt nur Farben und
 Neon; die Werte für `Water` wurden von Hand dazu gesetzt.
 
-Im Modell steht das Rohr des Wasserspiels schon leicht nach vorn geneigt (vorderes Ende unter
-dem Strahl). Das gilt als Ruhelage; beim Kippen senkt sich das vordere Ende weiter.
+Im Modell steht das Rohr des Wasserspiels in der Stellung "gießt aus": das offene, schräg
+geschnittene Ende zeigt nach vorn (-Z, über dem Becken) und liegt 16 Grad unter der Waagerechten.
+Das Spiel dreht es für die Ruhelage zurück, bis das offene Ende leicht nach oben zeigt, und
+kippt es von dort nach vorn unten (Werte in `Config/Ui`, world.decor.models.shishi_odoshi.tip).
+
+Die Vorlagen bleiben so groß wie modelliert. Im Spiel stehen Laterne, Trommel und Wasserspiel
+1,8-mal so groß, Bambus 1,4-mal (`size` in `Config/Ui`, world.decor.models).
 
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 

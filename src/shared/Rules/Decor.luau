@@ -40,11 +40,16 @@ export type ModelFacing = {
 	turnTowardsThrowZoneDegrees: number?,
 	-- For a model that may differ more (or less) in size than Limits allows.
 	maxScaleChange: number?,
+	-- The model is shown this many times as big as it was modelled. Left out = 1.
+	size: number?,
 }
 
 -- A part that tips forward every now and then: within downSeconds down, holdSeconds down, then
 -- within backSeconds back, once every everySeconds.
 export type Tip = {
+	-- How far it sinks, and how far its front end is lifted above the modelled position at rest.
+	degrees: number,
+	restDegrees: number?,
 	everySeconds: number,
 	downSeconds: number,
 	holdSeconds: number,
@@ -101,6 +106,15 @@ function Decor.scale(limits: Limits, wanted: number?, modelLimit: number?): numb
 	return math.clamp(wanted :: number, 1 - change, 1 + change)
 end
 
+-- How many times as big as modelled a model is shown before a piece's own scale: what the
+-- config says, 1 if that is missing or broken.
+function Decor.modelSize(size: number?): number
+	if not isNumber(size) or (size :: number) <= 0 then
+		return 1
+	end
+	return size :: number
+end
+
 -- All pieces of decoration of a zone, in the order of the list. Empty if the zone has no
 -- walkways or no decoration.
 -- facings: how each model is turned. Left out are: pieces of a model that is not listed there,
@@ -154,7 +168,7 @@ function Decor.placements(
 					Decor.yawDegrees(facing, side)
 						+ (if isNumber(piece.turnDegrees) then piece.turnDegrees :: number else 0)
 				),
-				scale = Decor.scale(limits, piece.scale, facing.maxScaleChange),
+				scale = Decor.modelSize(facing.size) * Decor.scale(limits, piece.scale, facing.maxScaleChange),
 			})
 		end
 	end
@@ -183,6 +197,14 @@ function Decor.tipProgress(tip: Tip, time: number): number
 	end
 	-- Soft at both ends.
 	return progress * progress * (3 - 2 * progress)
+end
+
+-- How far the front end of a tipping part is turned up from its modelled position at this time,
+-- in degrees. Negative = below the modelled position.
+function Decor.tipDegrees(tip: Tip, time: number): number
+	local rest = if isNumber(tip.restDegrees) then tip.restDegrees :: number else 0
+	local degrees = if isNumber(tip.degrees) then tip.degrees else 0
+	return rest - degrees * Decor.tipProgress(tip, time)
 end
 
 return Decor

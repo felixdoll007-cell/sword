@@ -218,14 +218,16 @@ endet an ihrer letzten Wand; das Stück bis zur ersten Wand der nächsten Zone g
 nächsten Zone. Hinter Wand 10 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
 
 Die Bambus-Zone (Wand 6 bis 10) ist die zweite fertige Zone: Boden in zwei Tönen hellem,
-frischem Grün, Gehwege in zwei Tönen hellem Steingrau mit dunkel bambusgrüner Kante, und
+frischem Grün, Gehwege in zwei Tönen warmem Steingrau mit dunkel bambusgrüner Kante, und
 Bambuswände: grün, mit fünf etwas dunkleren senkrechten Streifen wie Rohre und einem braunen
 Band in der oberen Hälfte wie eine Schnur. Streifen und Band sind ein Bild auf der Wand, keine
 zusätzlichen Teile. Hinter ihr schwebt "WOOD" in Holzbraun. Ihre Deko: am Anfang zwei
 Steinlaternen als Tor, ganz außen vier Bambusgruppen (eine bis 20 % größer), dazwischen eine
-Taiko-Trommel, zwei Wasserspiele und eine weitere Steinlaterne, zusammen zehn Teile. Die
-Bambusblätter wippen ganz leicht, die Steinlaternen leuchten schwach und flackern, das Rohr
-des Wasserspiels kippt alle paar Sekunden langsam nach vorn und schnellt zurück.
+Taiko-Trommel, zwei Wasserspiele und eine weitere Steinlaterne, zusammen zehn Teile.
+Laterne, Trommel und Wasserspiel stehen 1,8-mal so groß wie modelliert, Bambus 1,4-mal. Die
+Bambusblätter wippen ganz leicht, die Steinlaternen leuchten schwach und flackern. Das Rohr
+des Wasserspiels ruht mit dem offenen Ende leicht nach oben (es füllt sich), kippt alle
+sieben Sekunden nach vorn unten (es gießt aus), bleibt kurz und schwingt zurück.
 
 Die Bahn ist die Hauptsache, der Rand ist Kulisse. Links und rechts der Papier-Zone liegen
 breite Gehwege in zwei Stufen (innen etwa 1 Stud, außen etwa 2,5 Studs hoch) in ruhigem

@@ -219,14 +219,14 @@ local function update()
 				currentFrames[index] = builtFrames[index] + offset
 			end
 		elseif mover.kind == "sway" or mover.kind == "tip" then
-			local share: number
+			local degrees: number
 			if mover.kind == "sway" then
-				share = math.sin((time / settings.seconds + mover.phase) * 2 * math.pi)
+				degrees = settings.degrees * math.sin((time / settings.seconds + mover.phase) * 2 * math.pi)
 			else
-				-- The model's front is negative Z: turning this way lowers its front end.
-				share = -Decor.tipProgress(settings, time + mover.phase * settings.everySeconds)
+				-- The model's front is negative Z: a positive turn lifts its front end.
+				degrees = Decor.tipDegrees(settings, time + mover.phase * settings.everySeconds)
 			end
-			local turned = mover.axis * CFrame.Angles(math.rad(settings.degrees) * share, 0, 0) * mover.axis:Inverse()
+			local turned = mover.axis * CFrame.Angles(math.rad(degrees), 0, 0) * mover.axis:Inverse()
 			for index = mover.first, mover.last do
 				currentFrames[index] = turned * builtFrames[index]
 			end

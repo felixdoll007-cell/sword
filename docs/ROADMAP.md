@@ -256,6 +256,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Vier neue Vorlagen eingefärbt und in `ReplicatedStorage.Assets` abgelegt: `bamboo_cluster`, `stone_lantern`, `taiko_drum`, `shishi_odoshi`
 - [x] Zehn Deko-Teile an festen Plätzen: zwei Steinlaternen als Tor, vier Bambusgruppen ganz außen, Trommel, zwei Wasserspiele, eine weitere Steinlaterne
 - [x] Bewegungen auf dem Client: Bambusblätter wippen, Steinlaternen flackern, das Rohr des Wasserspiels kippt alle sieben Sekunden
+- [x] Korrektur: Deko größer (Laterne, Trommel, Wasserspiel 1,8-mal, Bambus 1,4-mal), Gehwege in wärmerem, dunklerem Steingrau, Wasserspiel richtig herum (ruht mit dem offenen Ende nach oben, kippt nach vorn unten)
 - [ ] Von mir getestet
 - Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 11.
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
