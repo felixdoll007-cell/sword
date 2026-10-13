@@ -167,6 +167,56 @@ local MODELS = {
 		},
 		neon = {},
 	},
+	-- The bamboo zone (imported on 2026-10-13). Water of the water feature is also made 30 percent see-through
+	-- and slightly mirroring by hand (SmoothPlastic, Reflectance 0.25).
+	{
+		inside = "bamboo_cluster",
+		template = "bamboo_cluster",
+		colors = {
+			Stalks = Color3.fromRGB(96, 176, 62),
+			Nodes = Color3.fromRGB(52, 110, 44),
+			Leaves = Color3.fromRGB(150, 214, 84),
+			Mound = Color3.fromRGB(84, 58, 38),
+		},
+		neon = {},
+	},
+	{
+		inside = "stone_lantern",
+		template = "stone_lantern",
+		colors = {
+			Stone = Color3.fromRGB(190, 190, 186),
+			StoneDark = Color3.fromRGB(128, 130, 128),
+			Moss = Color3.fromRGB(92, 140, 62),
+			Glow = Color3.fromRGB(255, 214, 120),
+		},
+		neon = { Glow = true },
+	},
+	{
+		inside = "taiko_drum",
+		template = "taiko_drum",
+		colors = {
+			Body = Color3.fromRGB(200, 38, 38),
+			Skin = Color3.fromRGB(244, 232, 200),
+			Symbol = Color3.fromRGB(20, 20, 24),
+			Studs = GOLD,
+			Stand = Color3.fromRGB(84, 58, 38),
+			Sticks = Color3.fromRGB(222, 184, 130),
+		},
+		neon = {},
+	},
+	{
+		inside = "shishi_odoshi",
+		template = "shishi_odoshi",
+		colors = {
+			Basin = Color3.fromRGB(140, 142, 144),
+			Water = Color3.fromRGB(64, 200, 196),
+			Posts = Color3.fromRGB(96, 176, 62),
+			Rocker = Color3.fromRGB(96, 176, 62),
+			Stream = Color3.fromRGB(170, 236, 232),
+			Pebbles = Color3.fromRGB(200, 200, 196),
+		},
+		neon = {},
+	},
 	-- The egg without a nest (imported on 2026-10-12). It replaces pet_egg at the egg stand and
 	-- in the hatching animation; pet_egg stays in the place but is not used any more.
 	{
