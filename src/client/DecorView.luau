@@ -1,11 +1,14 @@
 --!strict
--- The decoration on the walkways of the lane: lanterns, cranes, pinwheels, trees. Scenery on
+-- The decoration on the walkways of the lane: lanterns, cranes, pinwheels, trees, bamboo,
+-- drums, water features. Scenery on
 -- the outer step. Built on this client from the templates in ReplicatedStorage.Assets, each
 -- piece at its listed place, turned and sized a little differently, and moved a little:
 --   * a lantern has a weak, warm light that flickers slightly
 --   * a crane floats slowly up and down (its base and rod stand still)
 --   * a pinwheel's wheel turns slowly (its stick stands still)
---   * a tree stands still
+--   * the leaves of a bamboo group rock very slightly
+--   * the cane of a water feature tips forward every few seconds and comes back
+--   * a tree and a drum stand still
 -- Which model stands where is worked out in Rules/Decor; everything adjustable is in Config/Ui
 -- (world.decor and the decor entry of each zone).
 -- Decoration has no collision and cannot be hit by anything, so it never gets in the way of a
@@ -27,11 +30,12 @@ local TEMPLATES_WAIT_SECONDS = 10
 
 -- A group of parts that moves as one, each frame, relative to where it was built.
 type Mover = {
-	kind: "float" | "spin",
+	kind: "float" | "spin" | "sway" | "tip",
 	-- Where this group's parts start in the shared lists below.
 	first: number,
 	last: number,
-	-- float: the piece's own rhythm. spin: the axis the wheel turns around.
+	-- phase: the piece's own rhythm. axis: for spin the axis the wheel turns around, for sway
+	-- and tip the middle of the part, turned like its model.
 	phase: number,
 	axis: CFrame,
 	settings: any,
@@ -139,6 +143,24 @@ local function addSpin(model: Model, settings: any, seed: number)
 	)
 end
 
+-- The named part turns a little around its own middle, around the line that runs from the
+-- model's left to its right: to both sides (sway) or forward and back (tip).
+local function addTilt(model: Model, kind: "sway" | "tip", settings: any, seed: number)
+	local part = findPart(model, settings.part)
+	if not part then
+		return
+	end
+	local first, last = track({ part })
+	table.insert(movers, {
+		kind = kind,
+		first = first,
+		last = last,
+		phase = seed,
+		axis = CFrame.new(part.Position) * model:GetPivot().Rotation,
+		settings = settings,
+	})
+end
+
 local function buildPiece(placement: Decor.Placement, templates: Instance, folder: Folder, seed: number)
 	local settings = (Ui.world.decor.models :: { [string]: any })[placement.model]
 	local template = templates:FindFirstChild(settings.template)
@@ -178,6 +200,12 @@ local function buildPiece(placement: Decor.Placement, templates: Instance, folde
 	if settings.spin then
 		addSpin(model, settings.spin, seed)
 	end
+	if settings.sway then
+		addTilt(model, "sway", settings.sway, seed)
+	end
+	if settings.tip then
+		addTilt(model, "tip", settings.tip, seed)
+	end
 end
 
 local function update()
@@ -189,6 +217,18 @@ local function update()
 			local offset = Vector3.new(0, wave * settings.heightStuds, 0)
 			for index = mover.first, mover.last do
 				currentFrames[index] = builtFrames[index] + offset
+			end
+		elseif mover.kind == "sway" or mover.kind == "tip" then
+			local share: number
+			if mover.kind == "sway" then
+				share = math.sin((time / settings.seconds + mover.phase) * 2 * math.pi)
+			else
+				-- The model's front is negative Z: turning this way lowers its front end.
+				share = -Decor.tipProgress(settings, time + mover.phase * settings.everySeconds)
+			end
+			local turned = mover.axis * CFrame.Angles(math.rad(settings.degrees) * share, 0, 0) * mover.axis:Inverse()
+			for index = mover.first, mover.last do
+				currentFrames[index] = turned * builtFrames[index]
 			end
 		else
 			local angle = (time / settings.secondsPerTurn + mover.phase) * 2 * math.pi

@@ -38,6 +38,17 @@ export type ModelFacing = {
 	front: { x: number, z: number },
 	-- 0 = the front looks straight at the lane. More turns it towards the throw zone.
 	turnTowardsThrowZoneDegrees: number?,
+	-- For a model that may differ more (or less) in size than Limits allows.
+	maxScaleChange: number?,
+}
+
+-- A part that tips forward every now and then: within downSeconds down, holdSeconds down, then
+-- within backSeconds back, once every everySeconds.
+export type Tip = {
+	everySeconds: number,
+	downSeconds: number,
+	holdSeconds: number,
+	backSeconds: number,
 }
 
 export type Placement = {
@@ -81,12 +92,12 @@ function Decor.yawDegrees(facing: ModelFacing, side: number): number
 end
 
 -- The size a piece is shown at: what the config asks for, but never further from the modelled
--- size than allowed.
-function Decor.scale(limits: Limits, wanted: number?): number
+-- size than allowed. modelLimit: the model's own limit, if it has one.
+function Decor.scale(limits: Limits, wanted: number?, modelLimit: number?): number
 	if not isNumber(wanted) then
 		return 1
 	end
-	local change = math.max(limits.maxScaleChange, 0)
+	local change = math.max(if isNumber(modelLimit) then modelLimit :: number else limits.maxScaleChange, 0)
 	return math.clamp(wanted :: number, 1 - change, 1 + change)
 end
 
@@ -143,11 +154,35 @@ function Decor.placements(
 					Decor.yawDegrees(facing, side)
 						+ (if isNumber(piece.turnDegrees) then piece.turnDegrees :: number else 0)
 				),
-				scale = Decor.scale(limits, piece.scale),
+				scale = Decor.scale(limits, piece.scale, facing.maxScaleChange),
 			})
 		end
 	end
 	return placements
+end
+
+-- How far a tipping part is down at this time: 0 = at rest, 1 = all the way down. It starts
+-- and stops softly.
+function Decor.tipProgress(tip: Tip, time: number): number
+	if not isNumber(time) or not isNumber(tip.everySeconds) or tip.everySeconds <= 0 then
+		return 0
+	end
+	local down = math.max(tip.downSeconds, 0)
+	local hold = math.max(tip.holdSeconds, 0)
+	local back = math.max(tip.backSeconds, 0)
+	local at = time % tip.everySeconds
+	local progress: number
+	if at < down then
+		progress = at / down
+	elseif at < down + hold then
+		progress = 1
+	elseif at < down + hold + back then
+		progress = 1 - (at - down - hold) / back
+	else
+		progress = 0
+	end
+	-- Soft at both ends.
+	return progress * progress * (3 - 2 * progress)
 end
 
 return Decor

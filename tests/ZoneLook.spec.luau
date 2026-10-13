@@ -8,6 +8,9 @@ local Ui = require("../src/shared/Config/Ui")
 
 local look = Ui.world.lane
 local PAPER = 1
+local BAMBOO = 2
+-- The first zone without a look.
+local WOOD = 3
 
 local function left(area: ZoneLook.Area): number
 	return area.x - area.width / 2
@@ -76,13 +79,17 @@ return {
 		end
 	end,
 
-	["only the paper zone has its own floor, everything behind wall 5 is one plain stretch"] = function(expect)
+	["paper and bamboo have their own floor, everything behind wall 10 is one plain stretch"] = function(expect)
 		local segments = ZoneLook.floorSegments(LaneConfig, WallConfig, look)
-		expect(#segments).toBe(2)
+		expect(#segments).toBe(3)
 		expect(segments[1].material).toBe("Paper")
 		expect(segments[1].to).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 5))
-		expect(segments[2].material).toBe(nil)
+		expect(segments[2].material).toBe("Bamboo")
+		expect(segments[2].from).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 5))
+		expect(segments[2].to).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 10))
+		expect(segments[3].material).toBe(nil)
 		expect(ZoneLook.hasFloor(look, "Paper")).toBe(true)
+		expect(ZoneLook.hasFloor(look, "Bamboo")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Wood")).toBe(false)
 		expect(ZoneLook.hasFloor(look, "Cheese")).toBe(false)
 		expect(ZoneLook.hasFloor(look, nil)).toBe(false)
@@ -135,8 +142,39 @@ return {
 		expect(count.inner).toBe(2)
 		expect(count.outer).toBe(2)
 		-- Zones without a look have no walkways and no fence.
-		expect(#ZoneLook.walks(LaneConfig, WallConfig, look, 2)).toBe(0)
-		expect(#ZoneLook.fences(LaneConfig, WallConfig, look, 2)).toBe(0)
+		expect(#ZoneLook.walks(LaneConfig, WallConfig, look, WOOD)).toBe(0)
+		expect(#ZoneLook.fences(LaneConfig, WallConfig, look, WOOD)).toBe(0)
+	end,
+
+	["the bamboo zone joins the paper zone with a clean edge: nothing on top of anything"] = function(expect)
+		local _, paperEnd = ZoneLook.range(LaneConfig, WallConfig, PAPER)
+		local bambooStart, bambooEnd = ZoneLook.range(LaneConfig, WallConfig, BAMBOO)
+		expect(bambooStart).toBe(paperEnd)
+		expect(bambooEnd).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 10))
+		local paper = ZoneLook.walks(LaneConfig, WallConfig, look, PAPER)
+		local bamboo = ZoneLook.walks(LaneConfig, WallConfig, look, BAMBOO)
+		expect(#bamboo).toBe(#paper)
+		for index, part in bamboo do
+			-- The same steps as in the paper zone, right behind them.
+			expect(part.kind).toBe(paper[index].kind)
+			expect(part.side).toBe(paper[index].side)
+			expect(part.topY).toBe(paper[index].topY)
+			expect(part.area.x).toBe(paper[index].area.x)
+			expect(part.area.width).toBe(paper[index].area.width)
+			expect(back(part.area)).toBeNear(front(paper[index].area))
+			expect(front(part.area)).toBeNear(LaneConfig.throwLine.z - bambooEnd)
+			for _, other in paper do
+				expect(overlap(part.area, other.area)).toBe(false)
+			end
+		end
+		-- Its fence keeps players off, and lies on no fence of the paper zone.
+		local fences = ZoneLook.fences(LaneConfig, WallConfig, look, BAMBOO)
+		expect(#fences).toBe(6)
+		for _, fence in fences do
+			for _, other in ZoneLook.fences(LaneConfig, WallConfig, look, PAPER) do
+				expect(overlap(fence, other)).toBe(false)
+			end
+		end
 	end,
 
 	["from the lane outwards: edge, then the lower step, then the higher step, without gaps"] = function(expect)
@@ -262,8 +300,8 @@ return {
 
 	["the name of the next zone floats at the end of the paper zone, above the walls"] = function(expect)
 		local sign = ZoneLook.sign(LaneConfig, WallConfig, look, PAPER) :: ZoneLook.Sign
-		expect(sign.text).toBe("WOOD")
-		expect(sign.color).toBe(look.zones.Wood.nameColor)
+		expect(sign.text).toBe("BAMBOO")
+		expect(sign.color).toBe(look.zones.Bamboo.nameColor)
 		expect(sign.x).toBe(LaneConfig.throwLine.x)
 		local _, to = ZoneLook.range(LaneConfig, WallConfig, PAPER)
 		expect(sign.z).toBe(LaneConfig.throwLine.z - to - look.sign.behindZoneEnd)
@@ -271,8 +309,14 @@ return {
 		expect(sign.y - look.sign.heightStuds / 2 > LaneConfig.floorTopY + LaneConfig.wallHeight).toBe(true)
 		-- It can be seen from the throw zone.
 		expect(look.sign.maxDistance > to + LaneConfig.throwZoneLength).toBe(true)
+		-- Behind the bamboo zone floats the name of the wood zone.
+		local wood = ZoneLook.sign(LaneConfig, WallConfig, look, BAMBOO) :: ZoneLook.Sign
+		expect(wood.text).toBe("WOOD")
+		expect(wood.color).toBe(look.zones.Wood.nameColor)
+		local _, bambooEnd = ZoneLook.range(LaneConfig, WallConfig, BAMBOO)
+		expect(wood.z).toBe(LaneConfig.throwLine.z - bambooEnd - look.sign.behindZoneEnd)
 		-- The wood zone has no look yet, so it announces nothing; neither does the last zone.
-		expect(ZoneLook.sign(LaneConfig, WallConfig, look, 2)).toBe(nil)
+		expect(ZoneLook.sign(LaneConfig, WallConfig, look, WOOD)).toBe(nil)
 		expect(ZoneLook.sign(LaneConfig, WallConfig, look, #WallConfig.materials)).toBe(nil)
 	end,
 
@@ -282,12 +326,77 @@ return {
 		for _, material in WallConfig.materials do
 			expect(isColor(ZoneLook.wallColor(LaneConfig, look, material))).toBe(true)
 			if material ~= "Paper" then
-				expect(ZoneLook.wallColor(LaneConfig, look, material)).toBe(LaneConfig.materialColors[material])
 				expect(ZoneLook.wallFrameColor(look, material)).toBe(nil)
+			end
+			if material ~= "Paper" and material ~= "Bamboo" then
+				expect(ZoneLook.wallColor(LaneConfig, look, material)).toBe(LaneConfig.materialColors[material])
+				expect(#ZoneLook.wallPattern(look, material)).toBe(0)
 			end
 		end
 		-- The frame is thin compared to the wall.
 		expect(look.wallFrame.widthStuds * 10 <= LaneConfig.wallHeight).toBe(true)
+	end,
+
+	["bamboo walls are green with four or five darker canes and a brown cord in the upper half"] = function(expect)
+		local wall = look.zones.Bamboo.wall
+		expect(ZoneLook.wallColor(LaneConfig, look, "Bamboo")).toBe(wall.color)
+		local pattern = ZoneLook.wallPattern(look, "Bamboo")
+		local count = wall.stripes.count
+		expect(count >= 4 and count <= 5).toBe(true)
+		expect(#pattern).toBe(count + 1)
+		-- Green, and the canes a little darker than the wall.
+		expect(wall.color[2] > wall.color[1] and wall.color[2] > wall.color[3]).toBe(true)
+		local function brightness(rgb: { number }): number
+			return rgb[1] + rgb[2] + rgb[3]
+		end
+		expect(brightness(wall.stripes.color) < brightness(wall.color)).toBe(true)
+		expect(brightness(wall.stripes.color) > brightness(wall.color) * 0.6).toBe(true)
+		for index = 1, count do
+			local stripe = pattern[index]
+			-- Upright over the whole height, on the wall, apart from each other.
+			expect(stripe.y).toBe(0)
+			expect(stripe.height).toBe(1)
+			expect(stripe.x >= 0 and stripe.x + stripe.width <= 1).toBe(true)
+			expect(stripe.color).toBe(wall.stripes.color)
+			if index > 1 then
+				local before = pattern[index - 1]
+				expect(stripe.x > before.x + before.width).toBe(true)
+			end
+			-- Evenly spread: the same on the left as on the right.
+			local mirror = pattern[count + 1 - index]
+			expect(stripe.x).toBeNear(1 - mirror.x - mirror.width)
+		end
+		-- The cord: level, across the whole wall, in the upper half, in front of the canes.
+		local band = pattern[count + 1]
+		expect(band.color).toBe(wall.band.color)
+		expect(band.x).toBe(0)
+		expect(band.width).toBe(1)
+		expect(band.y > 0 and band.y + band.height < 0.5).toBe(true)
+		expect(band.color[1] > band.color[2] and band.color[2] > band.color[3]).toBe(true)
+	end,
+
+	["a wall pattern stays on the wall whatever the config says"] = function(expect)
+		local function patternOf(wall: any): { ZoneLook.FaceRect }
+			local odd = { walk = look.walk, sign = look.sign, zones = { Paper = { wall = wall } } }
+			return ZoneLook.wallPattern(odd, "Paper")
+		end
+		local green = { 1, 2, 3 }
+		expect(#patternOf({ color = green })).toBe(0)
+		expect(#patternOf({ color = green, stripes = { count = 0, color = green, widthShare = 0.1 } })).toBe(0)
+		expect(#patternOf({ color = green, stripes = { count = -3, color = green, widthShare = 0.1 } })).toBe(0)
+		expect(#patternOf({ color = green, stripes = { count = 4, color = green, widthShare = 0 } })).toBe(0)
+		-- Too wide stripes are narrowed until they just touch.
+		local wide = patternOf({ color = green, stripes = { count = 4, color = green, widthShare = 3 } })
+		expect(#wide).toBe(4)
+		expect(wide[1].x).toBeNear(0)
+		expect(wide[4].x + wide[4].width).toBeNear(1)
+		-- A band outside the wall is pushed back onto it.
+		local low = patternOf({ color = green, band = { color = green, centerY = 5, heightShare = 0.2 } })
+		expect(low[1].y + low[1].height).toBeNear(1)
+		local high = patternOf({ color = green, band = { color = green, centerY = -5, heightShare = 0.2 } })
+		expect(high[1].y).toBe(0)
+		expect(#patternOf({ color = green, band = { color = green, centerY = 0.3, heightShare = 0 } })).toBe(0)
+		expect(#ZoneLook.wallPattern(look, "Cheese")).toBe(0)
 	end,
 
 	["every zone look names a material that exists and uses real colors"] = function(expect)
@@ -296,10 +405,17 @@ return {
 			if zoneStyle.nameColor then
 				expect(isColor(zoneStyle.nameColor)).toBe(true)
 			end
-			for _, group in { zoneStyle.floor, zoneStyle.walk, zoneStyle.wall } do
+			for _, group in { zoneStyle.floor, zoneStyle.walk } do
 				for _, value in group or {} do
 					expect(isColor(value)).toBe(true)
 				end
+			end
+			local wall = zoneStyle.wall
+			if wall then
+				expect(isColor(wall.color)).toBe(true)
+				expect(wall.frameColor == nil or isColor(wall.frameColor)).toBe(true)
+				expect(wall.stripes == nil or isColor(wall.stripes.color)).toBe(true)
+				expect(wall.band == nil or isColor(wall.band.color)).toBe(true)
 			end
 		end
 	end,

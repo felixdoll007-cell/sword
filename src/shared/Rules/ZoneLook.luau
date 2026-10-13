@@ -16,6 +16,18 @@ export type Area = ThrowZoneLayout.Area
 
 export type Tones = { darkColor: { number }, lightColor: { number } }
 
+-- Upright stripes on a wall: how many, and the width of one as a share of the wall's width.
+export type Stripes = { count: number, color: { number }, widthShare: number }
+-- A level band on a wall: where its middle sits (0 = top of the wall, 1 = bottom) and its height
+-- as a share of the wall's height.
+export type Band = { color: { number }, centerY: number, heightShare: number }
+
+export type WallStyle = { color: { number }, frameColor: { number }?, stripes: Stripes?, band: Band? }
+
+-- A rectangle on the face of a wall, in shares of the face: x and y of its top left corner
+-- (0, 0 = top left of the wall), width and height.
+export type FaceRect = { x: number, y: number, width: number, height: number, color: { number } }
+
 -- The look of one zone. Everything is optional: a zone with only a name is still plain, but the
 -- zone before it can announce it.
 export type ZoneStyle = {
@@ -23,7 +35,7 @@ export type ZoneStyle = {
 	nameColor: { number }?,
 	floor: Tones?,
 	walk: { darkColor: { number }, lightColor: { number }, curbColor: { number } }?,
-	wall: { color: { number }, frameColor: { number } }?,
+	wall: WallStyle?,
 	-- Decoration on the walkways, see Rules/Decor.
 	decor: any?,
 }
@@ -237,6 +249,44 @@ end
 function ZoneLook.wallFrameColor(look: LookConfig, material: string): { number }?
 	local zoneStyle = style(look, material)
 	return if zoneStyle and zoneStyle.wall then zoneStyle.wall.frameColor else nil
+end
+
+-- What is drawn on the walls of this material besides their color: upright stripes, spread
+-- evenly over the wall's width, and on top of them a level band. From back to front. Empty for
+-- walls without a pattern. Everything stays on the wall.
+function ZoneLook.wallPattern(look: LookConfig, material: string): { FaceRect }
+	local zoneStyle = style(look, material)
+	local wall = zoneStyle and zoneStyle.wall
+	local rects: { FaceRect } = {}
+	if not wall then
+		return rects
+	end
+	local stripes = wall.stripes
+	if stripes then
+		local count = math.max(math.floor(stripes.count), 0)
+		-- Never so wide that two stripes touch.
+		local width = if count > 0 then math.clamp(stripes.widthShare, 0, 1 / count) else 0
+		for index = 1, count do
+			if width > 0 then
+				table.insert(rects, {
+					x = (index - 0.5) / count - width / 2,
+					y = 0,
+					width = width,
+					height = 1,
+					color = stripes.color,
+				})
+			end
+		end
+	end
+	local band = wall.band
+	if band then
+		local height = math.clamp(band.heightShare, 0, 1)
+		local top = math.clamp(band.centerY - height / 2, 0, 1 - height)
+		if height > 0 then
+			table.insert(rects, { x = 0, y = top, width = 1, height = height, color = band.color })
+		end
+	end
+	return rects
 end
 
 return ZoneLook

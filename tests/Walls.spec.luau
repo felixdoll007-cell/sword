@@ -34,8 +34,11 @@ return {
 
 	["materials follow the config order"] = function(expect)
 		expect((Walls.get(WallConfig, 5) :: Walls.Wall).material).toBe("Paper")
-		expect((Walls.get(WallConfig, 6) :: Walls.Wall).material).toBe("Wood")
-		expect((Walls.get(WallConfig, 30) :: Walls.Wall).material).toBe("Bedrock")
+		expect((Walls.get(WallConfig, 6) :: Walls.Wall).material).toBe("Bamboo")
+		expect((Walls.get(WallConfig, 11) :: Walls.Wall).material).toBe("Wood")
+		expect((Walls.get(WallConfig, 30) :: Walls.Wall).material).toBe("Jade")
+		-- World 1, dojo in Japan: six zones in this order.
+		expect(table.concat(WallConfig.materials, " ")).toBe("Paper Bamboo Wood Stone Iron Jade")
 	end,
 
 	["reward is a fifth of the hardness"] = function(expect)

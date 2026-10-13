@@ -3,8 +3,9 @@
 -- every wall is calculated from these values (see Rules/Walls).
 
 return {
-	-- One zone per material, in this order.
-	materials = { "Paper", "Wood", "Stone", "Iron", "Obsidian", "Bedrock" },
+	-- One zone per material, in this order. World 1 is a dojo in Japan. The names only tell the
+	-- zones apart and choose their look; how hard a wall is depends on its number alone.
+	materials = { "Paper", "Bamboo", "Wood", "Stone", "Iron", "Jade" },
 	wallsPerZone = 5,
 
 	-- Hardness of the very first wall.

@@ -145,9 +145,9 @@ links der Stand, rechts der Status.
 ## Welt
 - Bausteine-Optik: Flächen mit Noppen, Schachbrett aus zwei Tönen derselben Farbe.
 - Jede Trainingsbahn hat eine eigene Farbe und ein kleines Thema.
-- Jede Zone der Wurfbahn zeigt am Rand die Umgebung ihres Materials:
-  Papier mit Origami und Laternen, Holz mit Wald, Stein mit Steinbruch,
-  Eisen mit Schmiede, Obsidian mit Vulkan, Bedrock mit Kristallhöhle.
+- Welt 1 ist ein Dojo in Japan. Jede Zone der Wurfbahn zeigt am Rand die Umgebung ihres
+  Materials: Papier mit Origami und Laternen, Bambus mit Bambusgruppen, Steinlaternen,
+  Trommel und Wasserspiel. Holz, Stein, Eisen und Jade folgen im selben Thema.
 - Der Name der nächsten Zone schwebt in der Ferne über der Bahn.
 - Wurfzone mit großem Schriftzug auf dem Boden.
 

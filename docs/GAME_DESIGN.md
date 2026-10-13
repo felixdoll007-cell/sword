@@ -67,7 +67,9 @@ nächstes Ziel ist.
 
 ## Wände und Zonen
 - Die Bahn besteht aus Zonen mit je mehreren Wänden aus einem Material.
-- Reihenfolge der Materialien, vorläufig: Papier, Holz, Stein, Eisen, Obsidian, Bedrock.
+- Welt 1 hat ein festes Thema: Dojo / Japan. Ihre sechs Zonen sind Papier, Bambus, Holz,
+  Stein, Eisen, Jade. Die Namen legen nur das Aussehen fest; wie hart eine Wand ist, hängt
+  allein von ihrer Nummer ab.
 - Die Wände werden aus der Config berechnet: Materialien, Wände pro Zone und eine Formel für die Härte. Sie werden nicht einzeln von Hand eingetragen.
 - Version 1 hat sechs Zonen mit je fünf Wänden.
 - In Version 1 stehen alle Wände immer. Erst mit weiteren Welten werden nur die Wände in der Nähe des Schwerts gebaut.
@@ -210,10 +212,20 @@ Schachbrett und Noppen sind ein einziges Kachelbild, das als Textur auf einem gr
 liegt (wenige große Teile statt vieler kleiner). Farben und Größen stehen in `Config/Ui`
 (world). Die Papier-Zone (Wurflinie bis Wand 5) ist das Muster für die Zonen der Bahn: Boden in
 zwei Cremetönen, cremeweiße Wände mit dünnem dunkelrotem Rahmen, und am Ende schwebt der
-Name der nächsten Zone ("WOOD") über der Bahn. Jede weitere Zone braucht nur einen Eintrag
-mit Farben und Namen in `Config/Ui` (world.lane.zones). Eine Zone endet an ihrer letzten Wand;
-das Stück bis zur ersten Wand der nächsten Zone gehört zur nächsten Zone. Hinter Wand 5 und
-auf den Trainingsbahnen ist der Boden noch grau.
+Name der nächsten Zone ("BAMBOO") über der Bahn. Jede weitere Zone braucht nur einen Eintrag
+mit Farben, Namen, Wandmuster und Deko-Liste in `Config/Ui` (world.lane.zones). Eine Zone
+endet an ihrer letzten Wand; das Stück bis zur ersten Wand der nächsten Zone gehört zur
+nächsten Zone. Hinter Wand 10 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
+
+Die Bambus-Zone (Wand 6 bis 10) ist die zweite fertige Zone: Boden in zwei Tönen hellem,
+frischem Grün, Gehwege in zwei Tönen hellem Steingrau mit dunkel bambusgrüner Kante, und
+Bambuswände: grün, mit fünf etwas dunkleren senkrechten Streifen wie Rohre und einem braunen
+Band in der oberen Hälfte wie eine Schnur. Streifen und Band sind ein Bild auf der Wand, keine
+zusätzlichen Teile. Hinter ihr schwebt "WOOD" in Holzbraun. Ihre Deko: am Anfang zwei
+Steinlaternen als Tor, ganz außen vier Bambusgruppen (eine bis 20 % größer), dazwischen eine
+Taiko-Trommel, zwei Wasserspiele und eine weitere Steinlaterne, zusammen zehn Teile. Die
+Bambusblätter wippen ganz leicht, die Steinlaternen leuchten schwach und flackern, das Rohr
+des Wasserspiels kippt alle paar Sekunden langsam nach vorn und schnellt zurück.
 
 Die Bahn ist die Hauptsache, der Rand ist Kulisse. Links und rechts der Papier-Zone liegen
 breite Gehwege in zwei Stufen (innen etwa 1 Stud, außen etwa 2,5 Studs hoch) in ruhigem

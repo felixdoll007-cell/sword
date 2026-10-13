@@ -1023,7 +1023,13 @@ return {
 			--   floor: two tones of the lane floor. Without it the zone stays plain grey and has
 			--     no walkways and no name floating at its end.
 			--   walk: two tones of the walkways and the color of their edge.
-			--   wall: color of the walls (and of their pieces) and of the thin frame on them.
+			--   wall: color of the walls (and of their pieces). On the side the thrower sees it
+			--     can carry a thin frame (frameColor), upright stripes (stripes: how many, their
+			--     color, and the width of one as a share of the wall's width) and a level band
+			--     (band: its color, where its middle sits, 0 = top of the wall and 1 = bottom,
+			--     and its height as a share of the wall's height). All three are drawn on the
+			--     wall, they are not extra parts.
+			--   decor: see the paper zone.
 			zones = {
 				Paper = {
 					name = "PAPER",
@@ -1143,7 +1149,114 @@ return {
 						},
 					},
 				},
-				-- No look yet; only its name, announced at the end of the paper zone.
+				Bamboo = {
+					name = "BAMBOO",
+					nameColor = { 124, 196, 84 },
+					-- Two tones of light, fresh green.
+					floor = { darkColor = { 166, 212, 118 }, lightColor = { 184, 226, 136 } },
+					-- Walkways: two tones of light stone grey, dark bamboo green edge towards the lane.
+					walk = {
+						darkColor = { 192, 196, 194 },
+						lightColor = { 208, 212, 210 },
+						curbColor = { 44, 96, 52 },
+					},
+					-- A bamboo wall: green, with darker upright stripes like canes and a brown
+					-- band in the upper half like a cord.
+					wall = {
+						color = { 116, 180, 76 },
+						stripes = { count = 5, color = { 86, 150, 58 }, widthShare = 0.09 },
+						band = { color = { 132, 88, 48 }, centerY = 0.3, heightShare = 0.06 },
+					},
+					decor = {
+						pieces = {
+							-- A stone lantern on each side at the start of the zone, like a gate.
+							{
+								model = "stone_lantern",
+								side = "left",
+								along = 5,
+								across = 0.25,
+								turnDegrees = 6,
+								scale = 1.1,
+							},
+							{
+								model = "stone_lantern",
+								side = "right",
+								along = 5,
+								across = 0.25,
+								turnDegrees = -8,
+								scale = 1.1,
+							},
+							-- Left side.
+							{
+								model = "shishi_odoshi",
+								side = "left",
+								along = 31,
+								across = 0.3,
+								turnDegrees = 14,
+								scale = 1.1,
+							},
+							{
+								model = "stone_lantern",
+								side = "left",
+								along = 77,
+								across = 0.4,
+								turnDegrees = 9,
+								scale = 0.95,
+							},
+							-- Right side.
+							{
+								model = "taiko_drum",
+								side = "right",
+								along = 52,
+								across = 0.3,
+								turnDegrees = -12,
+								scale = 1.1,
+							},
+							{
+								model = "shishi_odoshi",
+								side = "right",
+								along = 115,
+								across = 0.38,
+								turnDegrees = -18,
+								scale = 1,
+							},
+							-- Bamboo at the very outside, behind the other pieces.
+							{
+								model = "bamboo_cluster",
+								side = "left",
+								along = 46,
+								across = 0.88,
+								turnDegrees = 30,
+								scale = 1.2,
+							},
+							{
+								model = "bamboo_cluster",
+								side = "left",
+								along = 109,
+								across = 0.84,
+								turnDegrees = -65,
+								scale = 0.95,
+							},
+							{
+								model = "bamboo_cluster",
+								side = "right",
+								along = 24,
+								across = 0.9,
+								turnDegrees = 110,
+								scale = 1.05,
+							},
+							{
+								model = "bamboo_cluster",
+								side = "right",
+								along = 86,
+								across = 0.85,
+								turnDegrees = -20,
+								scale = 1,
+							},
+						},
+					},
+				},
+				-- No look yet; only its name, announced at the end of the bamboo zone.
 				Wood = {
 					name = "WOOD",
 					nameColor = { 178, 114, 58 },
@@ -1392,7 +1505,9 @@ return {
 		--   front: which direction of the model is its front, in the model's own space. The
 		--     front is turned towards the lane.
 		--   turnTowardsThrowZoneDegrees: 0 = looks straight at the lane, 90 = looks at the throw zone.
-		--   light, float, spin: its small movement. Leave one out and the model stands still.
+		--   maxScaleChange: for a model that may differ more in size than the others (below).
+		--   light, float, spin, sway, tip: its small movement. Leave them out and the model
+		--     stands still.
 		decor = {
 			templateFolder = "Assets",
 			-- Each piece starts its movement this much later than the one before (share of a
@@ -1450,6 +1565,57 @@ return {
 					template = "cherry_tree",
 					front = { x = -1, z = 0 },
 					turnTowardsThrowZoneDegrees = 0,
+				},
+
+				-- The bamboo zone.
+				bamboo_cluster = {
+					template = "bamboo_cluster",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					-- One group may be up to 20 % bigger.
+					maxScaleChange = 0.2,
+					-- The named part rocks very slightly around its own middle: this many degrees
+					-- to each side, once there and back in this many seconds.
+					sway = {
+						part = "Leaves",
+						degrees = 1.5,
+						seconds = 4.5,
+					},
+				},
+				stone_lantern = {
+					template = "stone_lantern",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					light = {
+						part = "Glow",
+						color = { 255, 200, 120 },
+						brightness = 0.8,
+						range = 10,
+						flickerStrength = 0.12,
+						flickerSpeed = 2.2,
+					},
+				},
+				-- Stands still. Its drum skin looks half at the lane, half at the throw zone.
+				taiko_drum = {
+					template = "taiko_drum",
+					front = { x = 1, z = 0 },
+					turnTowardsThrowZoneDegrees = 35,
+				},
+				shishi_odoshi = {
+					template = "shishi_odoshi",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 20,
+					-- The named part (the cane) tips around its own middle: every everySeconds it
+					-- sinks forward by this many degrees within downSeconds, stays down for
+					-- holdSeconds and comes back within backSeconds.
+					tip = {
+						part = "Rocker",
+						degrees = 16,
+						everySeconds = 7,
+						downSeconds = 1.8,
+						holdSeconds = 0.5,
+						backSeconds = 0.7,
+					},
 				},
 			},
 		},

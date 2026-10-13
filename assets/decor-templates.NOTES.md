@@ -18,6 +18,26 @@ ihre Bewegungen stehen unter `world.decor` in derselben Datei.
 | `paper_pinwheel` | Stick, BladesPink, BladesWhite, Hub | -Z (Rad) | `BladesPink`, `BladesWhite` und `Hub` drehen sich um die Mitte von `Hub` |
 | `cherry_tree` | Trunk, BlossomPink, BlossomLight, Mound | egal (rund) | keine, steht still |
 
+## Vorlagen der Bambus-Zone (importiert am 13.10.2026)
+
+| Vorlage | Datei | Dreiecke | Teile (Mesh-Namen) | Vorderseite | Bewegung |
+|---|---|---|---|---|---|
+| `bamboo_cluster` | `assets/bamboo-cluster.glb` | 1148 | Stalks, Nodes, Leaves, Mound | egal (rund) | `Leaves` wippt ganz leicht um seine eigene Mitte |
+| `stone_lantern` | `assets/stone-lantern.glb` | 608 | Stone, StoneDark, Moss, Glow | egal | Licht im Teil `Glow`, flackert leicht |
+| `taiko_drum` | `assets/taiko-drum.glb` | 868 | Body, Skin, Symbol, Studs, Stand, Sticks | +X (ein Trommelfell), Schlägel lehnen bei -Z | keine, steht still |
+| `shishi_odoshi` | `assets/shishi-odoshi.glb` | 840 | Basin, Water, Posts, Rocker, Stream, Pebbles | -Z (Becken) | `Rocker` kippt um seine eigene Mitte nach vorn und zurück |
+
+Farben: Bambus kräftiges Bambusgrün, Knoten dunkelgrün, Blätter frisches Hellgrün, Hügel
+dunkelbraun. Laterne hellgrau und dunkleres Grau, Moos moosgrün, `Glow` warmgelb (Neon).
+Trommel kräftiges Rot, Fell creme, Zeichen schwarz, Nieten gold, Gestell dunkelbraun, Schlägel
+helles Holz. Wasserspiel: Becken grau, Pfosten und Rohr bambusgrün, Strahl helles Türkis,
+Kiesel hellgrau; `Water` ist türkis, 30 % durchsichtig und spiegelt leicht (SmoothPlastic,
+Reflectance 0,25). Das Skript `tools/decor/prepare_paper_decor.luau` setzt nur Farben und
+Neon; die Werte für `Water` wurden von Hand dazu gesetzt.
+
+Im Modell steht das Rohr des Wasserspiels schon leicht nach vorn geneigt (vorderes Ende unter
+dem Strahl). Das gilt als Ruhelage; beim Kippen senkt sich das vordere Ende weiter.
+
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 
 Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.

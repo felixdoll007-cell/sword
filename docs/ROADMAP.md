@@ -248,6 +248,18 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [ ] Von mir getestet
 - Unverändert: Preise, Chancen, Würfeln, Speichern, Server-Prüfungen.
 - Wichtig: Die Vorlage liegt nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+### Block: Bambus-Zone in fertiger Optik (Vorgriff auf Version 4, nur Aussehen)
+- [x] Welt 1 hat das Thema Dojo / Japan; die Zonen heißen Papier, Bambus, Holz, Stein, Eisen, Jade (nur Namen und Aussehen, Härte und Belohnung unverändert)
+- [x] Bahnboden der Zone in zwei Tönen hellem Grün, Gehwege in zwei Tönen hellem Steingrau mit dunkel bambusgrüner Kante, unsichtbarer Zaun wie bei Papier; schließt ohne Überlappung an die Papier-Zone an
+- [x] Wände 6 bis 10 als Bambuswand: grün, fünf dunklere senkrechte Streifen, braunes Band in der oberen Hälfte (als Bild auf der Wand, keine zusätzlichen Teile)
+- [x] "BAMBOO" in Bambusgrün hinter der Papier-Zone, "WOOD" in Holzbraun hinter der Bambus-Zone
+- [x] Vier neue Vorlagen eingefärbt und in `ReplicatedStorage.Assets` abgelegt: `bamboo_cluster`, `stone_lantern`, `taiko_drum`, `shishi_odoshi`
+- [x] Zehn Deko-Teile an festen Plätzen: zwei Steinlaternen als Tor, vier Bambusgruppen ganz außen, Trommel, zwei Wasserspiele, eine weitere Steinlaterne
+- [x] Bewegungen auf dem Client: Bambusblätter wippen, Steinlaternen flackern, das Rohr des Wasserspiels kippt alle sieben Sekunden
+- [ ] Von mir getestet
+- Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 11.
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

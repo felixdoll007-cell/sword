@@ -9,6 +9,12 @@ local look = world.lane
 local models = world.decor.models
 local limits = world.decor
 local PAPER = 1
+local BAMBOO = 2
+-- The first zone without a look.
+local WOOD = 3
+local bambooDecor = look.zones.Bamboo.decor
+local BAMBOO_GROUP = "bamboo_cluster"
+local STONE_LANTERN = "stone_lantern"
 local paperDecor = look.zones.Paper.decor
 local TREE = "cherry_tree"
 local LANTERN = "paper_lantern"
@@ -19,6 +25,10 @@ end
 
 local function placements(): { Decor.Placement }
 	return place(paperDecor)
+end
+
+local function bambooPlacements(): { Decor.Placement }
+	return place(bambooDecor, BAMBOO)
 end
 
 local function outerStep(side: number): ZoneLook.WalkPart
@@ -257,15 +267,163 @@ return {
 	end,
 
 	["zones without walkways or without decoration have none"] = function(expect)
-		expect(#place(paperDecor, 2)).toBe(0)
+		expect(#place(paperDecor, WOOD)).toBe(0)
 		expect(#place(nil)).toBe(0)
 		expect(#place({ pieces = {} })).toBe(0)
 	end,
 
+	["the bamboo zone: at most twelve pieces, all on the outer step inside the zone"] = function(expect)
+		local all = bambooPlacements()
+		expect(#all).toBe(#bambooDecor.pieces)
+		expect(#all <= 12).toBe(true)
+		local from, to = ZoneLook.range(LaneConfig, WallConfig, BAMBOO)
+		for _, placement in all do
+			expect(placement.z <= LaneConfig.throwLine.z - from and placement.z >= LaneConfig.throwLine.z - to).toBe(
+				true
+			)
+			expect(fromLane(placement) >= look.walk.curbWidth + look.walk.innerWidth).toBe(true)
+			expect(fromLane(placement) <= ZoneLook.walkWidth(look)).toBe(true)
+			expect(placement.y).toBeNear(LaneConfig.floorTopY + look.walk.outerHeight)
+		end
+	end,
+
+	["the bamboo zone: a stone lantern on each side at its start, like a gate"] = function(expect)
+		local from = ZoneLook.range(LaneConfig, WallConfig, BAMBOO)
+		local first: { [number]: Decor.Placement } = {}
+		for _, placement in bambooPlacements() do
+			local current = first[placement.side]
+			if not current or placement.z > current.z then
+				first[placement.side] = placement
+			end
+		end
+		expect(first[-1].model).toBe(STONE_LANTERN)
+		expect(first[1].model).toBe(STONE_LANTERN)
+		expect(first[-1].z).toBe(first[1].z)
+		expect(fromLane(first[-1])).toBeNear(fromLane(first[1]))
+		expect(LaneConfig.throwLine.z - from - first[-1].z <= 10).toBe(true)
+	end,
+
+	["the bamboo zone: three or four bamboo groups at the very outside, turned differently"] = function(expect)
+		local groups = 0
+		local turns = {}
+		for index, placement in bambooPlacements() do
+			if placement.model == BAMBOO_GROUP then
+				groups += 1
+				local turned = bambooDecor.pieces[index].turnDegrees
+				expect(turns[turned]).toBe(nil)
+				turns[turned] = true
+				for _, other in bambooPlacements() do
+					if other.model ~= BAMBOO_GROUP and other.side == placement.side then
+						expect(fromLane(placement) > fromLane(other)).toBe(true)
+					end
+				end
+				-- At most 20 percent bigger than modelled.
+				expect(placement.scale <= 1.2 + 1e-9 and placement.scale >= 0.8 - 1e-9).toBe(true)
+			else
+				expect(placement.scale >= 0.85 - 1e-9 and placement.scale <= 1.15 + 1e-9).toBe(true)
+			end
+		end
+		expect(groups >= 3 and groups <= 4).toBe(true)
+	end,
+
+	["the bamboo zone: a drum, one or two water features and one more lantern, sides not mirrored"] = function(expect)
+		local counts: { [string]: number } = {}
+		local bySide: { [number]: { [string]: boolean } } = { [-1] = {}, [1] = {} }
+		local from = ZoneLook.range(LaneConfig, WallConfig, BAMBOO)
+		for _, placement in bambooPlacements() do
+			counts[placement.model] = (counts[placement.model] or 0) + 1
+			-- The gate is the one pair that is meant to match.
+			if LaneConfig.throwLine.z - from - placement.z > 10 then
+				bySide[placement.side][`{placement.model}@{math.round(placement.z)}`] = true
+			end
+		end
+		expect(counts.taiko_drum).toBe(1)
+		expect(counts.shishi_odoshi >= 1 and counts.shishi_odoshi <= 2).toBe(true)
+		expect(counts[STONE_LANTERN]).toBe(3)
+		for key in bySide[-1] do
+			expect(bySide[1][key]).toBe(nil)
+		end
+		-- Uneven distances along the zone on each side.
+		for _, side in { -1, 1 } do
+			local along = {}
+			for _, placement in bambooPlacements() do
+				if placement.side == side then
+					table.insert(along, -placement.z)
+				end
+			end
+			table.sort(along)
+			local gaps = {}
+			for index = 2, #along do
+				local gap = math.round(along[index] - along[index - 1])
+				expect(gaps[gap]).toBe(nil)
+				gaps[gap] = true
+			end
+		end
+	end,
+
+	["a model with its own size limit may differ more than the others"] = function(expect)
+		expect(models[BAMBOO_GROUP].maxScaleChange).toBe(0.2)
+		expect(Decor.scale(limits, 1.2, 0.2)).toBeNear(1.2)
+		expect(Decor.scale(limits, 3, 0.2)).toBeNear(1.2)
+		expect(Decor.scale(limits, 0.1, 0.2)).toBeNear(0.8)
+		expect(Decor.scale(limits, 1.2, nil)).toBeNear(1 + limits.maxScaleChange)
+		expect(Decor.scale(limits, 1.2, 0 / 0)).toBeNear(1 + limits.maxScaleChange)
+		expect(Decor.scale(limits, 1.2, -1)).toBe(1)
+	end,
+
+	["a tipping part goes down slowly, stays down briefly, comes back and then rests"] = function(expect)
+		local tip = { everySeconds = 10, downSeconds = 2, holdSeconds = 1, backSeconds = 1 }
+		expect(Decor.tipProgress(tip, 0)).toBe(0)
+		expect(Decor.tipProgress(tip, 1)).toBeNear(0.5)
+		expect(Decor.tipProgress(tip, 2)).toBe(1)
+		expect(Decor.tipProgress(tip, 2.5)).toBe(1)
+		expect(Decor.tipProgress(tip, 3.5)).toBeNear(0.5)
+		expect(Decor.tipProgress(tip, 4)).toBe(0)
+		expect(Decor.tipProgress(tip, 7)).toBe(0)
+		-- Again every ten seconds.
+		expect(Decor.tipProgress(tip, 11)).toBeNear(0.5)
+		expect(Decor.tipProgress(tip, 1e9 + 2)).toBe(1)
+		-- Never outside 0 to 1, soft at the start.
+		local before = 0
+		for step = 0, 200 do
+			local value = Decor.tipProgress(tip, step / 100)
+			expect(value >= before and value <= 1).toBe(true)
+			before = value
+		end
+		expect(Decor.tipProgress(tip, 0.1) < 0.05).toBe(true)
+		-- Broken values: it rests.
+		expect(Decor.tipProgress(tip, 0 / 0)).toBe(0)
+		expect(Decor.tipProgress(tip, math.huge)).toBe(0)
+		expect(Decor.tipProgress({ everySeconds = 0, downSeconds = 1, holdSeconds = 1, backSeconds = 1 }, 3)).toBe(0)
+		local instant = { everySeconds = 5, downSeconds = 0, holdSeconds = 1, backSeconds = 0 }
+		expect(Decor.tipProgress(instant, 0.5)).toBe(1)
+		expect(Decor.tipProgress(instant, 2)).toBe(0)
+	end,
+
 	["every model in the list is known, and movements have sensible values"] = function(expect)
-		for _, piece in paperDecor.pieces do
-			expect(typeof(models[piece.model])).toBe("table")
-			expect(piece.side == "left" or piece.side == "right").toBe(true)
+		for _, decor in { paperDecor, bambooDecor } do
+			for _, piece in decor.pieces do
+				expect(typeof(models[piece.model])).toBe("table")
+				expect(piece.side == "left" or piece.side == "right").toBe(true)
+			end
+		end
+		for _, model in models :: { [string]: any } do
+			if model.sway then
+				-- Very slight and slow.
+				expect(#model.sway.part > 0).toBe(true)
+				expect(model.sway.degrees > 0 and model.sway.degrees <= 3).toBe(true)
+				expect(model.sway.seconds >= 2).toBe(true)
+			end
+			if model.tip then
+				local tip = model.tip
+				expect(#tip.part > 0).toBe(true)
+				expect(tip.degrees > 0 and tip.degrees <= 30).toBe(true)
+				-- Every few seconds, slowly down, briefly down, and a rest in between.
+				expect(tip.everySeconds >= 3 and tip.everySeconds <= 15).toBe(true)
+				expect(tip.downSeconds >= 1).toBe(true)
+				expect(tip.holdSeconds > 0 and tip.holdSeconds <= 1).toBe(true)
+				expect(tip.downSeconds + tip.holdSeconds + tip.backSeconds < tip.everySeconds).toBe(true)
+			end
 		end
 		for name, model in models :: { [string]: any } do
 			expect(#model.template > 0).toBe(true)

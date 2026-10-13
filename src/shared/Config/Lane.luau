@@ -36,13 +36,13 @@ return {
 	barrierThickness = 1,
 
 	floorColor = { 120, 120, 120 },
-	-- One grey per material, from light (Paper) to dark (Bedrock).
+	-- One grey per material, from light (Paper) to dark (Jade), for zones without a look yet.
 	materialColors = {
 		Paper = { 235, 235, 235 },
-		Wood = { 200, 200, 200 },
-		Stone = { 165, 165, 165 },
-		Iron = { 130, 130, 130 },
-		Obsidian = { 85, 85, 85 },
-		Bedrock = { 45, 45, 45 },
+		Bamboo = { 200, 200, 200 },
+		Wood = { 165, 165, 165 },
+		Stone = { 130, 130, 130 },
+		Iron = { 85, 85, 85 },
+		Jade = { 45, 45, 45 },
 	},
 }
