@@ -147,7 +147,8 @@ links der Stand, rechts der Status.
 - Jede Trainingsbahn hat eine eigene Farbe und ein kleines Thema.
 - Welt 1 ist ein Dojo in Japan. Jede Zone der Wurfbahn zeigt am Rand die Umgebung ihres
   Materials: Papier mit Origami und Laternen, Bambus mit Bambusgruppen, Steinlaternen,
-  Trommel und Wasserspiel. Holz, Stein, Eisen und Jade folgen im selben Thema.
+  Trommel und Wasserspiel, Holz als Dojo-Hof mit Waffenständern, Trainingspuppen, Sake-Fässern
+  und Täfelchen-Gestellen. Stein, Eisen und Jade folgen im selben Thema.
 - Der Name der nächsten Zone schwebt in der Ferne über der Bahn.
 - Wurfzone mit großem Schriftzug auf dem Boden.
 

@@ -1280,10 +1280,118 @@ return {
 						},
 					},
 				},
-				-- No look yet; only its name, announced at the end of the bamboo zone.
+				-- The yard of a dojo, the training ground of a fighting school.
 				Wood = {
 					name = "WOOD",
 					nameColor = { 178, 114, 58 },
+					-- Two tones of warm, light wood (honey brown).
+					floor = { darkColor = { 218, 168, 100 }, lightColor = { 232, 184, 118 } },
+					-- Walkways like tatami mats: two tones of greenish beige, dark brown edge
+					-- towards the lane.
+					walk = {
+						darkColor = { 184, 184, 128 },
+						lightColor = { 200, 200, 146 },
+						curbColor = { 84, 58, 38 },
+					},
+					-- A wall of planks as a model, modelled as big as the wall. Its planks are
+					-- flat, so the scratch stays; color is the color of its pieces.
+					wall = {
+						color = { 176, 120, 70 },
+						scratch = true,
+						model = {
+							template = "wooden_wall",
+							-- Posts and planks together; coverDepth is the planks alone, so their
+							-- front lies level with the wall's front and carries the scratch.
+							coverWidth = 30,
+							coverHeight = 16,
+							coverDepth = 1.2,
+							sinkStuds = 0,
+						},
+					},
+					decor = {
+						pieces = {
+							-- A weapon rack on each side at the start of the zone, like a gate.
+							{
+								model = "weapon_rack",
+								side = "left",
+								along = 7,
+								across = 0.5,
+								turnDegrees = 4,
+								scale = 1,
+							},
+							{
+								model = "weapon_rack",
+								side = "right",
+								along = 7,
+								across = 0.5,
+								turnDegrees = -6,
+								scale = 1,
+							},
+							-- Left side.
+							{
+								model = "training_dummy",
+								side = "left",
+								along = 30,
+								across = 0.5,
+								turnDegrees = 14,
+								scale = 1.05,
+							},
+							{
+								model = "ema_rack",
+								side = "left",
+								along = 67,
+								across = 0.55,
+								turnDegrees = -7,
+								scale = 1,
+							},
+							{
+								model = "training_dummy",
+								side = "left",
+								along = 86,
+								across = 0.55,
+								turnDegrees = -22,
+								scale = 0.95,
+							},
+							{
+								model = "sake_barrels",
+								side = "left",
+								along = 121,
+								across = 0.55,
+								turnDegrees = 9,
+								scale = 1,
+							},
+							-- Right side.
+							{
+								model = "sake_barrels",
+								side = "right",
+								along = 28,
+								across = 0.55,
+								turnDegrees = -11,
+								scale = 1.05,
+							},
+							{
+								model = "training_dummy",
+								side = "right",
+								along = 58,
+								across = 0.5,
+								turnDegrees = 26,
+								scale = 1,
+							},
+							{
+								model = "ema_rack",
+								side = "right",
+								along = 101,
+								across = 0.5,
+								turnDegrees = 13,
+								scale = 1.05,
+							},
+						},
+					},
+				},
+				-- No look yet; only its name, announced at the end of the wood zone.
+				Stone = {
+					name = "STONE",
+					nameColor = { 152, 156, 162 },
 				},
 			},
 		},
@@ -1534,6 +1642,9 @@ return {
 		--   maxScaleChange: for a model that may differ more in size than the others (below).
 		--   light, float, spin, sway, tip: its small movement. Leave them out and the model
 		--     stands still.
+		--     sway: the named part rocks by this many degrees to each side, once there and
+		--     back in this many seconds: around its own middle, or with aroundTop = true around
+		--     its upper edge, like something that hangs.
 		decor = {
 			templateFolder = "Assets",
 			-- Each piece starts its movement this much later than the one before (share of a
@@ -1648,6 +1759,48 @@ return {
 						downSeconds = 1.2,
 						holdSeconds = 0.6,
 						backSeconds = 0.9,
+					},
+				},
+
+				-- The wood zone.
+				training_dummy = {
+					template = "training_dummy",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 25,
+					size = 1.8,
+					-- Its cloth waves slightly.
+					sway = {
+						part = "Cloth",
+						degrees = 3,
+						seconds = 3,
+						aroundTop = true,
+					},
+				},
+				-- Stands still.
+				weapon_rack = {
+					template = "weapon_rack",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 1.8,
+				},
+				-- Stands still.
+				sake_barrels = {
+					template = "sake_barrels",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 15,
+					size = 1.8,
+				},
+				ema_rack = {
+					template = "ema_rack",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 15,
+					size = 1.8,
+					-- Its plaques swing very slightly.
+					sway = {
+						part = "Plaques",
+						degrees = 2,
+						seconds = 3.6,
+						aroundTop = true,
 					},
 				},
 			},

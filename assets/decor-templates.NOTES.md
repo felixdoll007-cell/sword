@@ -54,6 +54,26 @@ Der Drehpunkt der Vorlage ist die Mitte ihres Fußes. Im Spiel wird sie gleichm�
 1,5-mal vergrößert, damit die Rohre die 30 Studs breite Wand ganz bedecken (Werte in
 `Config/Ui`, world.lane.zones.Bamboo.wall.model).
 
+## Vorlagen der Holz-Zone (importiert am 13.10.2026)
+
+| Vorlage | Datei | Dreiecke | Teile (Mesh-Namen) | Vorderseite | Bewegung |
+|---|---|---|---|---|---|
+| `training_dummy` | `assets/training-dummy.glb` | 460 | Post, Arms, Frame, Cloth | -Z (Arme) | `Cloth` weht leicht um seine obere Kante |
+| `weapon_rack` | `assets/weapon-rack.glb` | 1146 | Rack, Weapons, Grips, Roof | -Z | keine |
+| `sake_barrels` | `assets/sake-barrels.glb` | 1180 | Straw, Ropes, Lids, LabelRed, LabelBlue, LabelYellow, Symbols | -Z (Etiketten) | keine |
+| `ema_rack` | `assets/ema-rack.glb` | 634 | Frame, Plaques, Cords, Roof | -Z | `Plaques` schaukelt leicht um seine obere Kante |
+| `wooden_wall` | `assets/wooden-wall.glb` | 1408 | Planks, Posts, Nails, Roof, Base | beide Seiten gleich | Wand-Modell, 30,8 x 16,4 x 2,6 Studs |
+
+Farben: Puppe mit Pfosten und Armen in warmem hellem Holzbraun, Gestell dunkelbraun, Tuch
+weiß. Waffenständer dunkelbraun, Waffen helles Holz, Griffe dunkelrot, Dach dunkles
+Schiefergrau. Fässer strohgelb, Seile dunkelbraun, Deckel helles Holz, Etiketten rot, blau
+und gelb, Zeichen weiß. Täfelchen-Gestell dunkelbraun, Täfelchen helles Holz, Schnüre rot,
+Dach dunkelrot. Holzwand: Planken mittleres Holzbraun, Pfosten dunkelbraun, Nägel fast
+schwarz, Dach schiefergrau, Sockel grau. Der Drehpunkt jeder Vorlage ist die Mitte ihres Fußes.
+
+`Cloth` und `Plaques` sind je ein einziges Mesh: Es bewegt sich das ganze Tuch und alle
+Täfelchen gemeinsam, nicht einzelne Enden oder einzelne Täfelchen.
+
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 
 Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.

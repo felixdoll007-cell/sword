@@ -10,8 +10,10 @@ local models = world.decor.models
 local limits = world.decor
 local PAPER = 1
 local BAMBOO = 2
--- The first zone without a look.
 local WOOD = 3
+-- The first zone without a look.
+local STONE = 4
+local woodDecor = look.zones.Wood.decor
 local bambooDecor = look.zones.Bamboo.decor
 local BAMBOO_GROUP = "bamboo_cluster"
 local STONE_LANTERN = "stone_lantern"
@@ -29,6 +31,10 @@ end
 
 local function bambooPlacements(): { Decor.Placement }
 	return place(bambooDecor, BAMBOO)
+end
+
+local function woodPlacements(): { Decor.Placement }
+	return place(woodDecor, WOOD)
 end
 
 local function outerStep(side: number): ZoneLook.WalkPart
@@ -267,7 +273,7 @@ return {
 	end,
 
 	["zones without walkways or without decoration have none"] = function(expect)
-		expect(#place(paperDecor, WOOD)).toBe(0)
+		expect(#place(paperDecor, STONE)).toBe(0)
 		expect(#place(nil)).toBe(0)
 		expect(#place({ pieces = {} })).toBe(0)
 	end,
@@ -363,6 +369,92 @@ return {
 		end
 	end,
 
+	["the wood zone: at most twelve pieces, all on the outer step inside the zone, well visible"] = function(expect)
+		local all = woodPlacements()
+		expect(#all).toBe(#woodDecor.pieces)
+		expect(#all <= 12).toBe(true)
+		local from, to = ZoneLook.range(LaneConfig, WallConfig, WOOD)
+		for _, placement in all do
+			expect(placement.z <= LaneConfig.throwLine.z - from and placement.z >= LaneConfig.throwLine.z - to).toBe(
+				true
+			)
+			expect(fromLane(placement) >= look.walk.curbWidth + look.walk.innerWidth).toBe(true)
+			expect(fromLane(placement) <= ZoneLook.walkWidth(look)).toBe(true)
+			expect(placement.y).toBeNear(LaneConfig.floorTopY + look.walk.outerHeight)
+			-- As big as the decoration of the bamboo zone.
+			expect(models[placement.model].size).toBe(1.8)
+			local own = placement.scale / models[placement.model].size
+			expect(own >= 0.85 - 1e-9 and own <= 1.15 + 1e-9).toBe(true)
+		end
+	end,
+
+	["the wood zone: a weapon rack on each side at its start, looking straight at the lane"] = function(expect)
+		local from = ZoneLook.range(LaneConfig, WallConfig, WOOD)
+		local first: { [number]: Decor.Placement } = {}
+		for _, placement in woodPlacements() do
+			local current = first[placement.side]
+			if not current or placement.z > current.z then
+				first[placement.side] = placement
+			end
+		end
+		expect(first[-1].model).toBe("weapon_rack")
+		expect(first[1].model).toBe("weapon_rack")
+		expect(first[-1].z).toBe(first[1].z)
+		expect(fromLane(first[-1])).toBeNear(fromLane(first[1]))
+		expect(LaneConfig.throwLine.z - from - first[-1].z <= 10).toBe(true)
+		expect(models.weapon_rack.turnTowardsThrowZoneDegrees).toBe(0)
+	end,
+
+	["the wood zone: dummies, barrels and plaque racks, uneven and not mirrored"] = function(expect)
+		local counts: { [string]: number } = {}
+		local bySide: { [number]: { [string]: boolean } } = { [-1] = {}, [1] = {} }
+		local from = ZoneLook.range(LaneConfig, WallConfig, WOOD)
+		local dummyTurns = {}
+		for index, placement in woodPlacements() do
+			counts[placement.model] = (counts[placement.model] or 0) + 1
+			if placement.model == "training_dummy" then
+				-- Every dummy is turned differently.
+				local turned = woodDecor.pieces[index].turnDegrees
+				expect(dummyTurns[turned]).toBe(nil)
+				dummyTurns[turned] = true
+			end
+			-- The gate is the one pair that is meant to match.
+			if LaneConfig.throwLine.z - from - placement.z > 10 then
+				bySide[placement.side][`{placement.model}@{math.round(placement.z)}`] = true
+			end
+		end
+		expect(counts.weapon_rack).toBe(2)
+		expect(counts.training_dummy >= 2 and counts.training_dummy <= 3).toBe(true)
+		expect(counts.sake_barrels >= 1 and counts.sake_barrels <= 2).toBe(true)
+		expect(counts.ema_rack >= 1 and counts.ema_rack <= 2).toBe(true)
+		for key in bySide[-1] do
+			expect(bySide[1][key]).toBe(nil)
+		end
+		-- Uneven distances along the zone on each side.
+		for _, side in { -1, 1 } do
+			local along = {}
+			for _, placement in woodPlacements() do
+				if placement.side == side then
+					table.insert(along, -placement.z)
+				end
+			end
+			table.sort(along)
+			local gaps = {}
+			for index = 2, #along do
+				local gap = math.round(along[index] - along[index - 1])
+				expect(gaps[gap]).toBe(nil)
+				gaps[gap] = true
+			end
+		end
+		-- Cloth and plaques hang, so they swing around their upper edge.
+		expect(models.training_dummy.sway.part).toBe("Cloth")
+		expect(models.training_dummy.sway.aroundTop).toBe(true)
+		expect(models.ema_rack.sway.part).toBe("Plaques")
+		expect(models.ema_rack.sway.aroundTop).toBe(true)
+		expect(models.weapon_rack.sway).toBe(nil)
+		expect(models.sake_barrels.sway).toBe(nil)
+	end,
+
 	["a model with its own size limit may differ more than the others"] = function(expect)
 		expect(models[BAMBOO_GROUP].maxScaleChange).toBe(0.2)
 		expect(Decor.scale(limits, 1.2, 0.2)).toBeNear(1.2)
@@ -438,7 +530,7 @@ return {
 	end,
 
 	["every model in the list is known, and movements have sensible values"] = function(expect)
-		for _, decor in { paperDecor, bambooDecor } do
+		for _, decor in { paperDecor, bambooDecor, woodDecor } do
 			for _, piece in decor.pieces do
 				expect(typeof(models[piece.model])).toBe("table")
 				expect(piece.side == "left" or piece.side == "right").toBe(true)

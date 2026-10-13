@@ -216,7 +216,7 @@ Name der nächsten Zone ("BAMBOO") über der Bahn. Jede weitere Zone braucht nur
 mit Farben, Namen, Wand (Farbe, Muster oder Modell, Kratzer an/aus) und Deko-Liste in
 `Config/Ui` (world.lane.zones). Eine Zone
 endet an ihrer letzten Wand; das Stück bis zur ersten Wand der nächsten Zone gehört zur
-nächsten Zone. Hinter Wand 10 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
+nächsten Zone. Hinter Wand 15 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
 
 Die Bambus-Zone (Wand 6 bis 10) ist die zweite fertige Zone: Boden in zwei Tönen hellem,
 frischem Grün, Gehwege in zwei Tönen warmem Steingrau mit dunkel bambusgrüner Kante, und
@@ -233,6 +233,17 @@ Laterne, Trommel und Wasserspiel stehen 1,8-mal so groß wie modelliert, Bambus 
 Bambusblätter wippen ganz leicht, die Steinlaternen leuchten schwach und flackern. Das Rohr
 des Wasserspiels ruht mit dem offenen Ende leicht nach oben (es füllt sich), kippt alle
 sieben Sekunden nach vorn unten (es gießt aus), bleibt kurz und schwingt zurück.
+
+Die Holz-Zone (Wand 11 bis 15) ist die dritte fertige Zone: ein Dojo-Hof, der Trainingsplatz
+einer Kampfschule. Boden in zwei Tönen warmem, hellem Holz (Honigbraun), Gehwege wie
+Tatami-Matten in zwei Tönen grünlichem Beige mit dunkelbrauner Kante. Die Wände sind
+Holzwände als Modell (Planken zwischen Pfosten, mit Dach und Sockel), so groß modelliert wie
+die Wand selbst; das Dach ragt etwas über die Wand hinaus. Ihre Planken sind flach, deshalb
+bleibt hier der Kratzer beim Abprallen, und die Wand wackelt nicht. Bruchstücke in Holzbraun.
+Hinter ihr schwebt "STONE" in Steingrau. Ihre Deko, neun Teile, alle 1,8-mal so groß wie
+modelliert: am Anfang zwei Waffenständer als Tor, dann drei Trainingspuppen, zwei Stapel
+Sake-Fässer und zwei Täfelchen-Gestelle. Das Tuch der Puppen weht leicht, die Täfelchen
+schaukeln ganz leicht; beide drehen sich um ihre obere Kante.
 
 Die Bahn ist die Hauptsache, der Rand ist Kulisse. Links und rechts der Papier-Zone liegen
 breite Gehwege in zwei Stufen (innen etwa 1 Stud, außen etwa 2,5 Studs hoch) in ruhigem

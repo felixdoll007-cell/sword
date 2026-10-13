@@ -8,7 +8,8 @@
 --   * a pinwheel's wheel turns slowly (its stick stands still)
 --   * the leaves of a bamboo group rock very slightly
 --   * the cane of a water feature tips forward every few seconds and comes back
---   * a tree and a drum stand still
+--   * the cloth of a training dummy waves slightly, the plaques of a plaque rack swing
+--   * a tree, a drum, a weapon rack and a stack of barrels stand still
 -- Which model stands where is worked out in Rules/Decor; everything adjustable is in Config/Ui
 -- (world.decor and the decor entry of each zone).
 -- Decoration has no collision and cannot be hit by anything, so it never gets in the way of a
@@ -143,20 +144,25 @@ local function addSpin(model: Model, settings: any, seed: number)
 	)
 end
 
--- The named part turns a little around its own middle, around the line that runs from the
--- model's left to its right: to both sides (sway) or forward and back (tip).
+-- The named part turns a little around its own middle (or, if its settings say aroundTop,
+-- around its upper edge), around the line that runs from the model's left to its right: to
+-- both sides (sway) or forward and back (tip).
 local function addTilt(model: Model, kind: "sway" | "tip", settings: any, seed: number)
 	local part = findPart(model, settings.part)
 	if not part then
 		return
 	end
 	local first, last = track({ part })
+	local around = part.Position
+	if settings.aroundTop then
+		around += Vector3.new(0, part.ExtentsSize.Y / 2, 0)
+	end
 	table.insert(movers, {
 		kind = kind,
 		first = first,
 		last = last,
 		phase = seed,
-		axis = CFrame.new(part.Position) * model:GetPivot().Rotation,
+		axis = CFrame.new(around) * model:GetPivot().Rotation,
 		settings = settings,
 	})
 end

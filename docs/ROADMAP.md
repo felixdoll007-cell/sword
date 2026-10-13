@@ -272,6 +272,17 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - Unverändert: Treffer, Schaden, Coins, Server, wer welche Wände sieht.
 - Wichtig: Die Vorlage liegt nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 
+### Block: Holz-Zone in fertiger Optik (Vorgriff auf Version 4, nur Aussehen)
+- [x] Bahnboden der Zone in zwei Tönen Honigbraun, Gehwege im Tatami-Look (zwei Töne grünliches Beige, dunkelbraune Kante), unsichtbarer Zaun wie bisher; schließt ohne Überlappung an die Bambus-Zone an
+- [x] "STONE" in Steingrau hinter der Holz-Zone
+- [x] Fünf neue Vorlagen eingefärbt und in `ReplicatedStorage.Assets` abgelegt: `training_dummy`, `weapon_rack`, `sake_barrels`, `ema_rack`, `wooden_wall`
+- [x] Wände 11 bis 15 als Modell (Holzwand), Kratzer beim Abprallen bleibt an, Bruchstücke in Holzbraun
+- [x] Neun Deko-Teile an festen Plätzen: zwei Waffenständer als Tor, drei Trainingspuppen, zwei Sake-Stapel, zwei Täfelchen-Gestelle
+- [x] Bewegungen auf dem Client: das Tuch der Puppen weht leicht, die Täfelchen schaukeln leicht
+- [ ] Von mir getestet
+- Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 16.
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

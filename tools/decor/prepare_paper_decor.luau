@@ -230,6 +230,66 @@ local MODELS = {
 		},
 		neon = {},
 	},
+	-- The wood zone (imported on 2026-10-13). Pivots are also set to the middle of the foot by hand.
+	{
+		inside = "training_dummy",
+		template = "training_dummy",
+		colors = {
+			Post = Color3.fromRGB(206, 160, 104),
+			Arms = Color3.fromRGB(206, 160, 104),
+			Frame = Color3.fromRGB(84, 58, 38),
+			Cloth = Color3.fromRGB(245, 245, 240),
+		},
+		neon = {},
+	},
+	{
+		inside = "weapon_rack",
+		template = "weapon_rack",
+		colors = {
+			Rack = Color3.fromRGB(84, 58, 38),
+			Weapons = Color3.fromRGB(222, 184, 130),
+			Grips = Color3.fromRGB(140, 28, 40),
+			Roof = Color3.fromRGB(72, 78, 88),
+		},
+		neon = {},
+	},
+	{
+		inside = "sake_barrels",
+		template = "sake_barrels",
+		colors = {
+			Straw = Color3.fromRGB(232, 206, 132),
+			Ropes = Color3.fromRGB(84, 58, 38),
+			Lids = Color3.fromRGB(222, 184, 130),
+			LabelRed = Color3.fromRGB(214, 40, 40),
+			LabelBlue = Color3.fromRGB(40, 96, 210),
+			LabelYellow = Color3.fromRGB(245, 200, 40),
+			Symbols = Color3.fromRGB(255, 255, 255),
+		},
+		neon = {},
+	},
+	{
+		inside = "ema_rack",
+		template = "ema_rack",
+		colors = {
+			Frame = Color3.fromRGB(84, 58, 38),
+			Plaques = Color3.fromRGB(222, 184, 130),
+			Cords = Color3.fromRGB(214, 40, 40),
+			Roof = Color3.fromRGB(140, 28, 40),
+		},
+		neon = {},
+	},
+	{
+		inside = "wooden_wall",
+		template = "wooden_wall",
+		colors = {
+			Planks = Color3.fromRGB(176, 120, 70),
+			Posts = Color3.fromRGB(84, 58, 38),
+			Nails = Color3.fromRGB(28, 26, 26),
+			Roof = Color3.fromRGB(104, 110, 120),
+			Base = Color3.fromRGB(130, 130, 128),
+		},
+		neon = {},
+	},
 	-- The egg without a nest (imported on 2026-10-12). It replaces pet_egg at the egg stand and
 	-- in the hatching animation; pet_egg stays in the place but is not used any more.
 	{
