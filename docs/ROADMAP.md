@@ -268,7 +268,7 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - [x] Aufgemalte Streifen und Band der Bambus-Wände entfernt
 - [x] Pro Zone in der Config: Wand-Modell (oder keins) und Kratzer an/aus
 - [ ] Von mir getestet
-- Offen, weil es im Spiel keinen wachsenden Schaden an einer Wand gibt: "schrittweise dunkler". Gebaut ist eine Stufe beim Abprallen.
+- Entschieden: Eine Dunkel-Stufe beim Abprallen reicht. Wachsenden Schaden an einer Wand gibt es nicht und er wird kein eigener Block.
 - Unverändert: Treffer, Schaden, Coins, Server, wer welche Wände sieht.
 - Wichtig: Die Vorlage liegt nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 
