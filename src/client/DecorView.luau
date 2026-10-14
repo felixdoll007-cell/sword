@@ -9,7 +9,8 @@
 --   * the leaves of a bamboo group rock very slightly
 --   * the cane of a water feature tips forward every few seconds and comes back
 --   * the cloth of a training dummy waves slightly, the plaques of a plaque rack swing
---   * a tree, a drum, a weapon rack and a stack of barrels stand still
+--   * a tree, a drum, a weapon rack and a stack of barrels stand still, and so does everything
+--     in the temple garden (gate, lions, bonsai, rocks)
 -- Which model stands where is worked out in Rules/Decor; everything adjustable is in Config/Ui
 -- (world.decor and the decor entry of each zone).
 -- Decoration has no collision and cannot be hit by anything, so it never gets in the way of a
@@ -271,6 +272,11 @@ function DecorView.start()
 		local decor = zoneStyle and zoneStyle.decor
 		local placements =
 			Decor.placements(LaneConfig, WallConfig, world.lane, decor, world.decor.models, world.decor, zone)
+		local gate =
+			Decor.gate(LaneConfig, WallConfig, world.lane, zoneStyle and zoneStyle.gate, world.decor.models, zone)
+		if gate then
+			table.insert(placements, 1, gate)
+		end
 		for _, placement in placements do
 			count += 1
 			-- A different number for every piece: its own rhythm.

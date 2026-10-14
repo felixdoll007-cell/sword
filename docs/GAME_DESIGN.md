@@ -216,7 +216,7 @@ Name der nächsten Zone ("BAMBOO") über der Bahn. Jede weitere Zone braucht nur
 mit Farben, Namen, Wand (Farbe, Muster oder Modell, Kratzer an/aus) und Deko-Liste in
 `Config/Ui` (world.lane.zones). Eine Zone
 endet an ihrer letzten Wand; das Stück bis zur ersten Wand der nächsten Zone gehört zur
-nächsten Zone. Hinter Wand 15 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
+nächsten Zone. Hinter Wand 20 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
 
 Die Bambus-Zone (Wand 6 bis 10) ist die zweite fertige Zone: Boden in zwei Tönen hellem,
 frischem Grün, Gehwege in zwei Tönen warmem Steingrau mit dunkel bambusgrüner Kante, und
@@ -244,6 +244,17 @@ Hinter ihr schwebt "STONE" in Steingrau. Ihre Deko, neun Teile, alle 1,8-mal so 
 modelliert: am Anfang zwei Waffenständer als Tor, dann drei Trainingspuppen, zwei Stapel
 Sake-Fässer und zwei Täfelchen-Gestelle. Das Tuch der Puppen weht leicht, die Täfelchen
 schaukeln ganz leicht; beide drehen sich um ihre obere Kante.
+
+Die Stein-Zone (Wand 16 bis 20) ist die vierte fertige Zone: ein ruhiger Tempelgarten. Boden
+in zwei Tönen Steingrau, Gehwege wie geharkter Zen-Kies in zwei Tönen hellem, warmem Sandweiß
+mit moosgrüner Kante. Die Wände sind Steinmauern als Modell, so groß modelliert wie die Wand;
+der Kratzer bleibt, Bruchstücke in Grau. Am Anfang der Zone steht ein großes Torii quer über
+der Bahn (1,85-mal so groß wie modelliert): seine Säulen stehen auf der inneren Stufe der
+Gehwege, der untere Balken liegt etwa 24 Studs über dem Boden, so dass Wurf, Flug und Kamera
+frei darunter durchgehen. Direkt dahinter links und rechts ein Wächterlöwe als Paar, dann drei
+Bonsai und drei Moosfelsen auf der äußeren Stufe, alle 1,8-mal so groß wie modelliert. Hier
+bewegt sich nichts, die Ruhe ist gewollt. Hinter ihr schwebt "IRON" in dunklem Eisengrau mit
+etwas Orange.
 
 Die Bahn ist die Hauptsache, der Rand ist Kulisse. Links und rechts der Papier-Zone liegen
 breite Gehwege in zwei Stufen (innen etwa 1 Stud, außen etwa 2,5 Studs hoch) in ruhigem

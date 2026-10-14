@@ -1388,10 +1388,116 @@ return {
 						},
 					},
 				},
-				-- No look yet; only its name, announced at the end of the wood zone.
+				-- A calm temple garden.
 				Stone = {
 					name = "STONE",
 					nameColor = { 152, 156, 162 },
+					-- Two tones of stone grey.
+					floor = { darkColor = { 150, 152, 154 }, lightColor = { 166, 168, 170 } },
+					-- Walkways like raked zen gravel: two tones of light, warm sand white, moss
+					-- green edge towards the lane.
+					walk = {
+						darkColor = { 230, 222, 202 },
+						lightColor = { 242, 236, 218 },
+						curbColor = { 84, 112, 56 },
+					},
+					-- A wall of stones as a model, modelled as big as the wall. The front of its
+					-- stones is flat, so the scratch stays; color is the color of its pieces.
+					wall = {
+						color = { 140, 140, 138 },
+						scratch = true,
+						model = {
+							template = "stone_wall",
+							-- The stones (they are a little narrower than the cap); coverDepth is the
+							-- stones alone, so their front lies level with the wall's front and carries
+							-- the scratch.
+							coverWidth = 29.2,
+							coverHeight = 16,
+							coverDepth = 1.72,
+							sinkStuds = 0,
+						},
+					},
+					-- One big gate across the lane at the start of the zone, its pillars on the
+					-- walkways (gate: a model from decor.models with a gate entry, along: distance
+					-- from the start of the zone in studs).
+					gate = { model = "torii_gate", along = 8 },
+					decor = {
+						pieces = {
+							-- A guardian lion on each side right behind the gate, as a pair.
+							{
+								model = "komainu",
+								side = "left",
+								along = 17,
+								across = 0.5,
+								turnDegrees = 0,
+								scale = 1,
+							},
+							{
+								model = "komainu",
+								side = "right",
+								along = 17,
+								across = 0.5,
+								turnDegrees = 0,
+								scale = 1,
+							},
+							-- Left side.
+							{
+								model = "bonsai",
+								side = "left",
+								along = 42,
+								across = 0.5,
+								turnDegrees = 12,
+								scale = 1.05,
+							},
+							{
+								model = "mossy_rocks",
+								side = "left",
+								along = 71,
+								across = 0.5,
+								turnDegrees = -10,
+								scale = 0.95,
+							},
+							{
+								model = "bonsai",
+								side = "left",
+								along = 108,
+								across = 0.5,
+								turnDegrees = 20,
+								scale = 0.95,
+							},
+							-- Right side.
+							{
+								model = "mossy_rocks",
+								side = "right",
+								along = 36,
+								across = 0.5,
+								turnDegrees = 12,
+								scale = 0.9,
+							},
+							{
+								model = "bonsai",
+								side = "right",
+								along = 83,
+								across = 0.5,
+								turnDegrees = -15,
+								scale = 1,
+							},
+							{
+								model = "mossy_rocks",
+								side = "right",
+								along = 124,
+								across = 0.5,
+								turnDegrees = -6,
+								scale = 0.88,
+							},
+						},
+					},
+				},
+				-- No look yet; only its name, announced at the end of the stone zone.
+				Iron = {
+					name = "IRON",
+					-- Dark iron grey with a slight orange shimmer.
+					nameColor = { 120, 104, 94 },
 				},
 			},
 		},
@@ -1640,6 +1746,9 @@ return {
 		--   size: the model is shown this many times as big as it was modelled (left out = 1).
 		--     A piece's own scale in a zone's list comes on top of it.
 		--   maxScaleChange: for a model that may differ more in size than the others (below).
+		--   gate: for a gate across the lane. Its pillars, in the model's own studs: the side
+		--     of each pillar nearer to the middle (pillarInnerX) and the side further from it
+		--     (pillarOuterX), and the free height under its lowest beam (clearHeight).
 		--   light, float, spin, sway, tip: its small movement. Leave them out and the model
 		--     stands still.
 		--     sway: the named part rocks by this many degrees to each side, once there and
@@ -1802,6 +1911,35 @@ return {
 						seconds = 3.6,
 						aroundTop = true,
 					},
+				},
+
+				-- The stone zone. Nothing moves here; the calm is wanted.
+				torii_gate = {
+					template = "torii_gate",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					-- Big enough that its pillars stand on the inner step of the walkways and
+					-- throw, flight and camera pass freely below it.
+					size = 1.85,
+					gate = { pillarInnerX = 9, pillarOuterX = 12.2, clearHeight = 12.6 },
+				},
+				komainu = {
+					template = "komainu",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 1.8,
+				},
+				bonsai = {
+					template = "bonsai",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 1.8,
+				},
+				mossy_rocks = {
+					template = "mossy_rocks",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 1.8,
 				},
 			},
 		},

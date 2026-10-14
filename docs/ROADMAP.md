@@ -283,6 +283,17 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 16.
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 
+### Block: Stein-Zone in fertiger Optik (Vorgriff auf Version 4, nur Aussehen)
+- [x] Bahnboden der Zone in zwei Tönen Steingrau, Gehwege wie Zen-Kies (zwei Töne Sandweiß, moosgrüne Kante), unsichtbarer Zaun wie bisher; schließt ohne Überlappung an die Holz-Zone an
+- [x] "IRON" in dunklem Eisengrau mit etwas Orange hinter der Stein-Zone
+- [x] Fünf neue Vorlagen eingefärbt und in `ReplicatedStorage.Assets` abgelegt: `torii_gate`, `komainu`, `bonsai`, `mossy_rocks`, `stone_wall`
+- [x] Wände 16 bis 20 als Modell (Steinmauer), Kratzer beim Abprallen bleibt an, Bruchstücke in Grau
+- [x] Torii quer über der Bahn am Anfang der Zone, Säulen auf den Gehwegen, Wurf, Flug und Kamera gehen frei darunter durch
+- [x] Acht Deko-Teile an festen Plätzen: zwei Wächterlöwen als Paar hinter dem Torii, drei Bonsai, drei Moosfelsen; keine Bewegungen
+- [ ] Von mir getestet
+- Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 21.
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

@@ -74,6 +74,23 @@ schwarz, Dach schiefergrau, Sockel grau. Der Drehpunkt jeder Vorlage ist die Mit
 `Cloth` und `Plaques` sind je ein einziges Mesh: Es bewegt sich das ganze Tuch und alle
 Täfelchen gemeinsam, nicht einzelne Enden oder einzelne Täfelchen.
 
+## Vorlagen der Stein-Zone (importiert am 14.10.2026)
+
+| Vorlage | Datei | Dreiecke | Teile (Mesh-Namen) | Vorderseite | Größe wie modelliert |
+|---|---|---|---|---|---|
+| `torii_gate` | `assets/torii-gate.glb` | 674 | Red, Black, Plaque | beide Seiten gleich | 26 x 20 x 3,3 Studs; Säulen bei 9 bis 12,2 Studs von der Mitte, unterer Balken ab 12,6 Studs Höhe |
+| `komainu` | `assets/komainu.glb` | 1120 | Statue, Mane, Base, Moss, Mouth | -Z (Maul) | 4,1 x 6,9 x 4,1 |
+| `bonsai` | `assets/bonsai.glb` | 950 | Trunk, Foliage, FoliageLight, Pot, Moss, Stand | -Z | 6,2 x 6,1 x 3,2 |
+| `mossy_rocks` | `assets/mossy-rocks.glb` | 547 | Rock, RockDark, Moss, Grass | -Z (Gras) | 7,1 x 3,8 x 5,4 |
+| `stone_wall` | `assets/stone-wall.glb` | 1428 | Stones, StonesDark, Gaps, Moss, Cap | beide Seiten gleich | 30 x 16,2 x 2 (Wand-Modell) |
+
+Farben: Torii zinnoberrot, schwarz, Tafel dunkelgrau. Löwe hellgrau, Mähne etwas dunkler,
+Sockel dunkelgrau, Moos moosgrün, Maul dunkelrot. Bonsai: Stamm dunkelbraun, Laub kräftiges
+Dunkelgrün und helles Grün, Topf kobaltblau, Moos moosgrün, Ständer grau. Moosfelsen mittleres
+und dunkleres Grau, Moos moosgrün, Gras hellgrün. Steinmauer: Steine mittleres und dunkleres
+Grau, Fugen fast schwarz, Moos moosgrün, Abdeckung hellgrau. Der Drehpunkt jeder Vorlage ist die
+Mitte ihres Fußes.
+
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 
 Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.

@@ -2,6 +2,7 @@ local Decor = require("../src/shared/Rules/Decor")
 local ZoneLook = require("../src/shared/Rules/ZoneLook")
 local LaneConfig = require("../src/shared/Config/Lane")
 local WallConfig = require("../src/shared/Config/Walls")
+local ThrowVisuals = require("../src/shared/Config/ThrowVisuals")
 local Ui = require("../src/shared/Config/Ui")
 
 local world = Ui.world
@@ -11,8 +12,11 @@ local limits = world.decor
 local PAPER = 1
 local BAMBOO = 2
 local WOOD = 3
--- The first zone without a look.
 local STONE = 4
+-- The first zone without a look.
+local IRON = 5
+local stoneLook = look.zones.Stone
+local stoneDecor = stoneLook.decor
 local woodDecor = look.zones.Wood.decor
 local bambooDecor = look.zones.Bamboo.decor
 local BAMBOO_GROUP = "bamboo_cluster"
@@ -35,6 +39,10 @@ end
 
 local function woodPlacements(): { Decor.Placement }
 	return place(woodDecor, WOOD)
+end
+
+local function stonePlacements(): { Decor.Placement }
+	return place(stoneDecor, STONE)
 end
 
 local function outerStep(side: number): ZoneLook.WalkPart
@@ -273,7 +281,7 @@ return {
 	end,
 
 	["zones without walkways or without decoration have none"] = function(expect)
-		expect(#place(paperDecor, STONE)).toBe(0)
+		expect(#place(paperDecor, IRON)).toBe(0)
 		expect(#place(nil)).toBe(0)
 		expect(#place({ pieces = {} })).toBe(0)
 	end,
@@ -455,6 +463,109 @@ return {
 		expect(models.sake_barrels.sway).toBe(nil)
 	end,
 
+	["the stone zone: a torii across the lane at its start, pillars on the walkways, room below"] = function(expect)
+		local gate = Decor.gate(LaneConfig, WallConfig, look, stoneLook.gate, models, STONE) :: Decor.Placement
+		expect(gate ~= nil).toBe(true)
+		local spec = models.torii_gate.gate
+		local from = ZoneLook.range(LaneConfig, WallConfig, STONE)
+		expect(gate.model).toBe("torii_gate")
+		-- In the middle of the lane, near the start of the zone.
+		expect(gate.x).toBe(LaneConfig.throwLine.x)
+		expect(LaneConfig.throwLine.z - from - gate.z <= 10).toBe(true)
+		-- Evenly bigger, its shape kept.
+		expect(gate.scale).toBe(models.torii_gate.size)
+		-- Its front towards the throw zone.
+		local x, z = turn(models.torii_gate.front.x, models.torii_gate.front.z, gate.yawDegrees)
+		expect(near(x, 0) and near(z, 1)).toBe(true)
+		-- Both pillars stand on the inner step, clear of the edge.
+		local inner: ZoneLook.WalkPart? = nil
+		for _, part in ZoneLook.walks(LaneConfig, WallConfig, look, STONE) do
+			if part.kind == "inner" and part.side == 1 then
+				inner = part
+			end
+		end
+		local step = inner :: ZoneLook.WalkPart
+		expect(gate.y).toBe(step.topY)
+		local stepFrom = step.area.x - step.area.width / 2 - LaneConfig.throwLine.x
+		local stepTo = step.area.x + step.area.width / 2 - LaneConfig.throwLine.x
+		expect(spec.pillarInnerX * gate.scale >= stepFrom).toBe(true)
+		expect(spec.pillarOuterX * gate.scale <= stepTo).toBe(true)
+		-- Throw, flight and camera pass below it: higher than the walls and the camera.
+		local below = gate.y + spec.clearHeight * gate.scale
+		local camera = LaneConfig.floorTopY
+			+ ThrowVisuals.swordHeight
+			+ ThrowVisuals.cameraAbove
+			+ ThrowVisuals.bounceCameraExtraAbove
+		expect(below > LaneConfig.floorTopY + LaneConfig.wallHeight).toBe(true)
+		expect(below > camera + 4).toBe(true)
+		-- Zones without a gate, broken entries.
+		expect(Decor.gate(LaneConfig, WallConfig, look, nil, models, STONE)).toBe(nil)
+		expect(Decor.gate(LaneConfig, WallConfig, look, { model = "garden_gnome", along = 5 }, models, STONE)).toBe(nil)
+		expect(Decor.gate(LaneConfig, WallConfig, look, { model = "torii_gate", along = -1 }, models, STONE)).toBe(nil)
+		expect(Decor.gate(LaneConfig, WallConfig, look, { model = "torii_gate", along = 0 / 0 }, models, STONE)).toBe(
+			nil
+		)
+		expect(Decor.gate(LaneConfig, WallConfig, look, stoneLook.gate, models, IRON)).toBe(nil)
+	end,
+
+	["the stone zone: lions as a pair behind the gate, bonsai and rocks uneven, at most twelve"] = function(expect)
+		local all = stonePlacements()
+		expect(#all).toBe(#stoneDecor.pieces)
+		expect(#all <= 12).toBe(true)
+		local from, to = ZoneLook.range(LaneConfig, WallConfig, STONE)
+		local gate = Decor.gate(LaneConfig, WallConfig, look, stoneLook.gate, models, STONE) :: Decor.Placement
+		local counts: { [string]: number } = {}
+		local lions: { [number]: Decor.Placement } = {}
+		local bySide: { [number]: { [string]: boolean } } = { [-1] = {}, [1] = {} }
+		for _, placement in all do
+			counts[placement.model] = (counts[placement.model] or 0) + 1
+			expect(placement.z <= LaneConfig.throwLine.z - from and placement.z >= LaneConfig.throwLine.z - to).toBe(
+				true
+			)
+			expect(fromLane(placement) >= look.walk.curbWidth + look.walk.innerWidth).toBe(true)
+			expect(models[placement.model].size).toBe(1.8)
+			-- Nothing moves in the temple garden.
+			local model = models[placement.model] :: any
+			expect(model.sway == nil and model.tip == nil and model.light == nil).toBe(true)
+			if placement.model == "komainu" then
+				lions[placement.side] = placement
+			else
+				bySide[placement.side][`{placement.model}@{math.round(placement.z)}`] = true
+			end
+		end
+		expect(counts.komainu).toBe(2)
+		expect(counts.bonsai >= 2 and counts.bonsai <= 3).toBe(true)
+		expect(counts.mossy_rocks >= 2 and counts.mossy_rocks <= 3).toBe(true)
+		-- The lions: a pair, right behind the gate, looking at the lane.
+		expect(lions[-1].z).toBe(lions[1].z)
+		expect(fromLane(lions[-1])).toBeNear(fromLane(lions[1]))
+		expect(lions[-1].z < gate.z and gate.z - lions[-1].z <= 15).toBe(true)
+		for _, placement in all do
+			if placement.model ~= "komainu" then
+				expect(placement.z < lions[-1].z).toBe(true)
+			end
+		end
+		expect(models.komainu.turnTowardsThrowZoneDegrees).toBe(0)
+		for key in bySide[-1] do
+			expect(bySide[1][key]).toBe(nil)
+		end
+		for _, side in { -1, 1 } do
+			local along = {}
+			for _, placement in all do
+				if placement.side == side then
+					table.insert(along, -placement.z)
+				end
+			end
+			table.sort(along)
+			local gaps = {}
+			for index = 2, #along do
+				local gap = math.round(along[index] - along[index - 1])
+				expect(gaps[gap]).toBe(nil)
+				gaps[gap] = true
+			end
+		end
+	end,
+
 	["a model with its own size limit may differ more than the others"] = function(expect)
 		expect(models[BAMBOO_GROUP].maxScaleChange).toBe(0.2)
 		expect(Decor.scale(limits, 1.2, 0.2)).toBeNear(1.2)
@@ -530,7 +641,7 @@ return {
 	end,
 
 	["every model in the list is known, and movements have sensible values"] = function(expect)
-		for _, decor in { paperDecor, bambooDecor, woodDecor } do
+		for _, decor in { paperDecor, bambooDecor, woodDecor, stoneDecor } do
 			for _, piece in decor.pieces do
 				expect(typeof(models[piece.model])).toBe("table")
 				expect(piece.side == "left" or piece.side == "right").toBe(true)

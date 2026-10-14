@@ -290,6 +290,65 @@ local MODELS = {
 		},
 		neon = {},
 	},
+	-- The stone zone (imported on 2026-10-14). Pivots are also set to the middle of the foot by hand.
+	{
+		inside = "torii_gate",
+		template = "torii_gate",
+		colors = {
+			Red = Color3.fromRGB(227, 66, 52),
+			Black = Color3.fromRGB(24, 24, 24),
+			Plaque = Color3.fromRGB(70, 70, 72),
+		},
+		neon = {},
+	},
+	{
+		inside = "komainu",
+		template = "komainu",
+		colors = {
+			Statue = Color3.fromRGB(196, 196, 192),
+			Mane = Color3.fromRGB(160, 160, 156),
+			Base = Color3.fromRGB(96, 96, 96),
+			Moss = Color3.fromRGB(92, 128, 60),
+			Mouth = Color3.fromRGB(140, 28, 40),
+		},
+		neon = {},
+	},
+	{
+		inside = "bonsai",
+		template = "bonsai",
+		colors = {
+			Trunk = Color3.fromRGB(84, 58, 38),
+			Foliage = Color3.fromRGB(40, 110, 48),
+			FoliageLight = Color3.fromRGB(120, 190, 90),
+			Pot = Color3.fromRGB(40, 80, 170),
+			Moss = Color3.fromRGB(92, 128, 60),
+			Stand = Color3.fromRGB(130, 130, 128),
+		},
+		neon = {},
+	},
+	{
+		inside = "mossy_rocks",
+		template = "mossy_rocks",
+		colors = {
+			Rock = Color3.fromRGB(140, 140, 138),
+			RockDark = Color3.fromRGB(104, 104, 102),
+			Moss = Color3.fromRGB(92, 128, 60),
+			Grass = Color3.fromRGB(140, 200, 90),
+		},
+		neon = {},
+	},
+	{
+		inside = "stone_wall",
+		template = "stone_wall",
+		colors = {
+			Stones = Color3.fromRGB(140, 140, 138),
+			StonesDark = Color3.fromRGB(104, 104, 102),
+			Gaps = Color3.fromRGB(28, 28, 28),
+			Moss = Color3.fromRGB(92, 128, 60),
+			Cap = Color3.fromRGB(200, 200, 196),
+		},
+		neon = {},
+	},
 	-- The egg without a nest (imported on 2026-10-12). It replaces pet_egg at the egg stand and
 	-- in the hatching animation; pet_egg stays in the place but is not used any more.
 	{

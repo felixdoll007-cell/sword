@@ -27,6 +27,10 @@ export type Piece = {
 
 export type ZoneDecor = { pieces: { Piece } }
 
+-- A gate across the lane, as written in the config: which model, and its distance from the
+-- start of the zone in studs.
+export type Gate = { model: string, along: number }
+
 export type Limits = {
 	maxScaleChange: number,
 	maxPiecesPerZone: number,
@@ -58,7 +62,7 @@ export type Tip = {
 
 export type Placement = {
 	model: string,
-	-- -1 = left walkway (smaller X), 1 = right walkway.
+	-- -1 = left walkway (smaller X), 1 = right walkway, 0 = across the lane (a gate).
 	side: number,
 	x: number,
 	-- Height of the ground the piece stands on.
@@ -197,6 +201,43 @@ function Decor.tipProgress(tip: Tip, time: number): number
 	end
 	-- Soft at both ends.
 	return progress * progress * (3 - 2 * progress)
+end
+
+-- The gate across the lane of a zone: in the middle of the lane, standing on the inner step of
+-- the walkways, its front towards the throw zone, at the model's size. nil if the zone has no
+-- gate, no walkways, or the entry is broken.
+function Decor.gate(
+	laneConfig: ZoneLook.LaneConfig,
+	wallConfig: Walls.WallConfig,
+	look: ZoneLook.LookConfig,
+	gate: Gate?,
+	facings: { [string]: ModelFacing },
+	zone: number
+): Placement?
+	if not gate then
+		return nil
+	end
+	local facing = facings[gate.model]
+	local inner: ZoneLook.WalkPart? = nil
+	for _, part in ZoneLook.walks(laneConfig, wallConfig, look, zone) do
+		if part.kind == "inner" then
+			inner = part
+		end
+	end
+	local from, to = ZoneLook.range(laneConfig, wallConfig, zone)
+	if not facing or not inner or not isNumber(gate.along) or gate.along < 0 or gate.along > to - from then
+		return nil
+	end
+	return {
+		model = gate.model,
+		side = 0,
+		x = laneConfig.throwLine.x,
+		y = inner.topY,
+		z = laneConfig.throwLine.z - (from + gate.along),
+		-- The throw zone lies towards positive Z.
+		yawDegrees = wrap(math.deg(heading(0, 1) - heading(facing.front.x, facing.front.z))),
+		scale = Decor.modelSize(facing.size),
+	}
 end
 
 -- How far the front end of a tipping part is turned up from its modelled position at this time,
