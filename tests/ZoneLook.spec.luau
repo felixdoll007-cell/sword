@@ -12,8 +12,9 @@ local BAMBOO = 2
 -- The first zone without a look.
 local WOOD = 3
 local STONE = 4
--- The first zone without a look.
 local IRON = 5
+-- The first zone without a look.
+local JADE = 6
 
 local function left(area: ZoneLook.Area): number
 	return area.x - area.width / 2
@@ -84,7 +85,7 @@ return {
 
 	["paper, bamboo, wood and stone have their own floor, everything behind wall 20 is plain"] = function(expect)
 		local segments = ZoneLook.floorSegments(LaneConfig, WallConfig, look)
-		expect(#segments).toBe(5)
+		expect(#segments).toBe(6)
 		expect(segments[1].material).toBe("Paper")
 		expect(segments[1].to).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 5))
 		expect(segments[2].material).toBe("Bamboo")
@@ -96,12 +97,16 @@ return {
 		expect(segments[4].material).toBe("Stone")
 		expect(segments[4].from).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 15))
 		expect(segments[4].to).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 20))
-		expect(segments[5].material).toBe(nil)
+		expect(segments[5].material).toBe("Iron")
+		expect(segments[5].from).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 20))
+		expect(segments[5].to).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 25))
+		expect(segments[6].material).toBe(nil)
 		expect(ZoneLook.hasFloor(look, "Paper")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Bamboo")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Wood")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Stone")).toBe(true)
-		expect(ZoneLook.hasFloor(look, "Iron")).toBe(false)
+		expect(ZoneLook.hasFloor(look, "Iron")).toBe(true)
+		expect(ZoneLook.hasFloor(look, "Jade")).toBe(false)
 		expect(ZoneLook.hasFloor(look, "Cheese")).toBe(false)
 		expect(ZoneLook.hasFloor(look, nil)).toBe(false)
 	end,
@@ -153,8 +158,83 @@ return {
 		expect(count.inner).toBe(2)
 		expect(count.outer).toBe(2)
 		-- Zones without a look have no walkways and no fence.
-		expect(#ZoneLook.walks(LaneConfig, WallConfig, look, IRON)).toBe(0)
-		expect(#ZoneLook.fences(LaneConfig, WallConfig, look, IRON)).toBe(0)
+		expect(#ZoneLook.walks(LaneConfig, WallConfig, look, JADE)).toBe(0)
+		expect(#ZoneLook.fences(LaneConfig, WallConfig, look, JADE)).toBe(0)
+	end,
+
+	["the iron zone joins the stone zone with a clean edge: nothing on top of anything"] = function(expect)
+		local _, stoneEnd = ZoneLook.range(LaneConfig, WallConfig, STONE)
+		local ironStart, ironEnd = ZoneLook.range(LaneConfig, WallConfig, IRON)
+		expect(ironStart).toBe(stoneEnd)
+		expect(ironEnd).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 25))
+		local stone = ZoneLook.walks(LaneConfig, WallConfig, look, STONE)
+		local iron = ZoneLook.walks(LaneConfig, WallConfig, look, IRON)
+		expect(#iron).toBe(#stone)
+		for index, part in iron do
+			expect(part.kind).toBe(stone[index].kind)
+			expect(part.side).toBe(stone[index].side)
+			expect(part.topY).toBe(stone[index].topY)
+			expect(part.area.x).toBe(stone[index].area.x)
+			expect(part.area.width).toBe(stone[index].area.width)
+			expect(back(part.area)).toBeNear(front(stone[index].area))
+			expect(front(part.area)).toBeNear(LaneConfig.throwLine.z - ironEnd)
+			for _, zone in { PAPER, BAMBOO, WOOD, STONE } do
+				for _, other in ZoneLook.walks(LaneConfig, WallConfig, look, zone) do
+					expect(overlap(part.area, other.area)).toBe(false)
+				end
+			end
+		end
+		local fences = ZoneLook.fences(LaneConfig, WallConfig, look, IRON)
+		expect(#fences).toBe(6)
+		for _, fence in fences do
+			for _, other in ZoneLook.fences(LaneConfig, WallConfig, look, STONE) do
+				expect(overlap(fence, other)).toBe(false)
+			end
+		end
+	end,
+
+	["the iron zone: dark iron floor, brick red walkways with a glowing orange edge"] = function(expect)
+		local iron = look.zones.Iron
+		for _, tone in { iron.floor.darkColor, iron.floor.lightColor } do
+			-- Dark grey.
+			expect(math.abs(tone[1] - tone[2]) <= 8 and math.abs(tone[2] - tone[3]) <= 8 and tone[1] <= 100).toBe(true)
+		end
+		for _, tone in { iron.walk.darkColor, iron.walk.lightColor } do
+			-- Rust red: red clearly ahead.
+			expect(tone[1] > tone[2] + 50 and tone[2] >= tone[3]).toBe(true)
+		end
+		local curb = iron.walk.curbColor
+		expect(curb[1] > curb[2] and curb[2] > curb[3] and curb[1] >= 180).toBe(true)
+		expect(iron.walk.curbGlow).toBe(true)
+		-- No other edge glows.
+		for name, zone in look.zones :: { [string]: any } do
+			if name ~= "Iron" and zone.walk then
+				expect(zone.walk.curbGlow).toBe(nil)
+			end
+		end
+	end,
+
+	["iron walls are a model as big as the wall, with the scratch on its bronze band"] = function(expect)
+		local wall = look.zones.Iron.wall
+		expect(ZoneLook.wallModel(look, "Iron")).toBe(wall.model)
+		expect(wall.model.template).toBe("iron_wall")
+		expect(ZoneLook.wallScratch(look, "Iron")).toBe(true)
+		-- Dark grey pieces, a few in bronze.
+		local grey = ZoneLook.wallColor(LaneConfig, look, "Iron")
+		expect(math.abs(grey[1] - grey[2]) <= 8 and grey[1] <= 100).toBe(true)
+		expect(ZoneLook.pieceAccent(look, "Iron")).toBe(wall.pieceAccent)
+		expect(ZoneLook.pieceAccent(look, "Stone")).toBe(nil)
+		local place =
+			ZoneLook.wallModelPlace(wall.model, LaneConfig.laneWidth, LaneConfig.wallHeight, LaneConfig.wallThickness)
+		expect(place ~= nil).toBe(true)
+		if place then
+			-- Barely bigger than modelled.
+			expect(place.scale >= 1 and place.scale <= 1.05).toBe(true)
+			-- The front of the whole model lies level with the wall's front.
+			expect(place.towardsThrower + wall.model.coverDepth * place.scale / 2).toBeNear(
+				LaneConfig.wallThickness / 2
+			)
+		end
 	end,
 
 	["the stone zone joins the wood zone with a clean edge: nothing on top of anything"] = function(expect)
@@ -479,8 +559,15 @@ return {
 		expect(iron.color[1] - iron.color[3] <= 40 and iron.color[1] <= 140).toBe(true)
 		local _, stoneEnd = ZoneLook.range(LaneConfig, WallConfig, STONE)
 		expect(iron.z).toBe(LaneConfig.throwLine.z - stoneEnd - look.sign.behindZoneEnd)
-		-- The iron zone has no look yet, so it announces nothing; neither does the last zone.
-		expect(ZoneLook.sign(LaneConfig, WallConfig, look, IRON)).toBe(nil)
+		-- Behind the iron zone floats the name of the jade zone, in strong jade green.
+		local jade = ZoneLook.sign(LaneConfig, WallConfig, look, IRON) :: ZoneLook.Sign
+		expect(jade.text).toBe("JADE")
+		expect(jade.color).toBe(look.zones.Jade.nameColor)
+		expect(jade.color[2] > jade.color[1] + 80 and jade.color[2] > jade.color[3]).toBe(true)
+		local _, ironEnd = ZoneLook.range(LaneConfig, WallConfig, IRON)
+		expect(jade.z).toBe(LaneConfig.throwLine.z - ironEnd - look.sign.behindZoneEnd)
+		-- The jade zone is the last one, so nothing floats behind it.
+		expect(ZoneLook.sign(LaneConfig, WallConfig, look, JADE)).toBe(nil)
 		expect(ZoneLook.sign(LaneConfig, WallConfig, look, #WallConfig.materials)).toBe(nil)
 	end,
 
@@ -492,7 +579,7 @@ return {
 			if material ~= "Paper" then
 				expect(ZoneLook.wallFrameColor(look, material)).toBe(nil)
 			end
-			if material ~= "Paper" and material ~= "Bamboo" and material ~= "Wood" and material ~= "Stone" then
+			if material == "Jade" then
 				expect(ZoneLook.wallColor(LaneConfig, look, material)).toBe(LaneConfig.materialColors[material])
 				expect(#ZoneLook.wallPattern(look, material)).toBe(0)
 			end
@@ -549,7 +636,7 @@ return {
 			if material ~= "Bamboo" then
 				expect(ZoneLook.wallScratch(look, material)).toBe(true)
 			end
-			if material ~= "Bamboo" and material ~= "Wood" and material ~= "Stone" then
+			if material == "Paper" or material == "Jade" then
 				expect(ZoneLook.wallModel(look, material)).toBe(nil)
 			end
 		end
@@ -678,7 +765,10 @@ return {
 			end
 			for _, group in { zoneStyle.floor, zoneStyle.walk } do
 				for _, value in group or {} do
-					expect(isColor(value)).toBe(true)
+					-- Switches like curbGlow are not colors.
+					if typeof(value) ~= "boolean" then
+						expect(isColor(value)).toBe(true)
+					end
 				end
 			end
 			local wall = zoneStyle.wall

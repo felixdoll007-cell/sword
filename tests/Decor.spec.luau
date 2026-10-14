@@ -13,8 +13,10 @@ local PAPER = 1
 local BAMBOO = 2
 local WOOD = 3
 local STONE = 4
--- The first zone without a look.
 local IRON = 5
+-- The first zone without a look.
+local JADE = 6
+local ironDecor = look.zones.Iron.decor
 local stoneLook = look.zones.Stone
 local stoneDecor = stoneLook.decor
 local woodDecor = look.zones.Wood.decor
@@ -281,7 +283,7 @@ return {
 	end,
 
 	["zones without walkways or without decoration have none"] = function(expect)
-		expect(#place(paperDecor, IRON)).toBe(0)
+		expect(#place(paperDecor, JADE)).toBe(0)
 		expect(#place(nil)).toBe(0)
 		expect(#place({ pieces = {} })).toBe(0)
 	end,
@@ -508,7 +510,7 @@ return {
 		expect(Decor.gate(LaneConfig, WallConfig, look, { model = "torii_gate", along = 0 / 0 }, models, STONE)).toBe(
 			nil
 		)
-		expect(Decor.gate(LaneConfig, WallConfig, look, stoneLook.gate, models, IRON)).toBe(nil)
+		expect(Decor.gate(LaneConfig, WallConfig, look, stoneLook.gate, models, JADE)).toBe(nil)
 	end,
 
 	["the stone zone: lions as a pair behind the gate, bonsai and rocks uneven, at most twelve"] = function(expect)
@@ -567,6 +569,118 @@ return {
 				gaps[gap] = true
 			end
 		end
+	end,
+
+	["the iron zone: forges as a gate, anvils, katana stands and barrels, uneven, at most twelve"] = function(expect)
+		local all = place(ironDecor, IRON)
+		expect(#all).toBe(#ironDecor.pieces)
+		expect(#all <= 12).toBe(true)
+		local from, to = ZoneLook.range(LaneConfig, WallConfig, IRON)
+		local counts: { [string]: number } = {}
+		local forges: { [number]: Decor.Placement } = {}
+		local bySide: { [number]: { [string]: boolean } } = { [-1] = {}, [1] = {} }
+		for _, placement in all do
+			counts[placement.model] = (counts[placement.model] or 0) + 1
+			expect(placement.z <= LaneConfig.throwLine.z - from and placement.z >= LaneConfig.throwLine.z - to).toBe(
+				true
+			)
+			expect(fromLane(placement) >= look.walk.curbWidth + look.walk.innerWidth).toBe(true)
+			expect(models[placement.model].size).toBe(1.8)
+			if placement.model == "forge" then
+				forges[placement.side] = placement
+			else
+				bySide[placement.side][`{placement.model}@{math.round(placement.z)}`] = true
+			end
+		end
+		expect(counts.forge).toBe(2)
+		expect(counts.anvil_stump >= 2 and counts.anvil_stump <= 3).toBe(true)
+		expect(counts.katana_stand >= 1 and counts.katana_stand <= 2).toBe(true)
+		expect(counts.quench_barrel >= 1 and counts.quench_barrel <= 2).toBe(true)
+		-- The forges: a gate at the start, their fire looking straight at the lane.
+		expect(forges[-1].z).toBe(forges[1].z)
+		expect(LaneConfig.throwLine.z - from - forges[-1].z <= 10).toBe(true)
+		expect(models.forge.turnTowardsThrowZoneDegrees).toBe(0)
+		for key in bySide[-1] do
+			expect(bySide[1][key]).toBe(nil)
+		end
+		for _, side in { -1, 1 } do
+			local along = {}
+			for _, placement in all do
+				if placement.side == side then
+					table.insert(along, -placement.z)
+				end
+			end
+			table.sort(along)
+			local gaps = {}
+			for index = 2, #along do
+				local gap = math.round(along[index] - along[index - 1])
+				expect(gaps[gap]).toBe(nil)
+				gaps[gap] = true
+			end
+		end
+	end,
+
+	["no zone has more than four lights"] = function(expect)
+		expect(limits.maxLightsPerZone).toBe(4)
+		for _, zone in look.zones :: { [string]: any } do
+			local lights = 0
+			if zone.decor then
+				for _, piece in zone.decor.pieces do
+					if models[piece.model].light then
+						lights += 1
+					end
+				end
+			end
+			expect(lights <= limits.maxLightsPerZone).toBe(true)
+		end
+	end,
+
+	["forge and anvil glow slowly, the steam rises and fades without a jump"] = function(expect)
+		local forge = models.forge
+		-- The forge's light swells in step with its coals.
+		expect(forge.light.pulseSeconds).toBe(forge.glow.seconds)
+		expect(forge.light.pulseStrength > 0 and forge.light.pulseStrength <= 0.5).toBe(true)
+		expect(forge.glow.part).toBe(forge.light.part)
+		expect(models.anvil_stump.light).toBe(nil)
+		expect(models.anvil_stump.glow.part).toBe("Glow")
+		expect(models.quench_barrel.rise.part).toBe("Steam")
+		-- Pulse: soft, from 0 to 1 and back.
+		expect(Decor.pulse(4, 0)).toBeNear(0)
+		expect(Decor.pulse(4, 2)).toBeNear(1)
+		expect(Decor.pulse(4, 4)).toBeNear(0)
+		expect(Decor.pulse(4, 1)).toBeNear(0.5)
+		expect(Decor.pulse(0, 1)).toBe(0)
+		expect(Decor.pulse(4, 0 / 0)).toBe(0)
+		-- Rise: up from the bottom, seen most early on, gone at the top, then again.
+		local up, shown = Decor.rise(4, 0)
+		expect(up).toBe(0)
+		expect(shown).toBe(0)
+		up, shown = Decor.rise(4, 1)
+		expect(up).toBeNear(0.25)
+		expect(shown > 0.5).toBe(true)
+		up, shown = Decor.rise(4, 3.99)
+		expect(up > 0.99 and shown < 0.01).toBe(true)
+		up = Decor.rise(4, 5)
+		expect(up).toBeNear(0.25)
+		up, shown = Decor.rise(-1, 2)
+		expect(up == 0 and shown == 0).toBe(true)
+	end,
+
+	["every fourth piece of an iron wall is bronze"] = function(expect)
+		local grey, bronze = { 72, 74, 78 }, { 176, 120, 60 }
+		local colors = Decor.pieceColors(grey, { color = bronze, every = 4 }, 8)
+		expect(#colors).toBe(8)
+		expect(colors[4]).toBe(bronze)
+		expect(colors[8]).toBe(bronze)
+		expect(colors[1]).toBe(grey)
+		expect(colors[5]).toBe(grey)
+		local plain = Decor.pieceColors(grey, nil, 3)
+		expect(#plain).toBe(3)
+		expect(plain[3]).toBe(grey)
+		expect(#Decor.pieceColors(grey, { color = bronze, every = 0 }, 4)).toBe(4)
+		expect(Decor.pieceColors(grey, { color = bronze, every = 0 }, 4)[4]).toBe(grey)
+		expect(#Decor.pieceColors(grey, nil, -2)).toBe(0)
+		expect(#Decor.pieceColors(grey, nil, 0 / 0)).toBe(0)
 	end,
 
 	["a model with its own size limit may differ more than the others"] = function(expect)
@@ -644,7 +758,7 @@ return {
 	end,
 
 	["every model in the list is known, and movements have sensible values"] = function(expect)
-		for _, decor in { paperDecor, bambooDecor, woodDecor, stoneDecor } do
+		for _, decor in { paperDecor, bambooDecor, woodDecor, stoneDecor, ironDecor } do
 			for _, piece in decor.pieces do
 				expect(typeof(models[piece.model])).toBe("table")
 				expect(piece.side == "left" or piece.side == "right").toBe(true)

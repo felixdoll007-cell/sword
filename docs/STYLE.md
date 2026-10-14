@@ -149,7 +149,8 @@ links der Stand, rechts der Status.
   Materials: Papier mit Origami und Laternen, Bambus mit Bambusgruppen, Steinlaternen,
   Trommel und Wasserspiel, Holz als Dojo-Hof mit Waffenständern, Trainingspuppen, Sake-Fässern
   und Täfelchen-Gestellen, Stein als ruhiger Tempelgarten mit Torii, Wächterlöwen, Bonsai und
-  Moosfelsen. Eisen und Jade folgen im selben Thema.
+  Moosfelsen, Eisen als Waffenschmiede mit Essen, Ambossen, Katana-Ständern und Wasserfässern.
+  Jade folgt im selben Thema.
 - Der Name der nächsten Zone schwebt in der Ferne über der Bahn.
 - Wurfzone mit großem Schriftzug auf dem Boden.
 

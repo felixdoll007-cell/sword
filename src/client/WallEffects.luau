@@ -10,6 +10,7 @@ local LaneConfig = require(Shared.Config.Lane)
 local ThrowVisuals = require(Shared.Config.ThrowVisuals)
 local Ui = require(Shared.Config.Ui)
 local WallConfig = require(Shared.Config.Walls)
+local Decor = require(Shared.Rules.Decor)
 local LaneLayout = require(Shared.Rules.LaneLayout)
 local Walls = require(Shared.Rules.Walls)
 local ZoneLook = require(Shared.Rules.ZoneLook)
@@ -37,13 +38,13 @@ local function wallZ(index: number): number
 	return LaneConfig.throwLine.z - LaneLayout.wallDistance(LaneConfig, WallConfig, index)
 end
 
--- Pieces flying off a wall. center/width/height describe the wall. All walls share one cap
--- on how many pieces exist at the same time.
+-- Pieces flying off a wall. center/width/height describe the wall. colors: one color for every
+-- piece, used in turn. All walls share one cap on how many pieces exist at the same time.
 function WallEffects.spawnPiecesAt(
 	center: Vector3,
 	width: number,
 	height: number,
-	rgb: { number },
+	colors: { { number } },
 	wantedCount: number,
 	pieceSize: number
 )
@@ -54,7 +55,8 @@ function WallEffects.spawnPiecesAt(
 	end
 
 	local folder = getFolder()
-	for _ = 1, count do
+	for index = 1, count do
+		local rgb = colors[(index - 1) % #colors + 1]
 		local piece = Instance.new("Part")
 		piece.Name = "Piece"
 		piece.Size = Vector3.one * pieceSize
@@ -92,7 +94,11 @@ function WallEffects.spawnPieces(index: number)
 		center,
 		LaneConfig.laneWidth,
 		LaneConfig.wallHeight,
-		ZoneLook.wallColor(LaneConfig, Ui.world.lane, wall.material),
+		Decor.pieceColors(
+			ZoneLook.wallColor(LaneConfig, Ui.world.lane, wall.material),
+			ZoneLook.pieceAccent(Ui.world.lane, wall.material),
+			ThrowVisuals.piecesPerWall
+		),
 		ThrowVisuals.piecesPerWall,
 		ThrowVisuals.pieceSize
 	)

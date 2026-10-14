@@ -9,6 +9,8 @@
 --   * the leaves of a bamboo group rock very slightly
 --   * the cane of a water feature tips forward every few seconds and comes back
 --   * the cloth of a training dummy waves slightly, the plaques of a plaque rack swing
+--   * a forge has a warm light that swells and fades slowly, its coals with it; the glowing iron
+--     on an anvil does the same without light; the steam of a quench barrel rises and fades
 --   * a tree, a drum, a weapon rack and a stack of barrels stand still, and so does everything
 --     in the temple garden (gate, lions, bonsai, rocks)
 -- Which model stands where is worked out in Rules/Decor; everything adjustable is in Config/Ui
@@ -32,7 +34,7 @@ local TEMPLATES_WAIT_SECONDS = 10
 
 -- A group of parts that moves as one, each frame, relative to where it was built.
 type Mover = {
-	kind: "float" | "spin" | "sway" | "tip",
+	kind: "float" | "spin" | "sway" | "tip" | "rise",
 	-- Where this group's parts start in the shared lists below.
 	first: number,
 	last: number,
@@ -49,7 +51,16 @@ type Flicker = {
 	strength: number,
 	speed: number,
 	seed: number,
+	-- With these it swells and fades slowly instead of flickering.
+	pulseSeconds: number?,
+	pulseStrength: number?,
 }
+
+-- A part whose color swells and fades.
+type Glow = { part: BasePart, dim: Color3, bright: Color3, seconds: number, phase: number }
+
+-- A part that rises and fades (steam); index is its place in the shared lists below.
+type Rise = { part: BasePart, index: number, transparency: number }
 
 local DecorView = {}
 
@@ -59,6 +70,10 @@ local builtFrames: { CFrame } = {}
 local currentFrames: { CFrame } = {}
 local movers: { Mover } = {}
 local flickers: { Flicker } = {}
+local glows: { Glow } = {}
+local rises: { [Mover]: Rise } = {}
+-- Lights built in the zone being built.
+local lightsInZone = 0
 local warnedAbout: { [string]: boolean } = {}
 
 local function color(rgb: { number }): Color3
@@ -84,9 +99,11 @@ end
 -- The lantern's light.
 local function addLight(model: Model, settings: any, seed: number)
 	local part = findPart(model, settings.part)
-	if not part then
+	-- Lights cost a lot on phones.
+	if not part or lightsInZone >= Ui.world.decor.maxLightsPerZone then
 		return
 	end
+	lightsInZone += 1
 	local light = Instance.new("PointLight")
 	light.Name = "LanternLight"
 	light.Color = color(settings.color)
@@ -100,7 +117,37 @@ local function addLight(model: Model, settings: any, seed: number)
 		strength = settings.flickerStrength,
 		speed = settings.flickerSpeed,
 		seed = seed,
+		pulseSeconds = settings.pulseSeconds,
+		pulseStrength = settings.pulseStrength,
 	})
+end
+
+-- The named part's color swells and fades.
+local function addGlow(model: Model, settings: any, seed: number)
+	local part = findPart(model, settings.part)
+	if not part then
+		return
+	end
+	table.insert(glows, {
+		part = part,
+		dim = color(settings.dimColor),
+		bright = color(settings.brightColor),
+		seconds = settings.seconds,
+		phase = seed,
+	})
+end
+
+-- The named part rises and fades, again and again.
+local function addRise(model: Model, settings: any, seed: number)
+	local part = findPart(model, settings.part)
+	if not part then
+		return
+	end
+	local first, last = track({ part })
+	local mover: Mover =
+		{ kind = "rise", first = first, last = last, phase = seed, axis = CFrame.identity, settings = settings }
+	table.insert(movers, mover)
+	rises[mover] = { part = part, index = first, transparency = settings.transparency }
 end
 
 -- Everything of the model floats, except the parts named as standing still.
@@ -213,6 +260,12 @@ local function buildPiece(placement: Decor.Placement, templates: Instance, folde
 	if settings.tip then
 		addTilt(model, "tip", settings.tip, seed)
 	end
+	if settings.glow then
+		addGlow(model, settings.glow, seed)
+	end
+	if settings.rise then
+		addRise(model, settings.rise, seed)
+	end
 end
 
 local function update()
@@ -225,6 +278,11 @@ local function update()
 			for index = mover.first, mover.last do
 				currentFrames[index] = builtFrames[index] + offset
 			end
+		elseif mover.kind == "rise" then
+			local rise = rises[mover]
+			local up, shown = Decor.rise(settings.seconds, time + mover.phase * settings.seconds)
+			currentFrames[rise.index] = builtFrames[rise.index] + Vector3.new(0, up * settings.heightStuds, 0)
+			rise.part.Transparency = 1 - (1 - rise.transparency) * shown
 		elseif mover.kind == "sway" or mover.kind == "tip" then
 			local degrees: number
 			if mover.kind == "sway" then
@@ -249,9 +307,19 @@ local function update()
 		Workspace:BulkMoveTo(movingParts, currentFrames, Enum.BulkMoveMode.FireCFrameChanged)
 	end
 	for _, flicker in flickers do
-		-- Smooth noise between -1 and 1, different for every lantern.
-		local noise = math.clamp(math.noise(time * flicker.speed, flicker.seed * 10) * 2, -1, 1)
-		flicker.light.Brightness = flicker.brightness * (1 + flicker.strength * noise)
+		local pulseSeconds = flicker.pulseSeconds
+		if pulseSeconds then
+			-- Swells and fades in step with the glow of the same piece.
+			local swell = Decor.pulse(pulseSeconds, time + flicker.seed * pulseSeconds) * 2 - 1
+			flicker.light.Brightness = flicker.brightness * (1 + (flicker.pulseStrength or 0) * swell)
+		else
+			-- Smooth noise between -1 and 1, different for every lantern.
+			local noise = math.clamp(math.noise(time * flicker.speed, flicker.seed * 10) * 2, -1, 1)
+			flicker.light.Brightness = flicker.brightness * (1 + flicker.strength * noise)
+		end
+	end
+	for _, glow in glows do
+		glow.part.Color = glow.dim:Lerp(glow.bright, Decor.pulse(glow.seconds, time + glow.phase * glow.seconds))
 	end
 end
 
@@ -270,6 +338,7 @@ function DecorView.start()
 	for zone, material in WallConfig.materials do
 		local zoneStyle = (world.lane.zones :: { [string]: any })[material]
 		local decor = zoneStyle and zoneStyle.decor
+		lightsInZone = 0
 		local placements =
 			Decor.placements(LaneConfig, WallConfig, world.lane, decor, world.decor.models, world.decor, zone)
 		local gate =
@@ -285,7 +354,7 @@ function DecorView.start()
 	end
 	folder.Parent = Workspace
 
-	if #movers > 0 or #flickers > 0 then
+	if #movers > 0 or #flickers > 0 or #glows > 0 then
 		RunService.Heartbeat:Connect(update)
 	end
 end

@@ -45,6 +45,8 @@ export type WallStyle = {
 	band: Band?,
 	scratch: boolean?,
 	model: WallModel?,
+	-- Every so many pieces of a broken wall have this color instead.
+	pieceAccent: { color: { number }, every: number }?,
 }
 
 -- A rectangle on the face of a wall, in shares of the face: x and y of its top left corner
@@ -59,7 +61,7 @@ export type ZoneStyle = {
 	-- The name floats this many studs higher than the other names (for a tall gate below it).
 	nameRaise: number?,
 	floor: Tones?,
-	walk: { darkColor: { number }, lightColor: { number }, curbColor: { number } }?,
+	walk: { darkColor: { number }, lightColor: { number }, curbColor: { number }, curbGlow: boolean? }?,
 	wall: WallStyle?,
 	-- Decoration on the walkways, see Rules/Decor.
 	decor: any?,
@@ -271,6 +273,12 @@ end
 function ZoneLook.wallColor(laneConfig: LaneConfig, look: LookConfig, material: string): { number }
 	local zoneStyle = style(look, material)
 	return if zoneStyle and zoneStyle.wall then zoneStyle.wall.color else laneConfig.materialColors[material]
+end
+
+-- Every so many pieces of a broken wall of this material have this color instead, or nil.
+function ZoneLook.pieceAccent(look: LookConfig, material: string): { color: { number }, every: number }?
+	local zoneStyle = style(look, material)
+	return if zoneStyle and zoneStyle.wall then zoneStyle.wall.pieceAccent else nil
 end
 
 -- Color of the thin frame on a wall, or nil if the walls of this material have none.

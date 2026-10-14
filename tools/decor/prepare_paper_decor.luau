@@ -349,6 +349,71 @@ local MODELS = {
 		},
 		neon = {},
 	},
+	-- The iron zone (imported on 2026-10-14). Pivots are also set to the middle of the foot by
+	-- hand, and by hand: AnvilTop and Plates SmoothPlastic with Reflectance 0.2 and 0.15, Water
+	-- SmoothPlastic with Reflectance 0.25, Steam 40 % see-through without shadow.
+	{
+		inside = "anvil_stump",
+		template = "anvil_stump",
+		colors = {
+			Anvil = Color3.fromRGB(64, 66, 70),
+			AnvilTop = Color3.fromRGB(176, 180, 186),
+			Stump = Color3.fromRGB(120, 82, 52),
+			Rings = Color3.fromRGB(222, 184, 130),
+			Hammer = Color3.fromRGB(84, 58, 38),
+			Glow = Color3.fromRGB(255, 130, 40),
+		},
+		neon = { Glow = true },
+	},
+	{
+		inside = "forge",
+		template = "forge",
+		colors = {
+			Bricks = Color3.fromRGB(150, 70, 50),
+			Mortar = Color3.fromRGB(84, 58, 38),
+			Iron = Color3.fromRGB(64, 66, 70),
+			Glow = Color3.fromRGB(255, 170, 60),
+			Bellows = Color3.fromRGB(120, 82, 52),
+			Wood = Color3.fromRGB(84, 58, 38),
+		},
+		neon = { Glow = true },
+	},
+	{
+		inside = "katana_stand",
+		template = "katana_stand",
+		colors = {
+			Stand = Color3.fromRGB(24, 24, 24),
+			Gold = Color3.fromRGB(212, 170, 60),
+			SheathRed = Color3.fromRGB(140, 28, 40),
+			SheathBlack = Color3.fromRGB(24, 24, 24),
+			SheathBlue = Color3.fromRGB(30, 50, 120),
+			Grips = Color3.fromRGB(245, 245, 240),
+		},
+		neon = {},
+	},
+	{
+		inside = "quench_barrel",
+		template = "quench_barrel",
+		colors = {
+			Barrel = Color3.fromRGB(84, 58, 38),
+			Iron = Color3.fromRGB(64, 66, 70),
+			Water = Color3.fromRGB(30, 60, 120),
+			Steam = Color3.fromRGB(255, 255, 255),
+			Bars = Color3.fromRGB(130, 130, 128),
+		},
+		neon = {},
+	},
+	{
+		inside = "iron_wall",
+		template = "iron_wall",
+		colors = {
+			Plates = Color3.fromRGB(82, 86, 92),
+			Frame = Color3.fromRGB(28, 28, 30),
+			Rivets = Color3.fromRGB(28, 28, 30),
+			Bronze = Color3.fromRGB(176, 120, 60),
+		},
+		neon = {},
+	},
 	-- The egg without a nest (imported on 2026-10-12). It replaces pet_egg at the egg stand and
 	-- in the hatching animation; pet_egg stays in the place but is not used any more.
 	{

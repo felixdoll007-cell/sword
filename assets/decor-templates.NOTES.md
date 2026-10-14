@@ -91,6 +91,27 @@ und dunkleres Grau, Moos moosgrün, Gras hellgrün. Steinmauer: Steine mittleres
 Grau, Fugen fast schwarz, Moos moosgrün, Abdeckung hellgrau. Der Drehpunkt jeder Vorlage ist die
 Mitte ihres Fußes.
 
+## Vorlagen der Eisen-Zone (importiert am 14.10.2026)
+
+| Vorlage | Datei | Dreiecke | Teile (Mesh-Namen) | Vorderseite | Bewegung |
+|---|---|---|---|---|---|
+| `forge` | `assets/forge.glb` | 1167 | Bricks, Mortar, Iron, Glow, Bellows, Wood | -Z (Feuer) | Licht in `Glow`, pulsiert langsam; `Glow` wird heller und dunkler |
+| `anvil_stump` | `assets/anvil-stump.glb` | 558 | Anvil, AnvilTop, Stump, Rings, Hammer, Glow | -Z | `Glow` wird heller und dunkler, ohne Licht |
+| `katana_stand` | `assets/katana-stand.glb` | 964 | Stand, Gold, SheathRed, SheathBlack, SheathBlue, Grips | -Z | keine |
+| `quench_barrel` | `assets/quench-barrel.glb` | 722 | Barrel, Iron, Water, Steam, Bars | -Z | `Steam` steigt auf und verblasst |
+| `iron_wall` | `assets/iron-wall.glb` | 1464 | Plates, Frame, Rivets, Bronze | beide Seiten gleich | Wand-Modell, 30 x 16 x 2 Studs; im Spiel 1,03-mal, weil der Rahmen außen gerundet ist |
+
+Farben: Amboss dunkelgrau, Oberseite hellgrau und leicht spiegelnd (SmoothPlastic, Reflectance
+0,2), Stumpf braun, Ringe helles Holz, Glühstück orange (Neon). Der Hammer ist ein einziges
+Mesh, darum ganz dunkelbraun (Stiel und Kopf nicht getrennt). Esse: Ziegel rotbraun, Mörtel
+dunkelbraun, Eisen dunkelgrau, Glut orange-gelb (Neon), Blasebalg braun; das Mesh `Wood`
+(nicht in der Vorgabe, Holzteil am Blasebalg) ist dunkelbraun. Katana-Ständer schwarz, Gold
+gold, Scheiden dunkelrot, schwarz und dunkelblau, Griffe weiß. Wasserfass dunkelbraun, Eisen
+dunkelgrau, Wasser dunkelblau und leicht glänzend (SmoothPlastic, Reflectance 0,25), Dampf weiß
+und 40 % durchsichtig, Stangen grau. Eisenwand: Platten dunkelgrau und leicht spiegelnd
+(SmoothPlastic, Reflectance 0,15), Rahmen und Nieten fast schwarz, Band bronze. Der Drehpunkt
+jeder Vorlage ist die Mitte ihres Fußes.
+
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 
 Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.

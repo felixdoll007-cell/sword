@@ -170,7 +170,7 @@ local function breakWall(wall: WallState)
 		wall.part.Position,
 		wall.part.Size.X,
 		wall.part.Size.Y,
-		wall.pieceColor,
+		{ wall.pieceColor },
 		TrainingConfig.piecesPerWall,
 		TrainingConfig.pieceSize
 	)

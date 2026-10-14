@@ -216,7 +216,7 @@ Name der nächsten Zone ("BAMBOO") über der Bahn. Jede weitere Zone braucht nur
 mit Farben, Namen, Wand (Farbe, Muster oder Modell, Kratzer an/aus) und Deko-Liste in
 `Config/Ui` (world.lane.zones). Eine Zone
 endet an ihrer letzten Wand; das Stück bis zur ersten Wand der nächsten Zone gehört zur
-nächsten Zone. Hinter Wand 20 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
+nächsten Zone. Hinter Wand 25 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
 
 Die Bambus-Zone (Wand 6 bis 10) ist die zweite fertige Zone: Boden in zwei Tönen hellem,
 frischem Grün, Gehwege in zwei Tönen warmem Steingrau mit dunkel bambusgrüner Kante, und
@@ -255,6 +255,18 @@ frei darunter durchgehen. Direkt dahinter links und rechts ein Wächterlöwe als
 Bonsai und drei Moosfelsen auf der äußeren Stufe, alle 1,8-mal so groß wie modelliert. Hier
 bewegt sich nichts, die Ruhe ist gewollt. Hinter ihr schwebt "IRON" in dunklem Eisengrau mit
 etwas Orange.
+
+Die Eisen-Zone (Wand 21 bis 25) ist die fünfte fertige Zone: eine Waffenschmiede, warm und
+glühend. Boden in zwei Tönen dunklem Eisengrau, Gehwege aus warmen rostroten Ziegeln mit einer
+Kante wie glühende Kohle (orange, leuchtet). Die Wände sind Eisenwände als Modell (Platten,
+Rahmen, Nieten und ein Bronzeband), so groß modelliert wie die Wand; der Kratzer liegt auf dem
+Bronzeband. Bruchstücke dunkelgrau, jedes vierte in Bronze. Am Anfang der Zone links und
+rechts eine Schmiede-Esse als Tor, das Feuer zur Bahn, dann drei Ambosse, zwei
+Katana-Ständer und zwei Wasserfässer, alle 1,8-mal so groß wie modelliert. Die Essen haben ein
+warmes oranges Licht ohne Schatten, das langsam an- und abschwillt, die Kohlen mit ihm; das
+glühende Eisen auf den Ambossen pulsiert ohne eigenes Licht; der Dampf der Wasserfässer steigt
+langsam auf und verblasst. Eine Zone hat höchstens vier Lichter. Hinter ihr schwebt "JADE" in
+kräftigem Jadegrün.
 
 Die Bahn ist die Hauptsache, der Rand ist Kulisse. Links und rechts der Papier-Zone liegen
 breite Gehwege in zwei Stufen (innen etwa 1 Stud, außen etwa 2,5 Studs hoch) in ruhigem

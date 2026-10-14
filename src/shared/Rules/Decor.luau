@@ -248,4 +248,40 @@ function Decor.tipDegrees(tip: Tip, time: number): number
 	return rest - degrees * Decor.tipProgress(tip, time)
 end
 
+-- A slow swelling and fading: 0 at the start, 1 halfway through, 0 again after seconds. Soft
+-- all the way. 0 for broken values.
+function Decor.pulse(seconds: number, time: number): number
+	if not isNumber(seconds) or seconds <= 0 or not isNumber(time) then
+		return 0
+	end
+	return 0.5 - 0.5 * math.cos(time / seconds * 2 * math.pi)
+end
+
+-- Something rising and fading, again and again (steam): how far up it is (0 = bottom, 1 = top)
+-- and how much of it can be seen (0 = nothing, 1 = fully). It shows up quickly at the bottom and
+-- fades out on the way up, so starting again from below cannot be seen.
+local RISE_SHOW_SHARE = 0.15
+function Decor.rise(seconds: number, time: number): (number, number)
+	if not isNumber(seconds) or seconds <= 0 or not isNumber(time) then
+		return 0, 0
+	end
+	local progress = (time % seconds) / seconds
+	return progress, math.min(progress / RISE_SHOW_SHARE, 1) * (1 - progress)
+end
+
+-- The color of every piece of a broken wall: the wall's color, and every so many pieces the
+-- accent color if the wall has one.
+function Decor.pieceColors(
+	color: { number },
+	accent: { color: { number }, every: number }?,
+	count: number
+): { { number } }
+	local colors = {}
+	local every = if accent and isNumber(accent.every) then math.floor(accent.every) else 0
+	for index = 1, math.max(math.floor(if isNumber(count) then count else 0), 0) do
+		table.insert(colors, if accent and every >= 1 and index % every == 0 then accent.color else color)
+	end
+	return colors
+end
+
 return Decor

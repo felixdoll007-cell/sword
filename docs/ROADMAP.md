@@ -294,6 +294,17 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 21.
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 
+### Block: Eisen-Zone in fertiger Optik (Vorgriff auf Version 4, nur Aussehen)
+- [x] Bahnboden der Zone in zwei Tönen dunklem Eisengrau, Gehwege aus rostroten Ziegeln mit leuchtender Glut-Kante, unsichtbarer Zaun wie bisher; schließt ohne Überlappung an die Stein-Zone an
+- [x] "JADE" in kräftigem Jadegrün hinter der Eisen-Zone
+- [x] Fünf neue Vorlagen eingefärbt und in `ReplicatedStorage.Assets` abgelegt: `anvil_stump`, `forge`, `katana_stand`, `quench_barrel`, `iron_wall`
+- [x] Wände 21 bis 25 als Modell (Eisenwand), Kratzer auf dem Bronzeband, Bruchstücke dunkelgrau, jedes vierte in Bronze
+- [x] Neun Deko-Teile an festen Plätzen: zwei Essen als Tor, drei Ambosse, zwei Katana-Ständer, zwei Wasserfässer
+- [x] Licht und Bewegungen auf dem Client: Essen mit langsam pulsierendem Licht und Kohlen, glühendes Eisen auf den Ambossen, aufsteigender Dampf; höchstens vier Lichter pro Zone
+- [ ] Von mir getestet
+- Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 26.
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

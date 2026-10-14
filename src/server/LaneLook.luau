@@ -47,13 +47,17 @@ function LaneLook.build(folder: Instance)
 			local walk = look.zones[walkPart.material].walk
 			if walk then
 				if walkPart.kind == "curb" then
-					WorldParts.addBlock(
+					local curb = WorldParts.addBlock(
 						folder,
 						`Curb{walkPart.material}{index}`,
 						walkPart.area,
 						walkPart.topY,
 						walk.curbColor
 					)
+					-- An edge of glowing embers.
+					if walk.curbGlow then
+						curb.Material = Enum.Material.Neon
+					end
 				else
 					-- The two steps look the same; the name tells them apart.
 					local name = if walkPart.kind == "outer" then "WalkOuter" else "WalkInner"

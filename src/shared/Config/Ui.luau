@@ -1023,7 +1023,8 @@ return {
 			--     many studs higher than the other names (left out = 0).
 			--   floor: two tones of the lane floor. Without it the zone stays plain grey and has
 			--     no walkways and no name floating at its end.
-			--   walk: two tones of the walkways and the color of their edge.
+			--   walk: two tones of the walkways and the color of their edge. curbGlow = true lets the
+			--     edge glow (Neon).
 			--   wall: color of the walls (and of their pieces). On the side the thrower sees it
 			--     can carry a thin frame (frameColor), upright stripes (stripes: how many, their
 			--     color, and the width of one as a share of the wall's width) and a level band
@@ -1031,6 +1032,7 @@ return {
 			--     and its height as a share of the wall's height). All three are drawn on the
 			--     wall, they are not extra parts.
 			--     scratch: true = the wall the weapon bounces off gets a dark scratch.
+			--     pieceAccent: every so many pieces of a broken wall have this color instead.
 			--     model: a model shown instead of the plain wall (leave it out for none). The
 			--       wall itself stays where it is, invisible, and still decides everything; the
 			--       model is only what the player sees. It is made evenly bigger until the part
@@ -1496,11 +1498,121 @@ return {
 						},
 					},
 				},
-				-- No look yet; only its name, announced at the end of the stone zone.
+				-- A forge for weapons, warm and glowing.
 				Iron = {
 					name = "IRON",
 					-- Dark iron grey with a slight orange shimmer.
 					nameColor = { 120, 104, 94 },
+					-- Two tones of dark iron grey.
+					floor = { darkColor = { 74, 76, 80 }, lightColor = { 88, 90, 95 } },
+					-- Walkways of warm rust red bricks, an edge of glowing embers towards the lane.
+					walk = {
+						darkColor = { 150, 70, 52 },
+						lightColor = { 166, 84, 62 },
+						curbColor = { 200, 88, 28 },
+						curbGlow = true,
+					},
+					-- A wall of iron plates as a model, modelled as big as the wall. The scratch
+					-- lies on its bronze band; color is the color of its pieces, every fourth
+					-- piece is bronze.
+					wall = {
+						color = { 72, 74, 78 },
+						scratch = true,
+						pieceAccent = { color = { 176, 120, 60 }, every = 4 },
+						model = {
+							template = "iron_wall",
+							-- Its frame is rounded at the outer edges, so the part that really
+							-- covers is a little narrower than the model.
+							coverWidth = 29.2,
+							coverHeight = 16,
+							coverDepth = 2,
+							sinkStuds = 0,
+						},
+					},
+					decor = {
+						pieces = {
+							-- A forge on each side at the start of the zone, like a gate, its fire towards the lane.
+							{
+								model = "forge",
+								side = "left",
+								along = 7,
+								across = 0.5,
+								turnDegrees = 4,
+								scale = 1,
+							},
+							{
+								model = "forge",
+								side = "right",
+								along = 7,
+								across = 0.5,
+								turnDegrees = -5,
+								scale = 1,
+							},
+							-- Left side.
+							{
+								model = "anvil_stump",
+								side = "left",
+								along = 33,
+								across = 0.5,
+								turnDegrees = 15,
+								scale = 1.05,
+							},
+							{
+								model = "katana_stand",
+								side = "left",
+								along = 64,
+								across = 0.55,
+								turnDegrees = -8,
+								scale = 1,
+							},
+							{
+								model = "quench_barrel",
+								side = "left",
+								along = 92,
+								across = 0.5,
+								turnDegrees = 20,
+								scale = 1,
+							},
+							{
+								model = "anvil_stump",
+								side = "left",
+								along = 121,
+								across = 0.5,
+								turnDegrees = -18,
+								scale = 0.95,
+							},
+							-- Right side.
+							{
+								model = "quench_barrel",
+								side = "right",
+								along = 26,
+								across = 0.5,
+								turnDegrees = -14,
+								scale = 1.05,
+							},
+							{
+								model = "anvil_stump",
+								side = "right",
+								along = 57,
+								across = 0.4,
+								turnDegrees = 22,
+								scale = 1,
+							},
+							{
+								model = "katana_stand",
+								side = "right",
+								along = 103,
+								across = 0.5,
+								turnDegrees = 10,
+								scale = 1.05,
+							},
+						},
+					},
+				},
+				-- No look yet; only its name, announced at the end of the iron zone.
+				Jade = {
+					name = "JADE",
+					nameColor = { 0, 168, 107 },
 				},
 			},
 		},
@@ -1755,6 +1867,12 @@ return {
 		--     height (height).
 		--   light, float, spin, sway, tip: its small movement. Leave them out and the model
 		--     stands still.
+		--     light: a weak light without shadows in the named part. It flickers
+		--     (flickerStrength, flickerSpeed) or, with pulseSeconds, swells and fades slowly by
+		--     pulseStrength (0.3 = 30 %).
+		--     glow: the named part turns from dimColor to brightColor and back in seconds.
+		--     rise: the named part rises by heightStuds within seconds, first showing up, then
+		--     fading out (most visible at transparency), and starts again from below.
 		--     sway: the named part rocks by this many degrees to each side, once there and
 		--     back in this many seconds: around its own middle, or with aroundTop = true around
 		--     its upper edge, like something that hangs.
@@ -1768,6 +1886,8 @@ return {
 			maxScaleChange = 0.15,
 			-- A zone never shows more pieces than this; further ones in its list are left out.
 			maxPiecesPerZone = 12,
+			-- Lights cost a lot on phones: a zone never has more than this many.
+			maxLightsPerZone = 4,
 
 			models = {
 				paper_lantern = {
@@ -1944,6 +2064,64 @@ return {
 					front = { x = 0, z = -1 },
 					turnTowardsThrowZoneDegrees = 0,
 					size = 1.8,
+				},
+
+				-- The iron zone.
+				forge = {
+					template = "forge",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 1.8,
+					-- Warm orange light that swells and fades slowly; the coals with it.
+					light = {
+						part = "Glow",
+						color = { 255, 140, 50 },
+						brightness = 1.5,
+						range = 18,
+						flickerStrength = 0,
+						flickerSpeed = 0,
+						pulseSeconds = 3.5,
+						pulseStrength = 0.3,
+					},
+					glow = {
+						part = "Glow",
+						dimColor = { 220, 110, 36 },
+						brightColor = { 255, 200, 90 },
+						seconds = 3.5,
+					},
+				},
+				anvil_stump = {
+					template = "anvil_stump",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 15,
+					size = 1.8,
+					-- The glowing piece of iron on it, without light of its own.
+					glow = {
+						part = "Glow",
+						dimColor = { 210, 90, 30 },
+						brightColor = { 255, 160, 70 },
+						seconds = 2.4,
+					},
+				},
+				-- Stands still.
+				katana_stand = {
+					template = "katana_stand",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 10,
+					size = 1.8,
+				},
+				quench_barrel = {
+					template = "quench_barrel",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 1.8,
+					-- Steam rising slowly and fading.
+					rise = {
+						part = "Steam",
+						heightStuds = 1.5,
+						seconds = 4,
+						transparency = 0.4,
+					},
 				},
 			},
 		},
