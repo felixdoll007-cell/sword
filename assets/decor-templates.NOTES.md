@@ -108,8 +108,9 @@ dunkelbraun, Eisen dunkelgrau, Glut orange-gelb (Neon), Blasebalg braun; das Mes
 (nicht in der Vorgabe, Holzteil am Blasebalg) ist dunkelbraun. Katana-Ständer schwarz, Gold
 gold, Scheiden dunkelrot, schwarz und dunkelblau, Griffe weiß. Wasserfass dunkelbraun, Eisen
 dunkelgrau, Wasser dunkelblau und leicht glänzend (SmoothPlastic, Reflectance 0,25), Dampf weiß
-und 40 % durchsichtig, Stangen grau. Eisenwand: Platten dunkelgrau und leicht spiegelnd
-(SmoothPlastic, Reflectance 0,15), Rahmen und Nieten fast schwarz, Band bronze. Der Drehpunkt
+und 40 % durchsichtig, Stangen grau. Eisenwand: Platten dunkelgrau und matt
+(Plastic, ohne Spiegeln), Rahmen und Nieten fast schwarz und matt, Band bronze und leicht
+glänzend (SmoothPlastic, Reflectance 0,08). Der Drehpunkt
 jeder Vorlage ist die Mitte ihres Fußes.
 
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)

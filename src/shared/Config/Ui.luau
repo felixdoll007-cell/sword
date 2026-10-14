@@ -1505,10 +1505,10 @@ return {
 					nameColor = { 120, 104, 94 },
 					-- Two tones of dark iron grey.
 					floor = { darkColor = { 74, 76, 80 }, lightColor = { 88, 90, 95 } },
-					-- Walkways of warm rust red bricks, an edge of glowing embers towards the lane.
+					-- Walkways of dark, muted brick red, an edge of glowing embers towards the lane.
 					walk = {
-						darkColor = { 150, 70, 52 },
-						lightColor = { 166, 84, 62 },
+						darkColor = { 116, 62, 52 },
+						lightColor = { 130, 72, 60 },
 						curbColor = { 200, 88, 28 },
 						curbGlow = true,
 					},
@@ -1535,7 +1535,7 @@ return {
 							{
 								model = "forge",
 								side = "left",
-								along = 7,
+								along = 8,
 								across = 0.5,
 								turnDegrees = 4,
 								scale = 1,
@@ -1543,7 +1543,7 @@ return {
 							{
 								model = "forge",
 								side = "right",
-								along = 7,
+								along = 8,
 								across = 0.5,
 								turnDegrees = -5,
 								scale = 1,
@@ -1552,25 +1552,25 @@ return {
 							{
 								model = "anvil_stump",
 								side = "left",
-								along = 33,
+								along = 34,
 								across = 0.5,
-								turnDegrees = 15,
+								turnDegrees = 6,
 								scale = 1.05,
 							},
 							{
 								model = "katana_stand",
 								side = "left",
 								along = 64,
-								across = 0.55,
-								turnDegrees = -8,
+								across = 0.5,
+								turnDegrees = -5,
 								scale = 1,
 							},
 							{
 								model = "quench_barrel",
 								side = "left",
-								along = 92,
+								along = 93,
 								across = 0.5,
-								turnDegrees = 20,
+								turnDegrees = 12,
 								scale = 1,
 							},
 							{
@@ -1578,24 +1578,24 @@ return {
 								side = "left",
 								along = 121,
 								across = 0.5,
-								turnDegrees = -18,
+								turnDegrees = -7,
 								scale = 0.95,
 							},
 							-- Right side.
 							{
 								model = "quench_barrel",
 								side = "right",
-								along = 26,
+								along = 29,
 								across = 0.5,
-								turnDegrees = -14,
+								turnDegrees = -10,
 								scale = 1.05,
 							},
 							{
 								model = "anvil_stump",
 								side = "right",
 								along = 57,
-								across = 0.4,
-								turnDegrees = 22,
+								across = 0.5,
+								turnDegrees = 8,
 								scale = 1,
 							},
 							{
@@ -1603,7 +1603,7 @@ return {
 								side = "right",
 								along = 103,
 								across = 0.5,
-								turnDegrees = 10,
+								turnDegrees = 6,
 								scale = 1.05,
 							},
 						},
@@ -2071,7 +2071,7 @@ return {
 					template = "forge",
 					front = { x = 0, z = -1 },
 					turnTowardsThrowZoneDegrees = 0,
-					size = 1.8,
+					size = 2.3,
 					-- Warm orange light that swells and fades slowly; the coals with it.
 					light = {
 						part = "Glow",
@@ -2093,8 +2093,8 @@ return {
 				anvil_stump = {
 					template = "anvil_stump",
 					front = { x = 0, z = -1 },
-					turnTowardsThrowZoneDegrees = 15,
-					size = 1.8,
+					turnTowardsThrowZoneDegrees = 10,
+					size = 3.6,
 					-- The glowing piece of iron on it, without light of its own.
 					glow = {
 						part = "Glow",
@@ -2108,13 +2108,13 @@ return {
 					template = "katana_stand",
 					front = { x = 0, z = -1 },
 					turnTowardsThrowZoneDegrees = 10,
-					size = 1.8,
+					size = 3.6,
 				},
 				quench_barrel = {
 					template = "quench_barrel",
 					front = { x = 0, z = -1 },
 					turnTowardsThrowZoneDegrees = 0,
-					size = 1.8,
+					size = 3.6,
 					-- Steam rising slowly and fading.
 					rise = {
 						part = "Steam",

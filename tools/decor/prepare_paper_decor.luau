@@ -350,8 +350,9 @@ local MODELS = {
 		neon = {},
 	},
 	-- The iron zone (imported on 2026-10-14). Pivots are also set to the middle of the foot by
-	-- hand, and by hand: AnvilTop and Plates SmoothPlastic with Reflectance 0.2 and 0.15, Water
-	-- SmoothPlastic with Reflectance 0.25, Steam 40 % see-through without shadow.
+	-- hand, and by hand: AnvilTop SmoothPlastic with Reflectance 0.2, Bronze SmoothPlastic with
+	-- Reflectance 0.08, Water SmoothPlastic with Reflectance 0.25, Steam 40 % see-through without
+	-- shadow. Plates, Frame and Rivets stay matt Plastic.
 	{
 		inside = "anvil_stump",
 		template = "anvil_stump",

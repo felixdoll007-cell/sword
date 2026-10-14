@@ -585,7 +585,9 @@ return {
 				true
 			)
 			expect(fromLane(placement) >= look.walk.curbWidth + look.walk.innerWidth).toBe(true)
-			expect(models[placement.model].size).toBe(1.8)
+			-- Big enough to be seen well: anvils, stands and barrels about twice as big as in the
+			-- other zones, the forges about 1.3 times.
+			expect(models[placement.model].size >= 2.2).toBe(true)
 			if placement.model == "forge" then
 				forges[placement.side] = placement
 			else

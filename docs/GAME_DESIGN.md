@@ -257,12 +257,13 @@ bewegt sich nichts, die Ruhe ist gewollt. Hinter ihr schwebt "IRON" in dunklem E
 etwas Orange.
 
 Die Eisen-Zone (Wand 21 bis 25) ist die fünfte fertige Zone: eine Waffenschmiede, warm und
-glühend. Boden in zwei Tönen dunklem Eisengrau, Gehwege aus warmen rostroten Ziegeln mit einer
+glühend. Boden in zwei Tönen dunklem Eisengrau, Gehwege aus dunklen, gedämpft roten Ziegeln mit einer
 Kante wie glühende Kohle (orange, leuchtet). Die Wände sind Eisenwände als Modell (Platten,
 Rahmen, Nieten und ein Bronzeband), so groß modelliert wie die Wand; der Kratzer liegt auf dem
 Bronzeband. Bruchstücke dunkelgrau, jedes vierte in Bronze. Am Anfang der Zone links und
 rechts eine Schmiede-Esse als Tor, das Feuer zur Bahn, dann drei Ambosse, zwei
-Katana-Ständer und zwei Wasserfässer, alle 1,8-mal so groß wie modelliert. Die Essen haben ein
+Katana-Ständer und zwei Wasserfässer; Ambosse, Ständer und Fässer 3,6-mal so groß wie
+modelliert, die Essen 2,3-mal. Die Essen haben ein
 warmes oranges Licht ohne Schatten, das langsam an- und abschwillt, die Kohlen mit ihm; das
 glühende Eisen auf den Ambossen pulsiert ohne eigenes Licht; der Dampf der Wasserfässer steigt
 langsam auf und verblasst. Eine Zone hat höchstens vier Lichter. Hinter ihr schwebt "JADE" in
