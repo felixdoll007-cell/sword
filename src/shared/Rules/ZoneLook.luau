@@ -56,6 +56,8 @@ export type FaceRect = { x: number, y: number, width: number, height: number, co
 export type ZoneStyle = {
 	name: string?,
 	nameColor: { number }?,
+	-- The name floats this many studs higher than the other names (for a tall gate below it).
+	nameRaise: number?,
 	floor: Tones?,
 	walk: { darkColor: { number }, lightColor: { number }, curbColor: { number } }?,
 	wall: WallStyle?,
@@ -255,7 +257,10 @@ function ZoneLook.sign(laneConfig: LaneConfig, wallConfig: Walls.WallConfig, loo
 	local _, to = ZoneLook.range(laneConfig, wallConfig, zone)
 	return {
 		x = laneConfig.throwLine.x,
-		y = laneConfig.floorTopY + look.sign.heightAboveFloor,
+		y = laneConfig.floorTopY + look.sign.heightAboveFloor + (if typeof(nextStyle.nameRaise) == "number"
+				and nextStyle.nameRaise == nextStyle.nameRaise
+			then nextStyle.nameRaise
+			else 0),
 		z = laneConfig.throwLine.z - (to + look.sign.behindZoneEnd),
 		text = nextStyle.name,
 		color = nextStyle.nameColor,

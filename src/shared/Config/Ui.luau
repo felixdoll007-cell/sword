@@ -1019,7 +1019,8 @@ return {
 			},
 
 			-- The look of each zone. A new zone needs only an entry here:
-			--   name, nameColor: shown at the end of the zone before it.
+			--   name, nameColor: shown at the end of the zone before it. nameRaise: it floats this
+			--     many studs higher than the other names (left out = 0).
 			--   floor: two tones of the lane floor. Without it the zone stays plain grey and has
 			--     no walkways and no name floating at its end.
 			--   walk: two tones of the walkways and the color of their edge.
@@ -1392,13 +1393,15 @@ return {
 				Stone = {
 					name = "STONE",
 					nameColor = { 152, 156, 162 },
+					-- Clearly above the top of the torii behind it.
+					nameRaise = 12,
 					-- Two tones of stone grey.
 					floor = { darkColor = { 150, 152, 154 }, lightColor = { 166, 168, 170 } },
-					-- Walkways like raked zen gravel: two tones of light, warm sand white, moss
-					-- green edge towards the lane.
+					-- Walkways like raked zen gravel: two tones of warm sand beige, moss green edge
+					-- towards the lane.
 					walk = {
-						darkColor = { 230, 222, 202 },
-						lightColor = { 242, 236, 218 },
+						darkColor = { 204, 184, 148 },
+						lightColor = { 218, 200, 166 },
 						curbColor = { 84, 112, 56 },
 					},
 					-- A wall of stones as a model, modelled as big as the wall. The front of its
@@ -1748,7 +1751,8 @@ return {
 		--   maxScaleChange: for a model that may differ more in size than the others (below).
 		--   gate: for a gate across the lane. Its pillars, in the model's own studs: the side
 		--     of each pillar nearer to the middle (pillarInnerX) and the side further from it
-		--     (pillarOuterX), and the free height under its lowest beam (clearHeight).
+		--     (pillarOuterX), the free height under its lowest beam (clearHeight) and its whole
+		--     height (height).
 		--   light, float, spin, sway, tip: its small movement. Leave them out and the model
 		--     stands still.
 		--     sway: the named part rocks by this many degrees to each side, once there and
@@ -1921,7 +1925,7 @@ return {
 					-- Big enough that its pillars stand on the inner step of the walkways and
 					-- throw, flight and camera pass freely below it.
 					size = 1.85,
-					gate = { pillarInnerX = 9, pillarOuterX = 12.2, clearHeight = 12.6 },
+					gate = { pillarInnerX = 9, pillarOuterX = 12.2, clearHeight = 12.6, height = 20 },
 				},
 				komainu = {
 					template = "komainu",

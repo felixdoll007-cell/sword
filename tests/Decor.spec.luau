@@ -498,6 +498,9 @@ return {
 			+ ThrowVisuals.bounceCameraExtraAbove
 		expect(below > LaneConfig.floorTopY + LaneConfig.wallHeight).toBe(true)
 		expect(below > camera + 4).toBe(true)
+		-- The name floating at the start of the zone stays clear above its top.
+		local sign = ZoneLook.sign(LaneConfig, WallConfig, look, WOOD) :: ZoneLook.Sign
+		expect(sign.y - look.sign.heightStuds / 2 > gate.y + spec.height * gate.scale + 4).toBe(true)
 		-- Zones without a gate, broken entries.
 		expect(Decor.gate(LaneConfig, WallConfig, look, nil, models, STONE)).toBe(nil)
 		expect(Decor.gate(LaneConfig, WallConfig, look, { model = "garden_gnome", along = 5 }, models, STONE)).toBe(nil)

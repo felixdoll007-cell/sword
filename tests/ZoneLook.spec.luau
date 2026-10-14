@@ -195,8 +195,9 @@ return {
 			expect(math.abs(tone[1] - tone[2]) <= 8 and math.abs(tone[2] - tone[3]) <= 8).toBe(true)
 		end
 		for _, tone in { stone.walk.darkColor, stone.walk.lightColor } do
-			-- Light and warm: bright, a little more red than blue.
-			expect(tone[1] >= 220 and tone[1] > tone[3]).toBe(true)
+			-- Warm sand beige: clearly more red than blue, and brighter than the grey floor.
+			expect(tone[1] > tone[2] and tone[2] > tone[3] and tone[1] - tone[3] >= 40).toBe(true)
+			expect(tone[1] > stone.floor.lightColor[1] + 30).toBe(true)
 		end
 		local curb = stone.walk.curbColor
 		expect(curb[2] > curb[1] and curb[2] > curb[3]).toBe(true)
@@ -467,6 +468,9 @@ return {
 		expect(math.abs(grey[1] - grey[2]) <= 12 and math.abs(grey[2] - grey[3]) <= 12).toBe(true)
 		local _, woodEnd = ZoneLook.range(LaneConfig, WallConfig, WOOD)
 		expect(stone.z).toBe(LaneConfig.throwLine.z - woodEnd - look.sign.behindZoneEnd)
+		-- Higher than the other names, clear above the torii behind it.
+		local wood2 = ZoneLook.sign(LaneConfig, WallConfig, look, BAMBOO) :: ZoneLook.Sign
+		expect(stone.y).toBe(wood2.y + look.zones.Stone.nameRaise)
 		-- Behind the stone zone floats the name of the iron zone, dark grey with a little orange.
 		local iron = ZoneLook.sign(LaneConfig, WallConfig, look, STONE) :: ZoneLook.Sign
 		expect(iron.text).toBe("IRON")
