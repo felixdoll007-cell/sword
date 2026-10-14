@@ -82,7 +82,7 @@ Täfelchen gemeinsam, nicht einzelne Enden oder einzelne Täfelchen.
 | `komainu` | `assets/komainu.glb` | 1120 | Statue, Mane, Base, Moss, Mouth | -Z (Maul) | 4,1 x 6,9 x 4,1 |
 | `bonsai` | `assets/bonsai.glb` | 950 | Trunk, Foliage, FoliageLight, Pot, Moss, Stand | -Z | 6,2 x 6,1 x 3,2 |
 | `mossy_rocks` | `assets/mossy-rocks.glb` | 547 | Rock, RockDark, Moss, Grass | -Z (Gras) | 7,1 x 3,8 x 5,4 |
-| `stone_wall` | `assets/stone-wall.glb` | 1428 | Stones, StonesDark, Gaps, Moss, Cap | beide Seiten gleich | 30 x 16,2 x 2 (Wand-Modell) |
+| `stone_wall` | `assets/stone-wall.glb` | 1428 | Stones, StonesDark, Gaps, Moss, Cap | beide Seiten gleich | 30 x 16,2 x 2 (Wand-Modell; im Spiel 1,03-mal, weil die Steine nur 29,2 breit sind) |
 
 Farben: Torii zinnoberrot, schwarz, Tafel dunkelgrau. Löwe hellgrau, Mähne etwas dunkler,
 Sockel dunkelgrau, Moos moosgrün, Maul dunkelrot. Bonsai: Stamm dunkelbraun, Laub kräftiges
