@@ -9,7 +9,7 @@ return {
 	)
 		expect(Training.laneCount(TrainingConfig)).toBe(6)
 		local required = { 0, 2, 4, 6, 10 }
-		local multipliers = { 1, 4, 10, 20, 50 }
+		local multipliers = { 1, 4, 10, 20, 45 }
 		for index = 1, 5 do
 			local lane = TrainingConfig.lanes[index]
 			expect(lane.unlock.kind).toBe("Rebirths")

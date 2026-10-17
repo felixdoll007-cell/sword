@@ -2099,7 +2099,7 @@ return {
 					},
 				},
 
-				-- Lane 50x: a forge.
+				-- Lane 45x: a forge.
 				forge = {
 					-- Muted brick red, with an edge of glowing embers along its inside (Neon).
 					frame = {

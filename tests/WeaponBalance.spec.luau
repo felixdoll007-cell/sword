@@ -21,21 +21,8 @@ local THROW_SECONDS = 5
 local METER_FACTOR = 1.2
 local RUNS_TO_PLAY = 14
 
--- With all weapons bought as early as possible, no run may be shorter than this. The one run
--- right after a new training lane opens may be shorter, but not below the second value: a new
--- lane is meant to be a clear jump (decided for the 50x lane, docs/GAME_DESIGN.md).
+-- With all weapons bought as early as possible, no run may be shorter than this.
 local SHORTEST_RUN_MINUTES = 3
-local SHORTEST_RUN_AFTER_NEW_LANE_MINUTES = 2.5
-
--- Does a training lane open at exactly this many rebirths?
-local function laneOpensAt(rebirths: number): boolean
-	for _, lane in TrainingConfig.lanes do
-		if lane.unlock.kind == "Rebirths" and lane.unlock.rebirths == rebirths and rebirths > 0 then
-			return true
-		end
-	end
-	return false
-end
 
 -- The run (number of the rebirth it leads to) in which each weapon should become affordable.
 local AFFORDABLE_IN_RUN = {
@@ -167,12 +154,10 @@ return {
 		expect(true).toBe(true)
 	end,
 
-	["with all weapons no run is shorter than three minutes, except right after a new lane"] = function(expect)
+	["with all weapons no run is shorter than three minutes"] = function(expect)
 		local played = play(true)
 		for run, minutes in played.runMinutes do
-			-- Run 1 is played with 0 rebirths, so run n starts with n - 1.
-			local shortest = if laneOpensAt(run - 1) then SHORTEST_RUN_AFTER_NEW_LANE_MINUTES else SHORTEST_RUN_MINUTES
-			if minutes < shortest then
+			if minutes < SHORTEST_RUN_MINUTES then
 				error(`run {run} takes only {minutes} minutes with weapons`)
 			end
 		end

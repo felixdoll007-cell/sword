@@ -107,7 +107,7 @@ return {
 				expect(runMinutes(rebirths + 1) >= runMinutes(rebirths) - ALLOWED_DIFFERENCE_MINUTES).toBe(true)
 			end
 		end
-		-- The 50x lane opens at 10 rebirths (docs/GAME_DESIGN.md): that run is clearly shorter.
+		-- The 45x lane opens at 10 rebirths (docs/GAME_DESIGN.md): that run is clearly shorter.
 		expect(runMinutes(10) < runMinutes(9)).toBe(true)
 	end,
 
