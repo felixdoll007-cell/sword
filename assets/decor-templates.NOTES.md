@@ -113,6 +113,22 @@ und 40 % durchsichtig, Stangen grau. Eisenwand: Platten dunkelgrau und matt
 glänzend (SmoothPlastic, Reflectance 0,08). Der Drehpunkt
 jeder Vorlage ist die Mitte ihres Fußes.
 
+## Vorlagen der Jade-Zone (importiert am 17.10.2026)
+
+| Vorlage | Datei | Dreiecke | Teile (Mesh-Namen) | Vorderseite | Bewegung |
+|---|---|---|---|---|---|
+| `dragon_pillar` | `assets/dragon-pillar.glb` | 1497 | Dragon, DragonDark, Pillar, Trim, Glow, Eyes | -Z (Kopf) | `Glow` (Kugel) pulsiert, ohne Licht |
+| `jade_crystals` | `assets/jade-crystals.glb` | 616 | Crystals, Glow, Rock | egal | `Glow` (Spitzen) pulsiert, Licht nur bei zwei Gruppen |
+| `bell_tower` | `assets/bell-tower.glb` | 1016 | Posts, Roof, Gold, Bell, Ropes, Log, Base | -Z | `Bell` schwingt langsam um ihre obere Kante |
+| `pagoda` | `assets/pagoda.glb` | 1166 | Walls, Roofs, Gold, Windows, Base | egal | keine |
+| `jade_wall` | `assets/jade-wall.glb` | 1272 | Jade, Relief, Gold, Base | -Z | Wand-Modell, 30,3 x 16 x 2; im Spiel 1,04-mal, weil Rahmen außen gerundet und oben in der Mitte niedriger |
+| `temple_gate` | `assets/temple-gate.glb` | 1945 | Walls, Roofs, Gold, Plaque, Steps, Glow | -Z (Tafel, Stufen) | `Glow` (Portal) pulsiert, mit Licht |
+
+Farben: Gold überall matt und warm (Plastic, ohne Spiegeln), Jadegrün kräftig, Zinnoberrot,
+weißer Marmor. Kristalle 20 % durchscheinend, Leuchtteile (`Glow`) Neon. Alle Teile matt, nichts
+spiegelt den Himmel. Der Drehpunkt jeder Vorlage ist die Mitte ihres Fußes; beim Tempeltor liegt
+die Vorderseite 7,3 Studs vor dem Drehpunkt.
+
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 
 Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.

@@ -83,7 +83,7 @@ return {
 		end
 	end,
 
-	["paper, bamboo, wood and stone have their own floor, everything behind wall 20 is plain"] = function(expect)
+	["every zone of world 1 has its own floor, to the end of the lane"] = function(expect)
 		local segments = ZoneLook.floorSegments(LaneConfig, WallConfig, look)
 		expect(#segments).toBe(6)
 		expect(segments[1].material).toBe("Paper")
@@ -100,13 +100,16 @@ return {
 		expect(segments[5].material).toBe("Iron")
 		expect(segments[5].from).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 20))
 		expect(segments[5].to).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 25))
-		expect(segments[6].material).toBe(nil)
+		expect(segments[6].material).toBe("Jade")
+		expect(segments[6].from).toBe(LaneLayout.wallDistance(LaneConfig, WallConfig, 25))
+		-- The last zone reaches to the end of the lane.
+		expect(segments[6].to).toBe(LaneLayout.laneLength(LaneConfig, WallConfig))
 		expect(ZoneLook.hasFloor(look, "Paper")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Bamboo")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Wood")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Stone")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Iron")).toBe(true)
-		expect(ZoneLook.hasFloor(look, "Jade")).toBe(false)
+		expect(ZoneLook.hasFloor(look, "Jade")).toBe(true)
 		expect(ZoneLook.hasFloor(look, "Cheese")).toBe(false)
 		expect(ZoneLook.hasFloor(look, nil)).toBe(false)
 	end,
@@ -158,8 +161,78 @@ return {
 		expect(count.inner).toBe(2)
 		expect(count.outer).toBe(2)
 		-- Zones without a look have no walkways and no fence.
-		expect(#ZoneLook.walks(LaneConfig, WallConfig, look, JADE)).toBe(0)
-		expect(#ZoneLook.fences(LaneConfig, WallConfig, look, JADE)).toBe(0)
+		local plain = { walk = look.walk, sign = look.sign, zones = {} }
+		expect(#ZoneLook.walks(LaneConfig, WallConfig, plain, JADE)).toBe(0)
+		expect(#ZoneLook.fences(LaneConfig, WallConfig, plain, JADE)).toBe(0)
+	end,
+
+	["the jade zone joins the iron zone with a clean edge and runs to the end of the lane"] = function(expect)
+		local _, ironEnd = ZoneLook.range(LaneConfig, WallConfig, IRON)
+		local jadeStart, jadeEnd = ZoneLook.range(LaneConfig, WallConfig, JADE)
+		expect(jadeStart).toBe(ironEnd)
+		expect(jadeEnd).toBe(LaneLayout.laneLength(LaneConfig, WallConfig))
+		local iron = ZoneLook.walks(LaneConfig, WallConfig, look, IRON)
+		local jade = ZoneLook.walks(LaneConfig, WallConfig, look, JADE)
+		expect(#jade).toBe(#iron)
+		for index, part in jade do
+			expect(part.kind).toBe(iron[index].kind)
+			expect(part.side).toBe(iron[index].side)
+			expect(part.topY).toBe(iron[index].topY)
+			expect(part.area.x).toBe(iron[index].area.x)
+			expect(part.area.width).toBe(iron[index].area.width)
+			expect(back(part.area)).toBeNear(front(iron[index].area))
+			expect(front(part.area)).toBeNear(LaneConfig.throwLine.z - jadeEnd)
+			for _, zone in { PAPER, BAMBOO, WOOD, STONE, IRON } do
+				for _, other in ZoneLook.walks(LaneConfig, WallConfig, look, zone) do
+					expect(overlap(part.area, other.area)).toBe(false)
+				end
+			end
+		end
+		local fences = ZoneLook.fences(LaneConfig, WallConfig, look, JADE)
+		expect(#fences).toBe(6)
+		for _, fence in fences do
+			for _, other in ZoneLook.fences(LaneConfig, WallConfig, look, IRON) do
+				expect(overlap(fence, other)).toBe(false)
+			end
+		end
+	end,
+
+	["the jade zone: jade green floor, white marble walkways with a gold edge"] = function(expect)
+		local jade = look.zones.Jade
+		for _, tone in { jade.floor.darkColor, jade.floor.lightColor } do
+			-- Strong jade green.
+			expect(tone[2] > tone[1] + 100 and tone[2] > tone[3]).toBe(true)
+		end
+		for _, tone in { jade.walk.darkColor, jade.walk.lightColor } do
+			-- White.
+			expect(tone[1] >= 220 and tone[2] >= 220 and tone[3] >= 220).toBe(true)
+		end
+		local curb = jade.walk.curbColor
+		expect(curb[1] > curb[2] and curb[2] > curb[3] and curb[2] >= 140).toBe(true)
+	end,
+
+	["jade walls are a model about as big as the wall, the scratch on its relief, gold pieces"] = function(expect)
+		local wall = look.zones.Jade.wall
+		expect(ZoneLook.wallModel(look, "Jade")).toBe(wall.model)
+		expect(wall.model.template).toBe("jade_wall")
+		expect(ZoneLook.wallScratch(look, "Jade")).toBe(true)
+		-- Jade green pieces, every fourth gold like the edge of the walkways.
+		local function same(x: { number }, y: { number }): boolean
+			return x[1] == y[1] and x[2] == y[2] and x[3] == y[3]
+		end
+		expect(same(ZoneLook.wallColor(LaneConfig, look, "Jade"), look.zones.Jade.nameColor)).toBe(true)
+		local accent = ZoneLook.pieceAccent(look, "Jade") :: { color: { number }, every: number }
+		expect(accent.every).toBe(4)
+		expect(same(accent.color, look.zones.Jade.walk.curbColor)).toBe(true)
+		local place =
+			ZoneLook.wallModelPlace(wall.model, LaneConfig.laneWidth, LaneConfig.wallHeight, LaneConfig.wallThickness)
+		expect(place ~= nil).toBe(true)
+		if place then
+			expect(place.scale >= 1 and place.scale <= 1.05).toBe(true)
+			expect(place.towardsThrower + wall.model.coverDepth * place.scale / 2).toBeNear(
+				LaneConfig.wallThickness / 2
+			)
+		end
 	end,
 
 	["the iron zone joins the stone zone with a clean edge: nothing on top of anything"] = function(expect)
@@ -579,10 +652,8 @@ return {
 			if material ~= "Paper" then
 				expect(ZoneLook.wallFrameColor(look, material)).toBe(nil)
 			end
-			if material == "Jade" then
-				expect(ZoneLook.wallColor(LaneConfig, look, material)).toBe(LaneConfig.materialColors[material])
-				expect(#ZoneLook.wallPattern(look, material)).toBe(0)
-			end
+			-- Every zone of world 1 has its own wall color now.
+			expect(look.zones[material].wall ~= nil).toBe(true)
 		end
 		-- The frame is thin compared to the wall.
 		expect(look.wallFrame.widthStuds * 10 <= LaneConfig.wallHeight).toBe(true)
@@ -636,7 +707,7 @@ return {
 			if material ~= "Bamboo" then
 				expect(ZoneLook.wallScratch(look, material)).toBe(true)
 			end
-			if material == "Paper" or material == "Jade" then
+			if material == "Paper" then
 				expect(ZoneLook.wallModel(look, material)).toBe(nil)
 			end
 		end

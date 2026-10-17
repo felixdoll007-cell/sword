@@ -150,7 +150,8 @@ links der Stand, rechts der Status.
   Trommel und Wasserspiel, Holz als Dojo-Hof mit Waffenständern, Trainingspuppen, Sake-Fässern
   und Täfelchen-Gestellen, Stein als ruhiger Tempelgarten mit Torii, Wächterlöwen, Bonsai und
   Moosfelsen, Eisen als Waffenschmiede mit Essen, Ambossen, Katana-Ständern und Wasserfässern.
-  Jade folgt im selben Thema.
+  Jade als Drachentempel mit Drachenstatuen, Jade-Kristallen, Glockenständen, Pagoden und dem
+  Tempeltor am Ende der Bahn. Gold ist überall matt und warm, nichts spiegelt den Himmel.
 - Der Name der nächsten Zone schwebt in der Ferne über der Bahn.
 - Wurfzone mit großem Schriftzug auf dem Boden.
 

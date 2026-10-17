@@ -7,6 +7,7 @@
 -- the world and keeps it within limits: pieces stay on the outer step, sizes stay close to the
 -- modelled size, and a zone never has more pieces than allowed.
 
+local LaneLayout = require("./LaneLayout")
 local Walls = require("./Walls")
 local ZoneLook = require("./ZoneLook")
 
@@ -23,6 +24,8 @@ export type Piece = {
 	turnDegrees: number?,
 	-- 1 = as modelled.
 	scale: number?,
+	-- false: no light, even if the model has one.
+	light: boolean?,
 }
 
 export type ZoneDecor = { pieces: { Piece } }
@@ -30,6 +33,10 @@ export type ZoneDecor = { pieces: { Piece } }
 -- A gate across the lane, as written in the config: which model, and its distance from the
 -- start of the zone in studs.
 export type Gate = { model: string, along: number }
+
+-- A gate at the end of the lane: which model, and how far behind the end of the lane floor its
+-- front stands, in studs.
+export type EndGate = { model: string, behindLaneEnd: number }
 
 export type Limits = {
 	maxScaleChange: number,
@@ -46,6 +53,8 @@ export type ModelFacing = {
 	maxScaleChange: number?,
 	-- The model is shown this many times as big as it was modelled. Left out = 1.
 	size: number?,
+	-- How far its front lies in front of its pivot, in its own studs (for a gate at the end).
+	frontDepth: number?,
 }
 
 -- A part that tips forward every now and then: within downSeconds down, holdSeconds down, then
@@ -71,6 +80,8 @@ export type Placement = {
 	-- Turn around the upright axis, in degrees (as used by CFrame.Angles).
 	yawDegrees: number,
 	scale: number,
+	-- false: built without its model's light.
+	light: boolean?,
 }
 
 local SIDES: { [string]: number } = { left = -1, right = 1 }
@@ -173,6 +184,7 @@ function Decor.placements(
 						+ (if isNumber(piece.turnDegrees) then piece.turnDegrees :: number else 0)
 				),
 				scale = Decor.modelSize(facing.size) * Decor.scale(limits, piece.scale, facing.maxScaleChange),
+				light = piece.light ~= false,
 			})
 		end
 	end
@@ -237,6 +249,34 @@ function Decor.gate(
 		-- The throw zone lies towards positive Z.
 		yawDegrees = wrap(math.deg(heading(0, 1) - heading(facing.front.x, facing.front.z))),
 		scale = Decor.modelSize(facing.size),
+	}
+end
+
+-- The gate at the end of the lane: in the middle, its front just behind the end of the lane floor
+-- and towards the throw zone, standing on the ground (groundY). nil if there is none or the
+-- entry is broken.
+function Decor.endGate(
+	laneConfig: ZoneLook.LaneConfig,
+	wallConfig: Walls.WallConfig,
+	gate: EndGate?,
+	facings: { [string]: ModelFacing },
+	groundY: number
+): Placement?
+	local facing = if gate then facings[gate.model] else nil
+	if not gate or not facing or not isNumber(gate.behindLaneEnd) or not isNumber(groundY) then
+		return nil
+	end
+	local scale = Decor.modelSize(facing.size)
+	local frontDepth = if isNumber(facing.frontDepth) then math.max(facing.frontDepth :: number, 0) else 0
+	local laneEnd = LaneLayout.laneLength(laneConfig, wallConfig)
+	return {
+		model = gate.model,
+		side = 0,
+		x = laneConfig.throwLine.x,
+		y = groundY,
+		z = laneConfig.throwLine.z - (laneEnd + math.max(gate.behindLaneEnd, 0) + frontDepth * scale),
+		yawDegrees = wrap(math.deg(heading(0, 1) - heading(facing.front.x, facing.front.z))),
+		scale = scale,
 	}
 end
 

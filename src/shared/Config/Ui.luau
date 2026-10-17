@@ -1066,6 +1066,7 @@ return {
 					--   across: where on the outer step: 0 = its inner edge, 1 = its outer edge.
 					--   turnDegrees: turned this much away from looking straight at the lane.
 					--   scale: size, 1 = as modelled. At most decor.maxScaleChange away from 1.
+					--   light = false: the piece has no light even if its model has one.
 					decor = {
 						pieces = {
 							-- A lantern on each side at the start of the zone, like a gate.
@@ -1609,10 +1610,122 @@ return {
 						},
 					},
 				},
-				-- No look yet; only its name, announced at the end of the iron zone.
+				-- A noble dragon temple, the finale of world 1. It is the last zone, so no name
+				-- floats behind it; the temple gate stands there instead.
 				Jade = {
 					name = "JADE",
 					nameColor = { 0, 168, 107 },
+					-- Two tones of strong jade green.
+					floor = { darkColor = { 0, 150, 96 }, lightColor = { 20, 170, 112 } },
+					-- Walkways of white marble, a gold edge towards the lane.
+					walk = {
+						darkColor = { 230, 230, 226 },
+						lightColor = { 244, 244, 240 },
+						curbColor = { 212, 170, 60 },
+					},
+					-- A wall of jade with a relief as a model, about as big as the wall. The scratch
+					-- lies on its relief; color is the color of its pieces, every fourth piece gold.
+					wall = {
+						color = { 0, 168, 107 },
+						scratch = true,
+						pieceAccent = { color = { 212, 170, 60 }, every = 4 },
+						model = {
+							template = "jade_wall",
+							-- Its frame is rounded at the outer edges and lower in the middle, so
+							-- the part that really covers is a little smaller than the model.
+							-- coverDepth: the relief, so its front lies level with the wall's front.
+							coverWidth = 29,
+							coverHeight = 15.4,
+							coverDepth = 1.56,
+							sinkStuds = 0,
+						},
+					},
+					-- The temple gate at the end of the lane, behind the last wall: endGate: a model
+					-- from decor.models with a frontDepth, behindLaneEnd: how far behind the end of
+					-- the lane floor its front stands, in studs. It stands on the green ground.
+					endGate = { model = "temple_gate", behindLaneEnd = 0.5 },
+					decor = {
+						pieces = {
+							-- A dragon statue on each side at the start of the zone, as a pair, heads towards the lane.
+							{
+								model = "dragon_pillar",
+								side = "left",
+								along = 8,
+								across = 0.5,
+								turnDegrees = 0,
+								scale = 1,
+							},
+							{
+								model = "dragon_pillar",
+								side = "right",
+								along = 8,
+								across = 0.5,
+								turnDegrees = 0,
+								scale = 1,
+							},
+							-- Left side.
+							{
+								model = "jade_crystals",
+								side = "left",
+								along = 46,
+								across = 0.5,
+								turnDegrees = 15,
+								scale = 1.05,
+							},
+							{
+								model = "jade_crystals",
+								side = "left",
+								along = 118,
+								across = 0.55,
+								turnDegrees = 30,
+								scale = 0.95,
+								-- Without light: lights cost a lot on phones.
+								light = false,
+							},
+							{
+								model = "bell_tower",
+								side = "left",
+								along = 152,
+								across = 0.5,
+								turnDegrees = 12,
+								scale = 0.95,
+							},
+							-- Right side.
+							{
+								model = "bell_tower",
+								side = "right",
+								along = 37,
+								across = 0.5,
+								turnDegrees = -10,
+								scale = 1,
+							},
+							{
+								model = "jade_crystals",
+								side = "right",
+								along = 74,
+								across = 0.5,
+								turnDegrees = -20,
+								scale = 1,
+							},
+							-- A pagoda on each side at the very outside, behind the other pieces.
+							{
+								model = "pagoda",
+								side = "left",
+								along = 70,
+								across = 0.88,
+								turnDegrees = 20,
+								scale = 1,
+							},
+							{
+								model = "pagoda",
+								side = "right",
+								along = 128,
+								across = 0.88,
+								turnDegrees = -15,
+								scale = 1.05,
+							},
+						},
+					},
 				},
 			},
 		},
@@ -1861,6 +1974,8 @@ return {
 		--   size: the model is shown this many times as big as it was modelled (left out = 1).
 		--     A piece's own scale in a zone's list comes on top of it.
 		--   maxScaleChange: for a model that may differ more in size than the others (below).
+		--   frontDepth: for a gate at the end of the lane: how far its front lies in front of
+		--     its pivot, in the model's own studs.
 		--   gate: for a gate across the lane. Its pillars, in the model's own studs: the side
 		--     of each pillar nearer to the middle (pillarInnerX) and the side further from it
 		--     (pillarOuterX), the free height under its lowest beam (clearHeight) and its whole
@@ -2121,6 +2236,89 @@ return {
 						heightStuds = 1.5,
 						seconds = 4,
 						transparency = 0.4,
+					},
+				},
+
+				-- The jade zone.
+				dragon_pillar = {
+					template = "dragon_pillar",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 2,
+					-- The orb pulses slightly, without light of its own.
+					glow = {
+						part = "Glow",
+						dimColor = { 90, 210, 150 },
+						brightColor = { 180, 255, 215 },
+						seconds = 3,
+					},
+				},
+				jade_crystals = {
+					template = "jade_crystals",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 2,
+					-- The tips pulse slowly, with a weak green light.
+					light = {
+						part = "Glow",
+						color = { 120, 255, 180 },
+						brightness = 0.6,
+						range = 12,
+						flickerStrength = 0,
+						flickerSpeed = 0,
+						pulseSeconds = 4,
+						pulseStrength = 0.4,
+					},
+					glow = {
+						part = "Glow",
+						dimColor = { 110, 220, 170 },
+						brightColor = { 200, 255, 225 },
+						seconds = 4,
+					},
+				},
+				bell_tower = {
+					template = "bell_tower",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 2,
+					-- The bell swings very slowly a little to and fro, from its top.
+					sway = {
+						part = "Bell",
+						degrees = 3,
+						seconds = 6,
+						aroundTop = true,
+					},
+				},
+				-- Stands still.
+				pagoda = {
+					template = "pagoda",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 2.4,
+				},
+				-- At the end of the lane. Its portal pulses slowly, with a light in the passage;
+				-- it does nothing yet.
+				temple_gate = {
+					template = "temple_gate",
+					front = { x = 0, z = -1 },
+					turnTowardsThrowZoneDegrees = 0,
+					size = 2,
+					frontDepth = 7.3,
+					light = {
+						part = "Glow",
+						color = { 140, 255, 200 },
+						brightness = 1.2,
+						range = 20,
+						flickerStrength = 0,
+						flickerSpeed = 0,
+						pulseSeconds = 5,
+						pulseStrength = 0.3,
+					},
+					glow = {
+						part = "Glow",
+						dimColor = { 90, 210, 160 },
+						brightColor = { 180, 255, 215 },
+						seconds = 5,
 					},
 				},
 			},

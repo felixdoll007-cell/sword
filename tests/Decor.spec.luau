@@ -1,7 +1,9 @@
 local Decor = require("../src/shared/Rules/Decor")
+local LaneLayout = require("../src/shared/Rules/LaneLayout")
 local ZoneLook = require("../src/shared/Rules/ZoneLook")
 local LaneConfig = require("../src/shared/Config/Lane")
 local WallConfig = require("../src/shared/Config/Walls")
+local ThrowConfig = require("../src/shared/Config/Throw")
 local ThrowVisuals = require("../src/shared/Config/ThrowVisuals")
 local Ui = require("../src/shared/Config/Ui")
 
@@ -14,8 +16,11 @@ local BAMBOO = 2
 local WOOD = 3
 local STONE = 4
 local IRON = 5
--- The first zone without a look.
 local JADE = 6
+local jadeLook = look.zones.Jade
+local jadeDecor = jadeLook.decor
+-- A look without any zone: no walkways anywhere.
+local plainLook = { walk = look.walk, sign = look.sign, wallFrame = look.wallFrame, zones = {} }
 local ironDecor = look.zones.Iron.decor
 local stoneLook = look.zones.Stone
 local stoneDecor = stoneLook.decor
@@ -283,7 +288,7 @@ return {
 	end,
 
 	["zones without walkways or without decoration have none"] = function(expect)
-		expect(#place(paperDecor, JADE)).toBe(0)
+		expect(#Decor.placements(LaneConfig, WallConfig, plainLook :: any, paperDecor, models, limits, PAPER)).toBe(0)
 		expect(#place(nil)).toBe(0)
 		expect(#place({ pieces = {} })).toBe(0)
 	end,
@@ -510,7 +515,7 @@ return {
 		expect(Decor.gate(LaneConfig, WallConfig, look, { model = "torii_gate", along = 0 / 0 }, models, STONE)).toBe(
 			nil
 		)
-		expect(Decor.gate(LaneConfig, WallConfig, look, stoneLook.gate, models, JADE)).toBe(nil)
+		expect(Decor.gate(LaneConfig, WallConfig, plainLook :: any, stoneLook.gate, models, STONE)).toBe(nil)
 	end,
 
 	["the stone zone: lions as a pair behind the gate, bonsai and rocks uneven, at most twelve"] = function(expect)
@@ -628,9 +633,14 @@ return {
 			local lights = 0
 			if zone.decor then
 				for _, piece in zone.decor.pieces do
-					if models[piece.model].light then
+					if models[piece.model].light and piece.light ~= false then
 						lights += 1
 					end
+				end
+			end
+			for _, gate in { zone.gate, zone.endGate } do
+				if models[gate.model].light then
+					lights += 1
 				end
 			end
 			expect(lights <= limits.maxLightsPerZone).toBe(true)
@@ -683,6 +693,127 @@ return {
 		expect(Decor.pieceColors(grey, { color = bronze, every = 0 }, 4)[4]).toBe(grey)
 		expect(#Decor.pieceColors(grey, nil, -2)).toBe(0)
 		expect(#Decor.pieceColors(grey, nil, 0 / 0)).toBe(0)
+	end,
+
+	["the jade zone: dragons as a pair, crystals, bells and two pagodas at the very outside"] = function(expect)
+		local all = place(jadeDecor, JADE)
+		expect(#all).toBe(#jadeDecor.pieces)
+		expect(#all <= 12).toBe(true)
+		local from, to = ZoneLook.range(LaneConfig, WallConfig, JADE)
+		local counts: { [string]: number } = {}
+		local dragons: { [number]: Decor.Placement } = {}
+		local pagodas: { [number]: Decor.Placement } = {}
+		local bySide: { [number]: { [string]: boolean } } = { [-1] = {}, [1] = {} }
+		local crystalLights = 0
+		for index, placement in all do
+			counts[placement.model] = (counts[placement.model] or 0) + 1
+			expect(placement.z <= LaneConfig.throwLine.z - from and placement.z >= LaneConfig.throwLine.z - to).toBe(
+				true
+			)
+			expect(fromLane(placement) >= look.walk.curbWidth + look.walk.innerWidth).toBe(true)
+			-- Not smaller than in the bamboo zone.
+			expect(models[placement.model].size >= 1.8).toBe(true)
+			if placement.model == "jade_crystals" and placement.light then
+				crystalLights += 1
+			end
+			expect(placement.light).toBe(jadeDecor.pieces[index].light ~= false)
+			if placement.model == "dragon_pillar" then
+				dragons[placement.side] = placement
+			else
+				bySide[placement.side][`{placement.model}@{math.round(placement.z)}`] = true
+			end
+			if placement.model == "pagoda" then
+				pagodas[placement.side] = placement
+			end
+		end
+		expect(counts.dragon_pillar).toBe(2)
+		expect(counts.jade_crystals >= 2 and counts.jade_crystals <= 3).toBe(true)
+		expect(counts.bell_tower >= 1 and counts.bell_tower <= 2).toBe(true)
+		expect(counts.pagoda).toBe(2)
+		expect(crystalLights).toBe(2)
+		-- The dragons: a pair at the start, looking straight at the lane.
+		expect(dragons[-1].z).toBe(dragons[1].z)
+		expect(fromLane(dragons[-1])).toBeNear(fromLane(dragons[1]))
+		expect(LaneConfig.throwLine.z - from - dragons[-1].z <= 10).toBe(true)
+		expect(models.dragon_pillar.turnTowardsThrowZoneDegrees).toBe(0)
+		-- One pagoda per side, further out than everything else on its side.
+		for _, side in { -1, 1 } do
+			for _, placement in all do
+				if placement.side == side and placement.model ~= "pagoda" then
+					expect(fromLane(pagodas[side]) > fromLane(placement)).toBe(true)
+				end
+			end
+		end
+		for key in bySide[-1] do
+			expect(bySide[1][key]).toBe(nil)
+		end
+		for _, side in { -1, 1 } do
+			local along = {}
+			for _, placement in all do
+				if placement.side == side then
+					table.insert(along, -placement.z)
+				end
+			end
+			table.sort(along)
+			local gaps = {}
+			for index = 2, #along do
+				local gap = math.round(along[index] - along[index - 1])
+				expect(gaps[gap]).toBe(nil)
+				gaps[gap] = true
+			end
+		end
+	end,
+
+	["the temple gate stands at the end of the lane, big, its front towards the throw zone"] = function(expect)
+		local ground = world.ground.topY
+		local gate = Decor.endGate(LaneConfig, WallConfig, jadeLook.endGate, models, ground) :: Decor.Placement
+		expect(gate ~= nil).toBe(true)
+		local spec = models.temple_gate
+		local laneEnd = LaneLayout.laneLength(LaneConfig, WallConfig)
+		expect(gate.model).toBe("temple_gate")
+		expect(gate.x).toBe(LaneConfig.throwLine.x)
+		expect(gate.y).toBe(ground)
+		expect(gate.scale).toBe(spec.size)
+		-- Its front stands just behind the end of the lane floor, so it lies on nothing of the
+		-- lane, and the weapon stops well before it.
+		local front = LaneConfig.throwLine.z - gate.z - spec.frontDepth * gate.scale
+		expect(front >= laneEnd and front <= laneEnd + 2).toBe(true)
+		expect(front - (laneEnd - ThrowConfig.stuckDistanceFromLaneEnd) >= 8).toBe(true)
+		-- Behind the last wall.
+		expect(front > LaneLayout.wallDistance(LaneConfig, WallConfig, #WallConfig.materials * WallConfig.wallsPerZone)).toBe(
+			true
+		)
+		local x, z = turn(spec.front.x, spec.front.z, gate.yawDegrees)
+		expect(near(x, 0) and near(z, 1)).toBe(true)
+		-- Big: as wide as the lane with its walkways, far higher than the walls.
+		expect(spec.size >= 2).toBe(true)
+		-- Broken entries.
+		expect(Decor.endGate(LaneConfig, WallConfig, nil, models, ground)).toBe(nil)
+		expect(Decor.endGate(LaneConfig, WallConfig, { model = "garden_gnome", behindLaneEnd = 1 }, models, ground)).toBe(
+			nil
+		)
+		expect(Decor.endGate(LaneConfig, WallConfig, { model = "temple_gate", behindLaneEnd = 0 / 0 }, models, ground)).toBe(
+			nil
+		)
+		-- Only the last zone has one.
+		for name, zone in look.zones :: { [string]: any } do
+			expect(zone.endGate == nil or name == "Jade").toBe(true)
+		end
+	end,
+
+	["jade crystals, dragon orb, bell and portal move slowly"] = function(expect)
+		local crystals = models.jade_crystals
+		expect(crystals.light.pulseSeconds).toBe(crystals.glow.seconds)
+		expect(crystals.light.brightness <= 1).toBe(true)
+		expect(models.dragon_pillar.light).toBe(nil)
+		expect(models.dragon_pillar.glow.part).toBe("Glow")
+		expect(models.bell_tower.sway.part).toBe("Bell")
+		expect(models.bell_tower.sway.aroundTop).toBe(true)
+		expect(models.bell_tower.sway.seconds >= 4).toBe(true)
+		local gate = models.temple_gate
+		expect(gate.light.pulseSeconds).toBe(gate.glow.seconds)
+		expect(gate.glow.part).toBe("Glow")
+		expect(models.pagoda.sway == nil and models.pagoda.glow == nil and models.pagoda.light == nil).toBe(true)
 	end,
 
 	["a model with its own size limit may differ more than the others"] = function(expect)
@@ -760,7 +891,7 @@ return {
 	end,
 
 	["every model in the list is known, and movements have sensible values"] = function(expect)
-		for _, decor in { paperDecor, bambooDecor, woodDecor, stoneDecor, ironDecor } do
+		for _, decor in { paperDecor, bambooDecor, woodDecor, stoneDecor, ironDecor, jadeDecor } do
 			for _, piece in decor.pieces do
 				expect(typeof(models[piece.model])).toBe("table")
 				expect(piece.side == "left" or piece.side == "right").toBe(true)

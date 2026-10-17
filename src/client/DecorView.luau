@@ -11,6 +11,8 @@
 --   * the cloth of a training dummy waves slightly, the plaques of a plaque rack swing
 --   * a forge has a warm light that swells and fades slowly, its coals with it; the glowing iron
 --     on an anvil does the same without light; the steam of a quench barrel rises and fades
+--   * in the jade zone the crystal tips pulse (two groups with a weak light), the orb of a dragon
+--     pulses, a bell swings slowly, and the portal of the temple gate pulses with a light
 --   * a tree, a drum, a weapon rack and a stack of barrels stand still, and so does everything
 --     in the temple garden (gate, lions, bonsai, rocks)
 -- Which model stands where is worked out in Rules/Decor; everything adjustable is in Config/Ui
@@ -245,7 +247,7 @@ local function buildPiece(placement: Decor.Placement, templates: Instance, folde
 	model.Parent = folder
 
 	-- The movements are recorded after the piece stands at its place.
-	if settings.light then
+	if settings.light and placement.light ~= false then
 		addLight(model, settings.light, seed)
 	end
 	if settings.float then
@@ -345,6 +347,17 @@ function DecorView.start()
 			Decor.gate(LaneConfig, WallConfig, world.lane, zoneStyle and zoneStyle.gate, world.decor.models, zone)
 		if gate then
 			table.insert(placements, 1, gate)
+		end
+		-- The gate at the end goes first, so its light is never left out.
+		local endGate = Decor.endGate(
+			LaneConfig,
+			WallConfig,
+			zoneStyle and zoneStyle.endGate,
+			world.decor.models,
+			world.ground.topY
+		)
+		if endGate then
+			table.insert(placements, 1, endGate)
 		end
 		for _, placement in placements do
 			count += 1

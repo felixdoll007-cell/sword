@@ -216,7 +216,8 @@ Name der nächsten Zone ("BAMBOO") über der Bahn. Jede weitere Zone braucht nur
 mit Farben, Namen, Wand (Farbe, Muster oder Modell, Kratzer an/aus) und Deko-Liste in
 `Config/Ui` (world.lane.zones). Eine Zone
 endet an ihrer letzten Wand; das Stück bis zur ersten Wand der nächsten Zone gehört zur
-nächsten Zone. Hinter Wand 25 und auf den Trainingsbahnen 4x bis 20x ist der Boden noch grau.
+nächsten Zone. Alle sechs Zonen von Welt 1 haben ihr Aussehen; nur die Trainingsbahnen 4x bis
+20x sind noch grau.
 
 Die Bambus-Zone (Wand 6 bis 10) ist die zweite fertige Zone: Boden in zwei Tönen hellem,
 frischem Grün, Gehwege in zwei Tönen warmem Steingrau mit dunkel bambusgrüner Kante, und
@@ -268,6 +269,20 @@ warmes oranges Licht ohne Schatten, das langsam an- und abschwillt, die Kohlen m
 glühende Eisen auf den Ambossen pulsiert ohne eigenes Licht; der Dampf der Wasserfässer steigt
 langsam auf und verblasst. Eine Zone hat höchstens vier Lichter. Hinter ihr schwebt "JADE" in
 kräftigem Jadegrün.
+
+Die Jade-Zone (Wand 26 bis 30) ist die sechste und letzte Zone von Welt 1: ein edler
+Drachentempel, das Finale. Boden in zwei Tönen kräftigem Jadegrün, Gehwege aus weißem Marmor mit
+goldener Kante. Die Wände sind Jadewände mit Relief und goldenem Rahmen als Modell, etwa so groß
+wie die Wand; der Kratzer liegt auf dem Relief, Bruchstücke jadegrün, jedes vierte golden. Alles
+ist matt, nichts spiegelt den Himmel. Am Anfang der Zone links und rechts eine Drachenstatue als
+Paar, dann drei Gruppen Jade-Kristalle, zwei Glockenstände und ganz außen zwei Pagoden; die
+Statuen, Kristalle und Glocken 2-mal so groß wie modelliert, die Pagoden 2,4-mal. Die
+Kristallspitzen pulsieren langsam (zwei Gruppen mit schwachem grünem Licht), die Kugel der
+Drachen pulsiert ohne Licht, die Glocken schwingen ganz langsam. Hinter der Zone schwebt kein
+Name; am Ende der Bahn, gleich hinter dem Ende des Bodens, steht das Tempeltor (2-mal so groß wie
+modelliert, 80 Studs breit, 70 hoch) auf dem grünen Grund, Front zur Wurfzone, als Ziel am
+Horizont. Sein Portal pulsiert langsam mit einem Licht im Durchgang und hat noch keine Funktion.
+Die Waffe bleibt über 10 Studs davor stecken.
 
 Die Bahn ist die Hauptsache, der Rand ist Kulisse. Links und rechts der Papier-Zone liegen
 breite Gehwege in zwei Stufen (innen etwa 1 Stud, außen etwa 2,5 Studs hoch) in ruhigem

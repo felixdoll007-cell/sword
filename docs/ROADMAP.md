@@ -305,6 +305,17 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Bahn ab Wand 26.
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 
+### Block: Jade-Zone und Abschluss von Welt 1 (Vorgriff auf Version 4, nur Aussehen)
+- [x] Bahnboden der Zone in zwei Tönen Jadegrün, Gehwege aus weißem Marmor mit goldener Kante, unsichtbarer Zaun wie bisher; schließt ohne Überlappung an die Eisen-Zone an und reicht bis zum Ende der Bahn
+- [x] Sechs neue Vorlagen eingefärbt (alles matt) und in `ReplicatedStorage.Assets` abgelegt: `dragon_pillar`, `jade_crystals`, `bell_tower`, `pagoda`, `jade_wall`, `temple_gate`
+- [x] Wände 26 bis 30 als Modell (Jadewand), Kratzer auf dem Relief, Bruchstücke jadegrün, jedes vierte golden
+- [x] Neun Deko-Teile an festen Plätzen: zwei Drachenstatuen als Paar, drei Kristallgruppen, zwei Glockenstände, zwei Pagoden ganz außen
+- [x] Tempeltor am Ende der Bahn, Front zur Wurfzone, Portal leuchtet (noch ohne Funktion)
+- [x] Bewegungen und Licht auf dem Client: Kristallspitzen (zwei Gruppen mit Licht), Drachenkugel, Glocke, Portal mit Licht; drei Lichter in der Zone
+- [ ] Von mir getestet
+- Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Länge der Bahn.
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 
