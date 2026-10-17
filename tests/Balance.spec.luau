@@ -20,7 +20,22 @@ local KNOWN_UNLOCK_KINDS = {
 		local rebirths = unlock.rebirths
 		return typeof(rebirths) == "number" and rebirths >= 0 and rebirths % 1 == 0
 	end,
+	-- The Robux lane: nothing more to set yet. The game itself keeps it locked until the
+	-- purchase is built.
+	Purchase = function(_unlock: Training.Unlock): boolean
+		return true
+	end,
 }
+
+-- Does a training lane unlock at exactly this many rebirths?
+local function laneUnlocksAt(rebirths: number): boolean
+	for _, lane in TrainingConfig.lanes do
+		if lane.unlock.kind == "Rebirths" and lane.unlock.rebirths == rebirths then
+			return true
+		end
+	end
+	return false
+end
 
 -- Strength per second on the best lane a player with this many rebirths can use.
 local function bestStrengthPerSecond(rebirths: number): number
@@ -86,10 +101,14 @@ return {
 		expect(#RebirthConfig.thresholds).toBe(#TARGET_MINUTES)
 	end,
 
-	["runs never get shorter from one rebirth to the next"] = function(expect)
+	["runs never get shorter from one rebirth to the next, except when a new lane opens"] = function(expect)
 		for rebirths = 0, 30 do
-			expect(runMinutes(rebirths + 1) >= runMinutes(rebirths) - ALLOWED_DIFFERENCE_MINUTES).toBe(true)
+			if not laneUnlocksAt(rebirths + 1) then
+				expect(runMinutes(rebirths + 1) >= runMinutes(rebirths) - ALLOWED_DIFFERENCE_MINUTES).toBe(true)
+			end
 		end
+		-- The 50x lane opens at 10 rebirths (docs/GAME_DESIGN.md): that run is clearly shorter.
+		expect(runMinutes(10) < runMinutes(9)).toBe(true)
 	end,
 
 	["a new player can train on lane 1 right away"] = function(expect)
@@ -141,8 +160,8 @@ return {
 			end
 			return config
 		end
-		-- Twice as many lanes as now still fit.
-		checkLanesFitOnMap(withLanes(#TrainingConfig.lanes * 2))
+		-- Two more lanes than now still fit (their final place comes with the layout of the map).
+		checkLanesFitOnMap(withLanes(#TrainingConfig.lanes + 2))
 		-- A hundred lanes do not, and the check says so instead of building lanes in the void.
 		local ok = pcall(checkLanesFitOnMap, withLanes(100))
 		expect(ok).toBe(false)

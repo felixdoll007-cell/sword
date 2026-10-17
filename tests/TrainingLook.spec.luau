@@ -66,13 +66,141 @@ local frame = TrainingLook.frame(TrainingConfig, field, STRAW_LANE)
 local stones = TrainingLook.stones(TrainingConfig, field, STRAW_LANE, floorTopY, straw.strip.stones)
 
 return {
-	["lane 1 has the straw theme, the other lanes stay plain"] = function(expect)
-		expect(training.laneThemes[1]).toBe("straw")
-		for laneIndex = 2, Training.laneCount(TrainingConfig) do
-			expect(training.laneThemes[laneIndex]).toBe(nil)
-		end
-		for _, name in training.laneThemes :: { [number]: string } do
+	["every lane has its theme in the dojo style"] = function(expect)
+		local expected = { "straw", "bambooGrove", "woodDojo", "waterfallRocks", "forge", "dragonArena" }
+		expect(Training.laneCount(TrainingConfig)).toBe(#expected)
+		for laneIndex, name in expected do
+			expect(training.laneThemes[laneIndex]).toBe(name)
 			expect(typeof(training.themes[name])).toBe("table")
+		end
+	end,
+
+	["every themed field keeps clear of the other fields, the walkways and the throw zone"] = function(expect)
+		local walkWidth = ZoneLook.walkWidthAtThrowZone(LaneConfig, WallConfig, world.lane)
+		for laneIndex = 1, Training.laneCount(TrainingConfig) do
+			local field1 = TrainingLook.outline(TrainingConfig, field, laneIndex)
+			for other = laneIndex + 1, Training.laneCount(TrainingConfig) do
+				expect(overlap(field1, TrainingLook.outline(TrainingConfig, field, other))).toBe(false)
+			end
+			for zone in WallConfig.materials do
+				for _, part in ZoneLook.walks(LaneConfig, WallConfig, world.lane, zone) do
+					expect(overlap(field1, part.area)).toBe(false)
+				end
+			end
+			for _, piece in ThrowZoneLayout.surroundings(LaneConfig, world.surroundings, walkWidth) do
+				expect(overlap(field1, piece)).toBe(false)
+			end
+			expect(overlap(field1, ThrowZoneLayout.zone(LaneConfig))).toBe(false)
+			-- On the ground of the map.
+			expect(left(field1) >= -LaneConfig.groundHalfSize).toBe(true)
+		end
+	end,
+
+	["every theme: its pieces fill its field, its stones step, its target and props stand right"] = function(expect)
+		for laneIndex, name in training.laneThemes :: { [number]: string } do
+			local theme = training.themes[name] :: any
+			local laneOutline = TrainingLook.outline(TrainingConfig, field, laneIndex)
+			local lanePad = TrainingLook.pad(TrainingConfig, laneIndex)
+			local laneStrip = TrainingLook.strip(TrainingConfig, field, laneIndex)
+			local laneInner = TrainingLook.inner(TrainingConfig, field, laneIndex)
+			local edgeWidth = if theme.frame.edge then theme.frame.edge.width else 0
+			-- Frame, its edge line, floor, strip and pad together fill the field, nothing on anything.
+			local pieces: { Area } = { lanePad, laneStrip }
+			for _, list in
+				{
+					TrainingLook.floors(TrainingConfig, field, laneIndex),
+					TrainingLook.frame(TrainingConfig, field, laneIndex, edgeWidth),
+					TrainingLook.frameEdge(TrainingConfig, field, laneIndex, edgeWidth),
+				}
+			do
+				for _, piece in list do
+					table.insert(pieces, piece)
+				end
+			end
+			local area = 0
+			for index, piece in pieces do
+				expect(inside(piece, laneOutline)).toBe(true)
+				area += piece.width * piece.length
+				for other = index + 1, #pieces do
+					expect(overlap(piece, pieces[other])).toBe(false)
+				end
+			end
+			expect(area).toBeNear(laneOutline.width * laneOutline.length)
+			-- The stone edge steps in and out, the sides are not mirrored.
+			local sides = theme.strip.stones
+			for _, side in { sides.left, sides.right } do
+				for index = 2, #side do
+					expect(side[index].width ~= side[index - 1].width).toBe(true)
+				end
+			end
+			local laneStones = TrainingLook.stones(TrainingConfig, field, laneIndex, floorTopY, sides)
+			expect(#laneStones >= 6 and #laneStones <= 10).toBe(true)
+			-- The target stands on the strip with its face on the target line.
+			local place = TrainingLook.target(TrainingConfig, laneIndex, floorTopY, theme.target)
+			expect(place.z).toBeNear(TrainingLook.targetLineZ(TrainingConfig, laneIndex) - theme.target.faceDistance)
+			expect(place.z > front(laneStrip) and place.z < back(laneStrip)).toBe(true)
+			-- Props stand on the themed floor beside the strip, never on it (floating ones may cross it).
+			for _, prop in theme.props do
+				local at = TrainingLook.prop(TrainingConfig, field, laneIndex, floorTopY, prop)
+				expect(math.abs(at.x - lanePad.x) > lanePad.width / 2).toBe(true)
+				expect(at.z < front(lanePad)).toBe(true)
+				if (prop.lift or 0) == 0 then
+					expect(at.z > front(laneInner) and at.z < back(laneInner)).toBe(true)
+				end
+				expect(prop.scale == nil or (prop.scale > 0.5 and prop.scale <= 1.2)).toBe(true)
+			end
+		end
+	end,
+
+	["a frame can have a thin line along its inside, as high as the frame"] = function(expect)
+		local edge = TrainingLook.frameEdge(TrainingConfig, field, STRAW_LANE, 0.4)
+		expect(#edge).toBe(4)
+		for _, piece in edge do
+			expect(overlap(piece, inner)).toBe(false)
+			expect(math.min(piece.width, piece.length)).toBeNear(0.4)
+		end
+		-- No line, or a broken width: no line, and the frame stays as it was.
+		expect(#TrainingLook.frameEdge(TrainingConfig, field, STRAW_LANE, 0)).toBe(0)
+		expect(#TrainingLook.frameEdge(TrainingConfig, field, STRAW_LANE, 0 / 0)).toBe(0)
+		local plainFrame = TrainingLook.frame(TrainingConfig, field, STRAW_LANE)
+		local zeroFrame = TrainingLook.frame(TrainingConfig, field, STRAW_LANE, 0)
+		for index, piece in plainFrame do
+			expect(piece.width).toBeNear(zeroFrame[index].width)
+		end
+		-- Never wider than the frame.
+		for _, piece in TrainingLook.frameEdge(TrainingConfig, field, STRAW_LANE, 50) do
+			expect(math.min(piece.width, piece.length)).toBeNear(field.frameWidth)
+		end
+		-- Forge and dragon arena have a glowing line.
+		expect(training.themes.forge.frame.edge.glow).toBe(true)
+		expect(training.themes.dragonArena.frame.edge.glow).toBe(true)
+		expect(training.themes.dragonArena.strip.stoneGlow).toBe(true)
+	end,
+
+	["lanes have at most two lights, the Robux lane its sign"] = function(expect)
+		expect(training.maxLightsPerLane).toBe(2)
+		for _, theme in training.themes :: { [string]: any } do
+			local lights = 0
+			if theme.target.motion and theme.target.motion.light then
+				lights += 1
+			end
+			for _, prop in theme.props do
+				if prop.motion and prop.motion.light then
+					lights += 1
+				end
+			end
+			expect(lights <= training.maxLightsPerLane).toBe(true)
+		end
+		local robux = world.signs.robuxLane
+		expect(robux.topText).toBe("ALL WORLDS")
+		expect(robux.pillText).toBe("COMING SOON")
+		expect(robux.lockedText).toBe("LOCKED")
+		expect(robux.topHeight + robux.pillHeight + robux.statusHeight <= 1).toBe(true)
+		-- The crystals of the arena circle its dragon slowly.
+		for _, prop in training.themes.dragonArena.props do
+			expect(prop.model).toBe("jade_crystals")
+			expect(prop.motion.orbit.seconds >= 10).toBe(true)
+			expect(isColor(prop.colors.Crystals)).toBe(true)
 		end
 	end,
 
@@ -300,20 +428,7 @@ return {
 		end
 	end,
 
-	["the field keeps clear of the other lanes, the walkways and the green at the throw zone"] = function(expect)
-		for laneIndex = 1, Training.laneCount(TrainingConfig) do
-			if laneIndex ~= STRAW_LANE then
-				local area = Training.laneArea(TrainingConfig, laneIndex) :: Training.Area
-				-- The other lane with its invisible barriers along the sides.
-				local other: Area = {
-					x = (area.minX + area.maxX) / 2,
-					z = (area.minZ + area.maxZ) / 2,
-					width = area.maxX - area.minX + 2 * LaneConfig.barrierThickness,
-					length = area.maxZ - area.minZ,
-				}
-				expect(overlap(outline, other)).toBe(false)
-			end
-		end
+	["the field keeps clear of the walkways and the green at the throw zone"] = function(expect)
 		for zone in WallConfig.materials do
 			for _, part in ZoneLook.walks(LaneConfig, WallConfig, world.lane, zone) do
 				expect(overlap(outline, part.area)).toBe(false)
@@ -344,6 +459,23 @@ return {
 	end,
 
 	["every color of the theme, the signs and the pedestals is a real color"] = function(expect)
+		for _, theme in training.themes :: { [string]: any } do
+			for _, value in
+				{
+					theme.frame.darkColor,
+					theme.frame.lightColor,
+					theme.floor.darkColor,
+					theme.floor.lightColor,
+					theme.strip.color,
+					theme.strip.stoneColor,
+					theme.pad.darkColor,
+					theme.pad.lightColor,
+					theme.pieceColor,
+				}
+			do
+				expect(isColor(value)).toBe(true)
+			end
+		end
 		for _, value in
 			{
 				straw.frame.darkColor,

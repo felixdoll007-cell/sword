@@ -129,6 +129,25 @@ weißer Marmor. Kristalle 20 % durchscheinend, Leuchtteile (`Glow`) Neon. Alle T
 spiegelt den Himmel. Der Drehpunkt jeder Vorlage ist die Mitte ihres Fußes; beim Tempeltor liegt
 die Vorderseite 7,3 Studs vor dem Drehpunkt.
 
+## Vorlagen der Trainingsbahnen im Dojo-Stil (importiert am 17.10.2026)
+
+| Vorlage | Datei | Dreiecke | Teile (Mesh-Namen) | Vorderseite | Bewegung |
+|---|---|---|---|---|---|
+| `tatami_target` | `assets/tatami-target.glb` | 960 | Mats, Cords, Stand, Bamboo, Nodes | -Z (Matten) | keine |
+| `board_break_target` | `assets/board-break-target.glb` | 384 | Frame, Boards, Crack, Cloth | -Z (Bretter) | keine |
+| `sacred_boulder` | `assets/sacred-boulder.glb` | 890 | Rock, RockDark, Glow, Moss, Rope, Paper | -Z (Riss) | `Glow` (Riss) pulsiert |
+| `samurai_armor` | `assets/samurai-armor.glb` | 1464 | Plates, Helmet, Gold, Stand | -Z | keine |
+| `golden_dragon` | `assets/golden-dragon.glb` | 1400 | Head, Mane, Base, Glow | -Z (Kopf) | `Glow` pulsiert, lila Licht |
+
+Farben: alles matt (Plastic, ohne Spiegeln), Leuchtteile (`Glow`) Neon. Bambusmatten hell
+grünbeige, Schnüre dunkelgrün, Gestell dunkelbraun, Bambus kräftig grün, Knoten dunkelgrün.
+Bretterstapel: Rahmen dunkelbraun, Bretter helles Holz, Riss fast schwarz, Tuch weiß.
+Felsbrocken blaugrau und dunkler blaugrau, Riss türkis, Moos moosgrün, Seil beige, Papier weiß.
+Rüstung: Platten dunkelrot, Helm fast schwarz, Gold matt, Ständer dunkelbraun. Drachenkopf: Kopf
+gold, Mähne dunkleres Gold, Sockel dunkellila, Kugel leuchtend lila. Der Drehpunkt jeder Vorlage
+ist die Mitte ihres Fußes. Die Jade-Kristalle der Arena sind dieselbe Vorlage wie in der
+Jade-Zone; das Spiel färbt sie beim Bauen lila.
+
 ## Vorlagen der Trainingsbahn 1x (importiert am 11.10.2026)
 
 Diese beiden baut der Server (`src/server/TrainingLook.luau`), sie stehen still.

@@ -50,8 +50,10 @@ export type Prop = {
 	-- Distance from the front edge of the pad towards the target.
 	forward: number,
 	turnDegrees: number?,
-	-- Height above the themed floor. For a prop that stands on another one.
+	-- Height above the themed floor. For a prop that stands on another one, or floats.
 	lift: number?,
+	-- Size, 1 = as modelled.
+	scale: number?,
 }
 
 export type Tuft = { right: number, forward: number, turnDegrees: number?, length: number, width: number }
@@ -118,16 +120,53 @@ function TrainingLook.inner(config: Training.TrainingConfig, field: FieldConfig,
 	return fromEdges(left(outline) + frame, right(outline) - frame, front(outline) + frame, back(outline) - frame)
 end
 
--- The frame: four strips along the inside of the outline. The two side strips also cover the corners.
-function TrainingLook.frame(config: Training.TrainingConfig, field: FieldConfig, laneIndex: number): { Area }
-	local outline = TrainingLook.outline(config, field, laneIndex)
-	local inner = TrainingLook.inner(config, field, laneIndex)
+-- Four strips between an outer and an inner area. The two side strips also cover the corners.
+local function ring(outer: Area, inside: Area): { Area }
 	return {
-		fromEdges(left(outline), left(inner), front(outline), back(outline)),
-		fromEdges(right(inner), right(outline), front(outline), back(outline)),
-		fromEdges(left(inner), right(inner), front(outline), front(inner)),
-		fromEdges(left(inner), right(inner), back(inner), back(outline)),
+		fromEdges(left(outer), left(inside), front(outer), back(outer)),
+		fromEdges(right(inside), right(outer), front(outer), back(outer)),
+		fromEdges(left(inside), right(inside), front(outer), front(inside)),
+		fromEdges(left(inside), right(inside), back(inside), back(outer)),
 	}
+end
+
+-- The frame's edge line is this wide: never wider than the frame, never below 0.
+local function edgeWidth(field: FieldConfig, wanted: number?): number
+	local width = if typeof(wanted) == "number" and wanted == wanted then wanted else 0
+	return math.clamp(width, 0, field.frameWidth)
+end
+
+-- The inside of the frame grown by its edge line.
+local function insideEdge(config: Training.TrainingConfig, field: FieldConfig, laneIndex: number, edge: number): Area
+	local inner = TrainingLook.inner(config, field, laneIndex)
+	return fromEdges(left(inner) - edge, right(inner) + edge, front(inner) - edge, back(inner) + edge)
+end
+
+-- The frame: four strips along the inside of the outline. The two side strips also cover the
+-- corners. edge: the width of a line along its inside (see frameEdge), left out of the frame.
+function TrainingLook.frame(
+	config: Training.TrainingConfig,
+	field: FieldConfig,
+	laneIndex: number,
+	edge: number?
+): { Area }
+	local outline = TrainingLook.outline(config, field, laneIndex)
+	return ring(outline, insideEdge(config, field, laneIndex, edgeWidth(field, edge)))
+end
+
+-- A line of this width along the inside of the frame, next to the frame and as high (e.g. glowing
+-- embers). Empty for a width of 0.
+function TrainingLook.frameEdge(
+	config: Training.TrainingConfig,
+	field: FieldConfig,
+	laneIndex: number,
+	edge: number?
+): { Area }
+	local width = edgeWidth(field, edge)
+	if width <= 0 then
+		return {}
+	end
+	return ring(insideEdge(config, field, laneIndex, width), TrainingLook.inner(config, field, laneIndex))
 end
 
 -- The themed floor: one band left and one right of the middle column, over the whole inner length.

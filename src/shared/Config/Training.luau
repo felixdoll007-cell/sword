@@ -19,13 +19,18 @@ return {
 		{ unlock = { kind = "Rebirths", rebirths = 2 }, multiplier = 4, walls = 2 },
 		{ unlock = { kind = "Rebirths", rebirths = 4 }, multiplier = 10, walls = 3 },
 		{ unlock = { kind = "Rebirths", rebirths = 6 }, multiplier = 20, walls = 4 },
+		{ unlock = { kind = "Rebirths", rebirths = 10 }, multiplier = 50, walls = 5 },
+		-- The Robux lane. It can not be bought yet: "Purchase" is not known to the game, so it
+		-- stays locked for everyone. Its multiplier is a placeholder until the purchase block.
+		{ unlock = { kind = "Purchase" }, multiplier = 1, walls = 5 },
 	},
 
 	-- The pad of lane 1: center and size on the ground, left of the throw zone.
 	-- Small, because the player snaps to its center and does not walk around on it.
 	pad = { x = -45, z = 7, width = 8, length = 8 },
-	-- Each further lane lies this far to the left of the one before (center to center).
-	laneSpacing = 16,
+	-- Each further lane lies this far to the left of the one before (center to center). Room for
+	-- a themed field (Config/Ui, world.training.field.width) and a little gap between two.
+	laneSpacing = 24,
 	-- Extra room around a pad for the position check (standing on the edge, lag).
 	padTolerance = 0.5,
 	padColor = { 85, 85, 85 },

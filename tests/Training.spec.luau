@@ -4,19 +4,28 @@ local TrainingConfig = require("../src/shared/Config/Training")
 local pad = TrainingConfig.pad
 
 return {
-	["there are four lanes with the planned requirements and multipliers"] = function(expect)
-		expect(Training.laneCount(TrainingConfig)).toBe(4)
-		local required = { 0, 2, 4, 6 }
-		local multipliers = { 1, 4, 10, 20 }
-		for index, lane in TrainingConfig.lanes do
+	["there are five lanes for rebirths with the planned requirements and multipliers, and the Robux lane"] = function(
+		expect
+	)
+		expect(Training.laneCount(TrainingConfig)).toBe(6)
+		local required = { 0, 2, 4, 6, 10 }
+		local multipliers = { 1, 4, 10, 20, 50 }
+		for index = 1, 5 do
+			local lane = TrainingConfig.lanes[index]
 			expect(lane.unlock.kind).toBe("Rebirths")
 			expect(lane.unlock.rebirths).toBe(required[index])
 			expect(lane.multiplier).toBe(multipliers[index])
 		end
+		-- The Robux lane can not be bought yet and stays locked for everyone.
+		expect(TrainingConfig.lanes[6].unlock.kind).toBe("Purchase")
+		expect(Training.isUnlocked(TrainingConfig, 6, { rebirths = 0 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 6, { rebirths = 1e6 })).toBe(false)
+		local robuxPad = Training.lanePad(TrainingConfig, 6) :: Training.Pad
+		expect(Training.trainingLane(TrainingConfig, robuxPad.x, robuxPad.z, { rebirths = 1e6 })).toBe(nil)
 	end,
 
 	["higher lanes have more walls"] = function(expect)
-		for index = 2, #TrainingConfig.lanes do
+		for index = 2, 5 do
 			expect(TrainingConfig.lanes[index].walls > TrainingConfig.lanes[index - 1].walls).toBe(true)
 		end
 	end,
@@ -32,7 +41,7 @@ return {
 			-- Room between two pads, also with the position tolerance on both sides.
 			expect(gap > 2 * TrainingConfig.padTolerance).toBe(true)
 		end
-		expect(Training.lanePad(TrainingConfig, 5)).toBe(nil)
+		expect(Training.lanePad(TrainingConfig, 7)).toBe(nil)
 		expect(Training.lanePad(TrainingConfig, 0)).toBe(nil)
 	end,
 
@@ -65,7 +74,10 @@ return {
 		expect(Training.isUnlocked(TrainingConfig, 4, { rebirths = 5 })).toBe(false)
 		expect(Training.isUnlocked(TrainingConfig, 4, { rebirths = 6 })).toBe(true)
 		expect(Training.isUnlocked(TrainingConfig, 4, { rebirths = 100 })).toBe(true)
-		expect(Training.isUnlocked(TrainingConfig, 5, { rebirths = 100 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 5, { rebirths = 9 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 5, { rebirths = 10 })).toBe(true)
+		expect(Training.isUnlocked(TrainingConfig, 6, { rebirths = 100 })).toBe(false)
+		expect(Training.isUnlocked(TrainingConfig, 7, { rebirths = 100 })).toBe(false)
 		expect(Training.isUnlocked(TrainingConfig, 2, { rebirths = 0 / 0 })).toBe(false)
 	end,
 

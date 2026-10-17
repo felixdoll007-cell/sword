@@ -24,6 +24,7 @@ local Training = require(Shared.Rules.Training)
 local TrainingLook = require(Shared.Rules.TrainingLook)
 
 local HandWeaponView = require(script.Parent.HandWeaponView)
+local TrainingDecorView = require(script.Parent.TrainingDecorView)
 local SwordView = require(script.Parent.SwordView)
 local ThrowAnimation = require(script.Parent.ThrowAnimation)
 local WallEffects = require(script.Parent.WallEffects)
@@ -118,6 +119,24 @@ local function buildSign(laneIndex: number, folder: Folder)
 	local lane = TrainingConfig.lanes[laneIndex]
 	local place =
 		TrainingLook.sign(TrainingConfig, laneIndex, LaneConfig.floorTopY, settings.heightAboveFloor, settings.forward)
+	-- The Robux lane can not be bought yet: where it counts, COMING SOON instead of a price,
+	-- and LOCKED. It never changes.
+	if lane.unlock.kind == "Purchase" then
+		local robux = Ui.world.signs.robuxLane
+		WorldSign.new({
+			name = `Lane{laneIndex}Sign`,
+			parent = folder,
+			position = Vector3.new(place.x, place.y, place.z),
+			widthStuds = settings.widthStuds,
+			heightStuds = settings.heightStuds,
+			rows = {
+				{ kind = "text", height = robux.topHeight, text = robux.topText },
+				{ kind = "pill", height = robux.pillHeight, text = robux.pillText },
+				{ kind = "text", height = robux.statusHeight, text = robux.lockedText, color = Ui.colors.danger },
+			},
+		})
+		return
+	end
 	signs[laneIndex] = WorldSign.new({
 		name = `Lane{laneIndex}Sign`,
 		parent = folder,
@@ -242,6 +261,8 @@ function TrainingView.start()
 
 	refreshSigns()
 	player:GetAttributeChangedSignal(Remotes.Attributes.Rebirths):Connect(refreshSigns)
+	-- The small movements of the themed lanes, once the server's lanes have arrived.
+	task.spawn(TrainingDecorView.start)
 
 	Remotes.TrainingThrow.OnClientEvent:Connect(function(_gained: unknown, lane: unknown)
 		if typeof(lane) ~= "number" or not walls[lane] then

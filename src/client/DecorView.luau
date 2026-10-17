@@ -13,6 +13,7 @@
 --     on an anvil does the same without light; the steam of a quench barrel rises and fades
 --   * in the jade zone the crystal tips pulse (two groups with a weak light), the orb of a dragon
 --     pulses, a bell swings slowly, and the portal of the temple gate pulses with a light
+--   * the training lanes use the same movements (client/TrainingDecorView)
 --   * a tree, a drum, a weapon rack and a stack of barrels stand still, and so does everything
 --     in the temple garden (gate, lions, bonsai, rocks)
 -- Which model stands where is worked out in Rules/Decor; everything adjustable is in Config/Ui
@@ -36,7 +37,7 @@ local TEMPLATES_WAIT_SECONDS = 10
 
 -- A group of parts that moves as one, each frame, relative to where it was built.
 type Mover = {
-	kind: "float" | "spin" | "sway" | "tip" | "rise",
+	kind: "float" | "spin" | "sway" | "tip" | "rise" | "orbit",
 	-- Where this group's parts start in the shared lists below.
 	first: number,
 	last: number,
@@ -64,6 +65,9 @@ type Glow = { part: BasePart, dim: Color3, bright: Color3, seconds: number, phas
 -- A part that rises and fades (steam); index is its place in the shared lists below.
 type Rise = { part: BasePart, index: number, transparency: number }
 
+-- A model that circles a point: where it was built, how far from the point and at which angle.
+type Orbit = { center: Vector3, start: Vector3, radius: number, angle: number }
+
 local DecorView = {}
 
 -- All moving parts and where they were built, in one list each, so they can be moved in one go.
@@ -74,8 +78,11 @@ local movers: { Mover } = {}
 local flickers: { Flicker } = {}
 local glows: { Glow } = {}
 local rises: { [Mover]: Rise } = {}
--- Lights built in the zone being built.
+local orbits: { [Mover]: Orbit } = {}
+-- Lights built in the group (zone or training lane) being built, and how many it may have.
 local lightsInZone = 0
+local lightLimit = Ui.world.decor.maxLightsPerZone
+local running: RBXScriptConnection? = nil
 local warnedAbout: { [string]: boolean } = {}
 
 local function color(rgb: { number }): Color3
@@ -102,7 +109,7 @@ end
 local function addLight(model: Model, settings: any, seed: number)
 	local part = findPart(model, settings.part)
 	-- Lights cost a lot on phones.
-	if not part or lightsInZone >= Ui.world.decor.maxLightsPerZone then
+	if not part or lightsInZone >= lightLimit then
 		return
 	end
 	lightsInZone += 1
@@ -217,6 +224,95 @@ local function addTilt(model: Model, kind: "sway" | "tip", settings: any, seed: 
 	})
 end
 
+-- The whole model circles the point settings.center, once in settings.seconds, starting where it
+-- stands. It keeps its height and does not turn.
+local function addOrbit(model: Model, settings: any, seed: number)
+	local parts = {}
+	for _, part in model:GetDescendants() do
+		if part:IsA("BasePart") then
+			table.insert(parts, part)
+		end
+	end
+	if #parts == 0 or typeof(settings.center) ~= "Vector3" then
+		return
+	end
+	local first, last = track(parts)
+	local start = model:GetPivot().Position
+	local offset = (start - settings.center) * Vector3.new(1, 0, 1)
+	local mover: Mover =
+		{ kind = "orbit", first = first, last = last, phase = seed, axis = CFrame.identity, settings = settings }
+	table.insert(movers, mover)
+	orbits[mover] = {
+		center = settings.center,
+		start = start,
+		radius = offset.Magnitude,
+		angle = math.atan2(offset.Z, offset.X),
+	}
+end
+
+local function update()
+	-- (filled in below; declared here so animate can start it)
+end
+
+local function ensureRunning()
+	if not running and (#movers > 0 or #flickers > 0 or #glows > 0) then
+		running = RunService.Heartbeat:Connect(function()
+			update()
+		end)
+	end
+end
+
+-- Starts a new group (a zone, a training lane) that may have at most this many lights.
+function DecorView.beginGroup(maxLights: number)
+	lightsInZone = 0
+	lightLimit = maxLights
+end
+
+-- Gives a model standing in the world its small movements: settings may hold light, float,
+-- spin, sway, tip, glow, rise and orbit (see Config/Ui, world.decor). withLight = false leaves
+-- the light out.
+function DecorView.animate(model: Model, settings: any, seed: number, withLight: boolean?)
+	if settings.light and withLight ~= false then
+		addLight(model, settings.light, seed)
+	end
+	if settings.float then
+		addFloat(model, settings.float, seed)
+	end
+	if settings.spin then
+		addSpin(model, settings.spin, seed)
+	end
+	if settings.sway then
+		addTilt(model, "sway", settings.sway, seed)
+	end
+	if settings.tip then
+		addTilt(model, "tip", settings.tip, seed)
+	end
+	if settings.glow then
+		addGlow(model, settings.glow, seed)
+	end
+	if settings.rise then
+		addRise(model, settings.rise, seed)
+	end
+	if settings.orbit then
+		addOrbit(model, settings.orbit, seed)
+	end
+	ensureRunning()
+end
+
+-- These parts' colors swell and fade together (e.g. glowing lines).
+function DecorView.glowParts(parts: { BasePart }, settings: any, seed: number)
+	for _, part in parts do
+		table.insert(glows, {
+			part = part,
+			dim = color(settings.dimColor),
+			bright = color(settings.brightColor),
+			seconds = settings.seconds,
+			phase = seed,
+		})
+	end
+	ensureRunning()
+end
+
 local function buildPiece(placement: Decor.Placement, templates: Instance, folder: Folder, seed: number)
 	local settings = (Ui.world.decor.models :: { [string]: any })[placement.model]
 	local template = templates:FindFirstChild(settings.template)
@@ -247,36 +343,24 @@ local function buildPiece(placement: Decor.Placement, templates: Instance, folde
 	model.Parent = folder
 
 	-- The movements are recorded after the piece stands at its place.
-	if settings.light and placement.light ~= false then
-		addLight(model, settings.light, seed)
-	end
-	if settings.float then
-		addFloat(model, settings.float, seed)
-	end
-	if settings.spin then
-		addSpin(model, settings.spin, seed)
-	end
-	if settings.sway then
-		addTilt(model, "sway", settings.sway, seed)
-	end
-	if settings.tip then
-		addTilt(model, "tip", settings.tip, seed)
-	end
-	if settings.glow then
-		addGlow(model, settings.glow, seed)
-	end
-	if settings.rise then
-		addRise(model, settings.rise, seed)
-	end
+	DecorView.animate(model, settings, seed, placement.light ~= false)
 end
 
-local function update()
+function update()
 	local time = os.clock()
 	for _, mover in movers do
 		local settings = mover.settings
 		if mover.kind == "float" then
 			local wave = math.sin((time / settings.seconds + mover.phase) * 2 * math.pi)
 			local offset = Vector3.new(0, wave * settings.heightStuds, 0)
+			for index = mover.first, mover.last do
+				currentFrames[index] = builtFrames[index] + offset
+			end
+		elseif mover.kind == "orbit" then
+			local orbit = orbits[mover]
+			local angle = orbit.angle + time / settings.seconds * 2 * math.pi
+			local place = orbit.center + Vector3.new(math.cos(angle), 0, math.sin(angle)) * orbit.radius
+			local offset = (place - orbit.start) * Vector3.new(1, 0, 1)
 			for index = mover.first, mover.last do
 				currentFrames[index] = builtFrames[index] + offset
 			end
@@ -340,7 +424,7 @@ function DecorView.start()
 	for zone, material in WallConfig.materials do
 		local zoneStyle = (world.lane.zones :: { [string]: any })[material]
 		local decor = zoneStyle and zoneStyle.decor
-		lightsInZone = 0
+		DecorView.beginGroup(world.decor.maxLightsPerZone)
 		local placements =
 			Decor.placements(LaneConfig, WallConfig, world.lane, decor, world.decor.models, world.decor, zone)
 		local gate =
@@ -366,10 +450,7 @@ function DecorView.start()
 		end
 	end
 	folder.Parent = Workspace
-
-	if #movers > 0 or #flickers > 0 or #glows > 0 then
-		RunService.Heartbeat:Connect(update)
-	end
+	ensureRunning()
 end
 
 return DecorView

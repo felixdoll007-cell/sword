@@ -28,6 +28,15 @@ Klein und sauber gemacht. Drei Bereiche:
 - Bahnen unterscheiden sich durch Multiplikator und Anzahl der Wände. Bahn 1 hat eine Wand, höhere Bahnen mehr.
 - Höhere Bahnen brauchen eine Mindestzahl an Rebirths.
 - Version 2: vier Bahnen nebeneinander. Voraussetzung 0, 2, 4 und 6 Rebirths, Multiplikator 1x, 4x, 10x und 20x.
+- Fünfte Bahn: 50x ab 10 Rebirths. Begründung: Die Schwellen-Liste reicht bis Rebirth 10 und rechnet
+  die Bahnen 1x bis 20x schon ein; ab dort wächst jeder Durchlauf per Formel um 20 % (mit 20x: 12,
+  14,4, 17,3 ... Minuten). Mit 50x fällt der Durchlauf bei Rebirth 10 einmal auf etwa 4,8 Minuten
+  und wächst dann wieder stetig, nach etwa fünf Rebirths ist er wieder bei 12 Minuten. 8 Rebirths
+  hätten die geplanten 8,5 und 10 Minuten der Liste auf 3,4 und 4 Minuten halbiert. Mit allen
+  Waffen dauert der erste Durchlauf mit 50x etwa 2,9 Minuten; das ist als Ausnahme gewollt: Der
+  Durchlauf direkt nach einer neuen Bahn darf kürzer als 3 Minuten sein, aber nicht unter 2,5.
+- Sechste Bahn: die Robux-Bahn (Drachen-Arena), Freischaltung "Kauf". Den Kauf gibt es noch nicht,
+  darum ist sie für alle gesperrt; ihr Schild zeigt "ALL WORLDS", "COMING SOON" und LOCKED.
 - Über jeder Bahn steht ein schlichtes Schild mit Multiplikator und Voraussetzung, bei gesperrten Bahnen "LOCKED".
 - Auf dem Trainingsfeld rastet die Figur ein (Mitte, Blick zur Wand). Verlassen durch gehaltene Richtung oder Sprung. Auf gesperrten Bahnen rastet man nicht ein und trainiert nicht; das entscheidet der Server.
 - Mehrere Spieler auf derselben Bahn schieben sich nicht weg.
@@ -310,8 +319,16 @@ Schichten von außen nach innen: ein leicht erhöhter Rahmen, der Themen-Boden m
 (Strohballen, Streu), der tiefer liegende Wurfstreifen mit gestuftem Steinrand und der
 Zielscheibe am Ende, und die erhöhte Startplatte mit Eck-Winkeln und Pfeil. Die Zielscheibe
 steht dort, wo für die Logik die Wand der Bahn steht; die Wand selbst ist unsichtbar. Alles vor
-der Startplatte ist durch eine unsichtbare Sperre abgetrennt. Die Bahnen 4x, 10x und 20x sind
-noch grau.
+der Startplatte ist durch eine unsichtbare Sperre abgetrennt. Alle sechs Bahnen haben ihr Thema
+im Dojo-Stil, gleich aufgebaut, mit eigenem Ziel und eigener Deko: 4x Bambushain (Ziel
+Bambusmatten-Gestell, drei Bambusgruppen), 10x Holz-Dojo (Bretterstapel, Trainingspuppe,
+Sake-Fässer), 20x Wasserfall-Felsen (Felsbrocken mit pulsierendem Riss, zwei Moosfelsen; der
+Wasserfall fehlt noch), 50x Schmiede (Samurai-Rüstung, Amboss, Katana-Ständer, Rahmen mit
+leuchtender Glut-Kante) und die Robux-Bahn Drachen-Arena (goldener Drachenkopf mit pulsierender
+Kugel und lila Licht, zwei lila Kristalle kreisen um ihn, leuchtende Linien am Rahmen und am
+Wurfstreifen pulsieren). Eine Bahn hat höchstens zwei Lichter. Die Bahnen liegen vorerst
+nebeneinander links der Wurfzone, 24 Studs auseinander; die endgültige Lage kommt mit dem
+Layout der Map.
 
 Schilder in der Welt schweben ohne Tafel und drehen sich zur Kamera, in der Schrift der
 Oberfläche. Trainingsbahn: dunkle Pille mit Rebirth-Symbol und nötiger Zahl, darunter UNLOCKED

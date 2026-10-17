@@ -316,6 +316,18 @@ komplett mit Logik, Anzeige, Speichern und Tests. Getestet wird am Ende des Bloc
 - Unverändert: Wurf, Flug, Schaden, Coins, wer welche Wände sieht, die Länge der Bahn.
 - Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
 
+### Block: Trainingsbahnen im Dojo-Stil (Vorgriff auf Version 4, nur Aussehen)
+- [x] Fünfte Bahn 50x ab 10 Rebirths (Begründung in `docs/GAME_DESIGN.md`)
+- [x] Robux-Bahn Drachen-Arena als sechste Bahn, für alle gesperrt, Schild "ALL WORLDS", "COMING SOON", LOCKED, ohne Kauf-Funktion
+- [x] Platz für sechs Bahnen: Abstand der Bahnen 24 statt 16 Studs
+- [x] Fünf neue Vorlagen eingefärbt (matt) und in `ReplicatedStorage.Assets` abgelegt: `tatami_target`, `board_break_target`, `sacred_boulder`, `samurai_armor`, `golden_dragon`
+- [x] Themen: 4x Bambushain, 10x Holz-Dojo, 20x Wasserfall-Felsen, 50x Schmiede, Robux-Bahn Drachen-Arena, je mit Rahmen, Boden, Wurfstreifen mit Stein-Umriss, Startplatte, Ziel und Deko
+- [x] Bewegungen auf dem Client: Riss des Felsbrockens, leuchtende Linien und Kugel der Arena, kreisende Kristalle, ein lila Licht; höchstens zwei Lichter pro Bahn
+- [ ] Wasserfall (Modell fehlt noch im Workspace)
+- [ ] Von mir getestet
+- Unverändert: Training, Einrasten, Stärke-Werte, Freischalten der bestehenden Bahnen.
+- Wichtig: Die Vorlagen liegen nur im Ort. Der Ort muss in Studio gespeichert sein (Strg+S).
+
 ## Version 4: Aussehen: Map, UI, Effekte, Sound
 ## Version 5: Offline-Fortschritt, Welten, Bestenlisten
 

@@ -1,7 +1,7 @@
 --!strict
 -- A training lane in its finished look, for lanes that have a theme (Config/Ui, world.training).
 -- Built in layers from the outside to the inside:
---   a) a slightly raised frame all around the field
+--   a) a slightly raised frame all around the field, on some themes with a glowing line inside
 --   b) the themed floor inside it, with props (e.g. hay bales) and flat tufts as litter
 --   c) the sunken throw strip in the middle with a stepped stone edge, and the target at its end
 --   d) the raised start pad, with four corner marks and an arrow in throw direction
@@ -92,11 +92,19 @@ function TrainingLook.build(folder: Instance, laneIndex: number)
 	local field = Ui.world.training.field
 	local floorTopY = LaneConfig.floorTopY
 
-	-- a) Frame.
-	for index, strip in Layout.frame(TrainingConfig, field, laneIndex) do
+	-- a) Frame, and the line along its inside if the theme has one (e.g. glowing embers).
+	local edge = theme.frame.edge
+	local edgeWidth = if edge then edge.width else 0
+	for index, strip in Layout.frame(TrainingConfig, field, laneIndex, edgeWidth) do
 		local part =
 			WorldParts.addBlock(folder, `Frame{index}`, strip, floorTopY + field.frameHeight, theme.frame.darkColor)
 		WorldParts.addFloorTile(part, theme.frame.lightColor, theme.frame.fieldStuds)
+	end
+	for index, strip in Layout.frameEdge(TrainingConfig, field, laneIndex, edgeWidth) do
+		local part = WorldParts.addBlock(folder, `FrameEdge{index}`, strip, floorTopY + field.frameHeight, edge.color)
+		if edge.glow then
+			part.Material = Enum.Material.Neon
+		end
 	end
 
 	-- b) Themed floor.
@@ -109,7 +117,10 @@ function TrainingLook.build(folder: Instance, laneIndex: number)
 	-- c) Throw strip with its stone edge.
 	WorldParts.addBlock(folder, "Floor", Layout.strip(TrainingConfig, field, laneIndex), floorTopY, theme.strip.color)
 	for index, stone in Layout.stones(TrainingConfig, field, laneIndex, floorTopY, theme.strip.stones) do
-		WorldParts.addBlock(folder, `StripStone{index}`, stone.area, stone.topY, theme.strip.stoneColor)
+		local part = WorldParts.addBlock(folder, `StripStone{index}`, stone.area, stone.topY, theme.strip.stoneColor)
+		if theme.strip.stoneGlow then
+			part.Material = Enum.Material.Neon
+		end
 	end
 
 	-- d) Start pad.
@@ -132,16 +143,29 @@ function TrainingLook.build(folder: Instance, laneIndex: number)
 		Layout.target(TrainingConfig, laneIndex, floorTopY, theme.target)
 	)
 	for index, prop in theme.props do
-		WorldParts.addProp(
+		local model = WorldParts.addProp(
 			folder,
 			`Prop{index}`,
 			prop.model,
 			Layout.prop(TrainingConfig, field, laneIndex, floorTopY, prop)
 		)
+		if model then
+			-- Evenly bigger or smaller around its standing point; its shape is not changed.
+			if prop.scale and prop.scale ~= 1 then
+				model:ScaleTo(model:GetScale() * prop.scale)
+			end
+			-- New colors by part name (e.g. jade crystals in purple).
+			for _, part in model:GetDescendants() do
+				local rgb = prop.colors and prop.colors[part.Name]
+				if rgb and part:IsA("BasePart") then
+					part.Color = WorldParts.color(rgb)
+				end
+			end
+		end
 	end
 
 	-- Flat tufts as litter.
-	for index, tuft in theme.tufts do
+	for index, tuft in theme.tufts or {} do
 		local block = Layout.tuft(TrainingConfig, field, laneIndex, floorTopY, tuft)
 		local part = WorldParts.addBlock(folder, `Tuft{index}`, block.area, block.topY, theme.tuftColor)
 		-- Only as thick as it stands above its floor, and turned.

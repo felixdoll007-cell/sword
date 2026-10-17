@@ -1762,6 +1762,17 @@ return {
 				freeText = "FREE",
 			},
 
+			-- Above the Robux lane: where it counts, a pill instead of a price, and LOCKED. Its
+			-- size and place are those of the training signs. Heights of its three rows as shares.
+			robuxLane = {
+				topText = "ALL WORLDS",
+				pillText = "COMING SOON",
+				lockedText = "LOCKED",
+				topHeight = 0.3,
+				pillHeight = 0.24,
+				statusHeight = 0.2,
+			},
+
 			-- Above every shop pedestal: name, bonus, price, and whether this player has it.
 			shop = {
 				widthStuds = 13,
@@ -1852,7 +1863,15 @@ return {
 			-- the throw zone. A further lane needs a line here and its theme below.
 			laneThemes = {
 				[1] = "straw",
+				[2] = "bambooGrove",
+				[3] = "woodDojo",
+				[4] = "waterfallRocks",
+				[5] = "forge",
+				[6] = "dragonArena",
 			},
+
+			-- Lights cost a lot on phones: a lane never has more than this many.
+			maxLightsPerLane = 2,
 
 			-- Sizes of a themed field, the same for every theme. Heights are above the lane floor.
 			field = {
@@ -1959,6 +1978,264 @@ return {
 						{ right = 1.1, forward = 9, turnDegrees = -20, length = 1.2, width = 0.4 },
 						{ right = -0.9, forward = 19, turnDegrees = 48, length = 1.4, width = 0.45 },
 						{ right = 5.2, forward = 26, turnDegrees = -35, length = 1.3, width = 0.5 },
+					},
+				},
+
+				-- Lane 4x: a bamboo grove.
+				bambooGrove = {
+					frame = { darkColor = { 44, 96, 52 }, lightColor = { 56, 110, 62 }, fieldStuds = 1 },
+					floor = { darkColor = { 120, 190, 80 }, lightColor = { 136, 206, 94 }, fieldStuds = 2 },
+					-- Light green beige, like dry bamboo leaves.
+					strip = {
+						color = { 206, 210, 160 },
+						stoneColor = { 238, 240, 216 },
+						stones = {
+							left = {
+								{ share = 2, width = 1.2 },
+								{ share = 3, width = 0.6 },
+								{ share = 2, width = 1.9 },
+								{ share = 3, width = 1 },
+								{ share = 2, width = 1.6 },
+							},
+							right = {
+								{ share = 3, width = 1.4 },
+								{ share = 2, width = 0.7 },
+								{ share = 2, width = 2 },
+								{ share = 3, width = 1.1 },
+								{ share = 2, width = 0.5 },
+							},
+						},
+					},
+					pad = { darkColor = { 236, 180, 50 }, lightColor = { 250, 198, 72 }, fieldStuds = 2 },
+					pieceColor = { 214, 214, 160 },
+					target = { model = "tatami_target", front = { x = 0, z = -1 }, faceDistance = 1.9, lift = 0 },
+					-- scale: size of a prop, 1 = as modelled.
+					props = {
+						{ model = "bamboo_cluster", right = -7, forward = 6, turnDegrees = 20, scale = 0.75 },
+						{ model = "bamboo_cluster", right = 7.2, forward = 15, turnDegrees = 110, scale = 0.7 },
+						{ model = "bamboo_cluster", right = -7.3, forward = 31, turnDegrees = -40, scale = 0.8 },
+					},
+				},
+
+				-- Lane 10x: a wooden dojo.
+				woodDojo = {
+					frame = { darkColor = { 84, 58, 38 }, lightColor = { 98, 70, 48 }, fieldStuds = 1 },
+					floor = { darkColor = { 218, 168, 100 }, lightColor = { 232, 184, 118 }, fieldStuds = 2 },
+					-- Tatami beige.
+					strip = {
+						color = { 200, 200, 146 },
+						stoneColor = { 238, 228, 198 },
+						stones = {
+							left = {
+								{ share = 3, width = 0.8 },
+								{ share = 2, width = 1.7 },
+								{ share = 2, width = 0.6 },
+								{ share = 3, width = 1.4 },
+								{ share = 2, width = 2 },
+							},
+							right = {
+								{ share = 2, width = 1.8 },
+								{ share = 3, width = 0.9 },
+								{ share = 2, width = 1.5 },
+								{ share = 2, width = 0.6 },
+								{ share = 3, width = 1.2 },
+							},
+						},
+					},
+					pad = { darkColor = { 196, 56, 46 }, lightColor = { 216, 72, 58 }, fieldStuds = 2 },
+					pieceColor = { 222, 184, 130 },
+					target = { model = "board_break_target", front = { x = 0, z = -1 }, faceDistance = 1.5, lift = 0 },
+					props = {
+						{ model = "training_dummy", right = -7, forward = 12, turnDegrees = 25, scale = 0.9 },
+						{ model = "sake_barrels", right = 7, forward = 27, turnDegrees = 95, scale = 0.9 },
+					},
+				},
+
+				-- Lane 20x: rocks by a waterfall. (The waterfall model is still missing.)
+				waterfallRocks = {
+					frame = { darkColor = { 60, 66, 74 }, lightColor = { 72, 78, 88 }, fieldStuds = 1 },
+					floor = { darkColor = { 112, 126, 140 }, lightColor = { 126, 140, 154 }, fieldStuds = 2 },
+					-- Light turquoise, like shallow water.
+					strip = {
+						color = { 150, 220, 214 },
+						stoneColor = { 204, 210, 216 },
+						stones = {
+							left = {
+								{ share = 2, width = 1.5 },
+								{ share = 2, width = 0.7 },
+								{ share = 3, width = 1.9 },
+								{ share = 2, width = 0.9 },
+								{ share = 3, width = 1.3 },
+							},
+							right = {
+								{ share = 3, width = 0.6 },
+								{ share = 2, width = 1.6 },
+								{ share = 3, width = 1 },
+								{ share = 2, width = 2 },
+								{ share = 2, width = 0.8 },
+							},
+						},
+					},
+					pad = { darkColor = { 56, 176, 190 }, lightColor = { 76, 196, 208 }, fieldStuds = 2 },
+					pieceColor = { 112, 124, 138 },
+					target = {
+						model = "sacred_boulder",
+						front = { x = 0, z = -1 },
+						faceDistance = 2.2,
+						lift = 0,
+						-- The crack glows and pulses slowly.
+						motion = {
+							glow = {
+								part = "Glow",
+								dimColor = { 40, 170, 160 },
+								brightColor = { 120, 255, 235 },
+								seconds = 3.5,
+							},
+						},
+					},
+					props = {
+						{ model = "mossy_rocks", right = -7, forward = 14, turnDegrees = 90, scale = 0.75 },
+						{ model = "mossy_rocks", right = 7, forward = 34, turnDegrees = 80, scale = 0.7 },
+					},
+				},
+
+				-- Lane 50x: a forge.
+				forge = {
+					-- Muted brick red, with an edge of glowing embers along its inside (Neon).
+					frame = {
+						darkColor = { 116, 62, 52 },
+						lightColor = { 130, 72, 60 },
+						fieldStuds = 1,
+						edge = { color = { 200, 88, 28 }, width = 0.4, glow = true },
+					},
+					floor = { darkColor = { 74, 76, 80 }, lightColor = { 88, 90, 95 }, fieldStuds = 2 },
+					-- Dark anthracite.
+					strip = {
+						color = { 46, 48, 52 },
+						stoneColor = { 96, 98, 104 },
+						stones = {
+							left = {
+								{ share = 2, width = 0.9 },
+								{ share = 3, width = 1.8 },
+								{ share = 2, width = 1.2 },
+								{ share = 2, width = 0.5 },
+								{ share = 3, width = 1.5 },
+							},
+							right = {
+								{ share = 3, width = 1.7 },
+								{ share = 2, width = 0.8 },
+								{ share = 2, width = 1.3 },
+								{ share = 3, width = 2 },
+								{ share = 2, width = 0.6 },
+							},
+						},
+					},
+					pad = { darkColor = { 230, 110, 30 }, lightColor = { 248, 132, 48 }, fieldStuds = 2 },
+					pieceColor = { 128, 28, 32 },
+					target = { model = "samurai_armor", front = { x = 0, z = -1 }, faceDistance = 1.5, lift = 0 },
+					props = {
+						{ model = "anvil_stump", right = -7, forward = 16, turnDegrees = 20, scale = 1 },
+						{ model = "katana_stand", right = 7, forward = 36, turnDegrees = 90, scale = 1 },
+					},
+				},
+
+				-- The Robux lane: a dragon arena. Only looks; it is locked for everyone.
+				dragonArena = {
+					-- Black, with thin glowing gold lines along its inside (Neon).
+					frame = {
+						darkColor = { 20, 20, 24 },
+						lightColor = { 30, 30, 36 },
+						fieldStuds = 1,
+						edge = { color = { 255, 200, 80 }, width = 0.3, glow = true },
+					},
+					floor = { darkColor = { 64, 30, 96 }, lightColor = { 78, 40, 112 }, fieldStuds = 2 },
+					-- Dark violet, its stepped edge glowing (stoneGlow = Neon).
+					strip = {
+						color = { 44, 22, 70 },
+						stoneColor = { 170, 90, 255 },
+						stoneGlow = true,
+						stones = {
+							left = {
+								{ share = 3, width = 0.5 },
+								{ share = 2, width = 1.1 },
+								{ share = 2, width = 0.7 },
+								{ share = 3, width = 1.3 },
+								{ share = 2, width = 0.9 },
+							},
+							right = {
+								{ share = 2, width = 0.8 },
+								{ share = 3, width = 1.2 },
+								{ share = 2, width = 0.5 },
+								{ share = 2, width = 1.4 },
+								{ share = 3, width = 0.7 },
+							},
+						},
+					},
+					pad = { darkColor = { 140, 56, 210 }, lightColor = { 160, 78, 228 }, fieldStuds = 2 },
+					pieceColor = { 212, 170, 60 },
+					target = {
+						model = "golden_dragon",
+						front = { x = 0, z = -1 },
+						faceDistance = 3.7,
+						lift = 0,
+						-- The orb pulses, with a purple light.
+						motion = {
+							glow = {
+								part = "Glow",
+								dimColor = { 140, 60, 220 },
+								brightColor = { 210, 150, 255 },
+								seconds = 3,
+							},
+							light = {
+								part = "Glow",
+								color = { 180, 100, 255 },
+								brightness = 1,
+								range = 14,
+								flickerStrength = 0,
+								flickerSpeed = 0,
+								pulseSeconds = 3,
+								pulseStrength = 0.3,
+							},
+						},
+					},
+					-- Two jade crystals in purple float above the floor and circle the dragon's head
+					-- slowly (orbit: once around in seconds). colors: new colors by part name.
+					props = {
+						{
+							model = "jade_crystals",
+							right = -7,
+							forward = 59.7,
+							turnDegrees = 0,
+							scale = 0.8,
+							lift = 6,
+							colors = { Crystals = { 130, 60, 200 }, Glow = { 200, 140, 255 } },
+							motion = { orbit = { seconds = 24 } },
+						},
+						{
+							model = "jade_crystals",
+							right = 7,
+							forward = 59.7,
+							turnDegrees = 180,
+							scale = 0.8,
+							lift = 6,
+							colors = { Crystals = { 130, 60, 200 }, Glow = { 200, 140, 255 } },
+							motion = { orbit = { seconds = 24 } },
+						},
+					},
+					-- The glowing lines pulse: parts whose names start with namePrefix.
+					pulses = {
+						{
+							namePrefix = "FrameEdge",
+							dimColor = { 200, 150, 50 },
+							brightColor = { 255, 215, 110 },
+							seconds = 3,
+						},
+						{
+							namePrefix = "StripStone",
+							dimColor = { 120, 60, 190 },
+							brightColor = { 200, 140, 255 },
+							seconds = 3,
+						},
 					},
 				},
 			},
